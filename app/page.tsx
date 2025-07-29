@@ -11,9 +11,7 @@ import { WeatherData } from '@/lib/types';
 
 // This async function will fetch all necessary data.
 // Errors thrown here will be caught by the nearest error.tsx boundary.
-async function getWeather(searchParams: {
-  [key: string]: string | string[] | undefined;
-}) {
+async function getWeather(searchParams: { [key: string]: string | string[] | undefined }) {
   const locationQuery = searchParams?.q as string | undefined;
   const lat = searchParams?.lat as string | undefined;
   const lon = searchParams?.lon as string | undefined;
