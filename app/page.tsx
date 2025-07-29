@@ -9,13 +9,11 @@ import Footer from '@/components/layout/footer';
 import Loading from './loading';
 import { WeatherData } from '@/lib/types';
 
-interface HomePageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
 // This async function will fetch all necessary data.
 // Errors thrown here will be caught by the nearest error.tsx boundary.
-async function getWeather(searchParams: HomePageProps['searchParams']) {
+async function getWeather(searchParams: {
+  [key: string]: string | string[] | undefined;
+}) {
   const locationQuery = searchParams?.q as string | undefined;
   const lat = searchParams?.lat as string | undefined;
   const lon = searchParams?.lon as string | undefined;
@@ -38,7 +36,11 @@ async function getWeather(searchParams: HomePageProps['searchParams']) {
   return { weatherData, locationName, units };
 }
 
-export default async function HomePage({ searchParams }: HomePageProps) {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   const { weatherData, locationName, units } = await getWeather(searchParams);
 
   return (
