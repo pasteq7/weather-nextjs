@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Weather-nextjs
 
-## Getting Started
+Modern weather application built with Next.js, providing real-time weather data, detailed forecasts, and a user-friendly, responsive interface.
 
-First, run the development server:
+✨ Features
 
-```bash
+Real-time Weather: Search for any city or use your current location.
+
+Detailed Forecasts: View hourly (24-hour) and daily (5-day) forecasts in chart or list format.
+
+Comprehensive Data: Includes temperature, humidity, wind speed, pressure, visibility, and sunrise/sunset times.
+
+User-Friendly: Supports light/dark modes, metric/imperial units, and lets you save favorite locations.
+
+Modern UI: Fully responsive with a clean design, skeleton loading states, and animated icons.
+
+🚀 Tech Stack
+
+Framework: Next.js 15 (App Router)
+
+Language: TypeScript
+
+Styling: Tailwind CSS with shadcn/ui
+
+Charting: Recharts
+
+APIs: Open-Meteo (Weather), BigDataCloud (Reverse Geocoding)
+
+Native Features: Capacitor (Geolocation)
+
+🏁 Getting Started
+
+Clone the repo:
+
+Generated sh
+git clone https://github.com/your-username/weather-v2.git
+cd weather-v2
+
+
+Install dependencies:
+
+Generated sh
+npm install
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Sh
+
+
+Run the development server:
+
+Generated sh
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Sh
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+🙏 Acknowledgments
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Data: Open-Meteo
 
-## Learn More
+UI: shadcn/ui
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Icons: Lucide
