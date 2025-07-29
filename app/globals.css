@@ -45,79 +45,76 @@
 :root {
   --radius: 0.5rem;
   
-  /* Light Theme - Soothing, natural with high contrast */
-  --background: oklch(0.99 0.003 230);      /* Soft, slightly cool off-white */
-  --foreground: oklch(0.18 0.01 230);       /* Deep charcoal for excellent readability */
-  --card: oklch(1 0 0);                     /* Pure white cards for a clean look */
-  --card-foreground: oklch(0.18 0.01 230);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.01 230);
-  --primary: oklch(35.528% 0.02741 240.37);           /* Calming, professional blue */
-  --primary-foreground: oklch(0.98 0.005 250);
-  --secondary: oklch(0.95 0.01 230);        /* Light gray with a hint of blue */
-  --secondary-foreground: oklch(0.3 0.01 230);
-  --muted: oklch(0.93 0.01 230);            /* Soft muted background */
-  --muted-foreground: oklch(0.5 0.02 230);  /* Medium contrast for secondary text */
-  --accent: oklch(100% 0.00011 271.152);            /* Warm, peachy accent */
-  --accent-foreground: oklch(0.3 0.01 230);
-  --destructive: oklch(0.6 0.22 25);        /* Clear and accessible red */
-  --destructive-foreground: oklch(0.98 0.01 25);
-  --success: oklch(0.6 0.15 150);           /* Natural green for success states */
-  --success-foreground: oklch(0.98 0.01 150);
-  --warning: oklch(0.7 0.15 80);            /* Warm amber for warnings */
-  --warning-foreground: oklch(0.25 0.02 80);
-  --border: oklch(0.9 0.01 230);            /* Subtle borders */
-  --input: oklch(0.9 0.01 230);         /* Input backgrounds */
-  --ring: oklch(0.5 0.15 250);              /* Focus ring matches primary */
+  --background: #F8FAFC;       /* Soft blue-gray white */
+  --foreground: #1E293B;       /* Dark blue-gray */
+  --card: #FFFFFF;             /* Pure white */
+  --card-foreground: #0F172A;  /* Very dark blue */
+  --popover: #FFFFFF;          /* Pure white */
+  --popover-foreground: #0F172A;
+  --primary: #3B82F6;          /* Vibrant blue (same) */
+  --primary-foreground: #FFFFFF;
+  --secondary: #E2E8F0;        /* Light blue-gray */
+  --secondary-foreground: #1E293B;
+  --muted: #F1F5F9;            /* Very light blue-gray */
+  --muted-foreground: #64748B; /* Medium blue-gray */
+  --accent: #d68801;           /* Warm amber (same) */
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;      /* Modern red (same) */
+  --destructive-foreground: #FFFFFF;
+  --success: #10B981;          /* Emerald green (same) */
+  --success-foreground: #FFFFFF;
+  --warning: #F97316;          /* Orange (same) */
+  --warning-foreground: #FFFFFF;
+  --border: #E2E8F0;           /* Light blue-gray */
+  --input: #FFFFFF;            /* Pure white */
+  --ring: #3B82F6;             /* Vibrant blue (same) */
   
-  /* Chart Colors - Vibrant and distinct */
-  --chart-1: oklch(0.65 0.2 30);          /* Coral */
-  --chart-2: oklch(0.55 0.18 250);        /* Primary Blue */
-  --chart-3: oklch(0.65 0.18 150);        /* Green */
-  --chart-4: oklch(0.7 0.2 70);           /* Yellow */
-  --chart-5: oklch(0.6 0.18 290);         /* Purple */
-  --chart-6: oklch(0.68 0.15 190);        /* Teal */
-  --chart-7: oklch(0.7 0.2 330);          /* Pink */
-  --chart-8: oklch(0.6 0.15 50);          /* Orange */
+  /* Chart Colors */
+  --chart-1: #3B82F6;          /* Blue */
+  --chart-2: #10B981;          /* Emerald */
+  --chart-3: #F59E0B;          /* Amber */
+  --chart-4: #8B5CF6;          /* Purple */
+  --chart-5: #EF4444;          /* Red */
+
+  --scrollbar-track: #F1F5F9; /* Very light blue-gray */
+  --scrollbar-thumb: #CBD5E1; /* Light gray */
 }
 
 .dark {
-  /* Dark Theme - Deep, comfortable with vibrant accents */
-  --background: oklch(0.1 0.01 230);        /* Deep, dark blue-gray */
-  --foreground: oklch(0.94 0.01 230);       /* Soft white for comfortable reading */
-  --card: oklch(0.14 0.015 230);            /* Elevated card surface */
-  --card-foreground: oklch(0.94 0.01 230);
-  --popover: oklch(0.08 0.01 230);          /* Darker popover */
-  --popover-foreground: oklch(0.94 0.01 230);
-  --primary: oklch(0.65 0.18 250);          /* Brighter, vibrant blue */
-  --primary-foreground: oklch(0.1 0.01 250);
-  --secondary: oklch(0.2 0.02 230);         /* Dark secondary surface */
-  --secondary-foreground: oklch(0.85 0.01 230);
-  --muted: oklch(0.17 0.015 230);           /* Muted background */
-  --muted-foreground: oklch(0.7 0.015 230); /* Medium contrast text */
-  --accent: oklch(82.968% 0.00009 271.152);             /* Brighter peachy accent */
-  --accent-foreground: oklch(100% 0.00011 271.152);
-  --destructive: oklch(0.68 0.25 25);       /* Bright red for dark theme */
-  --destructive-foreground: oklch(0.95 0.01 25);
-  --success: oklch(0.7 0.18 150);           /* Bright green */
-  --success-foreground: oklch(0.1 0.01 150);
-  --warning: oklch(0.78 0.18 80);           /* Bright amber */
-  --warning-foreground: oklch(0.15 0.02 80);
-  --border: oklch(0.24 0.02 230);           /* Subtle borders */
-  --input: oklch(0.14 0.015 230);           /* Input backgrounds */
-  --ring: oklch(0.24 0.02 230);             /* Bright focus ring */
+  --background: #171d29;      /* Deep navy blue */
+  --foreground: #E2E8F0;      /* Cool white */
+  --card: #1c2330;            /* Rich dark blue */
+  --card-foreground: #F1F5F9;  /* Bright white */
+  --popover: #0A1220;          /* Even deeper navy */
+  --popover-foreground: #F1F5F9;
+  --primary: #3B82F6;          /* Vibrant blue */
+  --primary-foreground: #FFFFFF;
+  --secondary: #334155;        /* Blue-gray */
+  --secondary-foreground: #F8FAFC;
+  --muted: #1E293B;            /* Dark blue-gray */
+  --muted-foreground: #94A3B8; /* Medium gray */
+  --accent: #F59E0B;           /* Warm amber */
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;      /* Modern red */
+  --destructive-foreground: #FFFFFF;
+  --success: #10B981;          /* Emerald green */
+  --success-foreground: #FFFFFF;
+  --warning: #F97316;          /* Orange */
+  --warning-foreground: #FFFFFF;
+  --border: #1E293B;           /* Dark blue-gray */
+  --input: #1E293B;            /* Dark blue-gray */
+  --ring: #3B82F6;             /* Vibrant blue */
+  
+  /* Chart Colors */
+  --chart-1: #3B82F6;          /* Blue */
+  --chart-2: #2b7bb1;          /* Emerald */
+  --chart-3: #F59E0B;          /* Amber */
+  --chart-4: #785abe;          /* Purple */
+  --chart-5: #EF4444;          /* Red */
 
-  /* Chart Colors - Enhanced for dark theme visibility */
-  --chart-1: oklch(0.7 0.22 30);          /* Bright Coral */
-  --chart-2: oklch(0.65 0.2 250);         /* Bright Blue */
-  --chart-3: oklch(0.75 0.2 150);         /* Bright Green */
-  --chart-4: oklch(0.8 0.22 70);          /* Bright Yellow */
-  --chart-5: oklch(0.7 0.2 290);          /* Bright Purple */
-  --chart-6: oklch(0.75 0.18 190);        /* Bright Teal */
-  --chart-7: oklch(0.75 0.22 330);        /* Bright Pink */
-  --chart-8: oklch(0.7 0.18 50);          /* Bright Orange */
+  --scrollbar-track: #1E293B; /* Dark blue-gray */
+  --scrollbar-thumb: #475569; /* Gray */
 }
-
 
 
 @layer base {
@@ -126,5 +123,34 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    scrollbar-width: thin;
+  }
+
+  body::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  body::-webkit-scrollbar-track {
+    background-color: var(--scrollbar-track);
+  }
+
+  body::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 10px;
+  }
+
+  body::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary);
   }
 }

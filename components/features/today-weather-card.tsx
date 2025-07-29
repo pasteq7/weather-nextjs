@@ -31,7 +31,7 @@ export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCar
         <CurrentWeatherIcon iconCode={icon} />
       </div>
       <div className="text-center">
-        <p className="text-5xl font-bold">
+        <p className="text-5xl">
           {temp}
           <span className="text-2xl text-muted-foreground align-top">{tempUnit}</span>
         </p>

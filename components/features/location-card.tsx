@@ -10,7 +10,7 @@ export default function LocationCard({ location }: LocationCardProps) {
     <Card className="flex items-center justify-center h-16 p-4">
       <CardContent className="p-0">
         {location ? (
-          <h2 className="text-2xl font-medium text-center">
+          <h2 className="text-xl font-medium text-center">
             {location}
           </h2>
         ) : (

@@ -1,69 +1,57 @@
-Weather-nextjs
+# Weather-NextJS
 
-Modern weather application built with Next.js, providing real-time weather data, detailed forecasts, and a user-friendly, responsive interface.
+A modern weather application built with Next.js that provides real-time weather data, detailed forecasts, and a user-friendly, responsive interface.
 
-✨ Features
+## 🚀 Live Demo
 
-Real-time Weather: Search for any city or use your current location.
+[https://weather-mage.vercel.app/](https://weather-mage.vercel.app/)
 
-Detailed Forecasts: View hourly (24-hour) and daily (5-day) forecasts in chart or list format.
+## ✨ Features
 
-Comprehensive Data: Includes temperature, humidity, wind speed, pressure, visibility, and sunrise/sunset times.
+-   **Real-time Weather:** Search for any city or use your current location to get up-to-the-minute weather data.
+-   **Detailed Forecasts:** View hourly (24-hour) and daily (5-day) forecasts in both chart and list formats.
+-   **Comprehensive Data:** Access a wide range of metrics, including temperature, humidity, wind speed, pressure, visibility, and sunrise/sunset times.
+-   **User-Friendly Interface:**
+    -   Supports light and dark modes.
+    -   Switch between metric and imperial units.
+    -   Save your favorite locations for quick access.
+-   **Modern UI:** A clean, fully responsive design featuring skeleton loading states and animated weather icons.
 
-User-Friendly: Supports light/dark modes, metric/imperial units, and lets you save favorite locations.
+## 🚀 Tech Stack
 
-Modern UI: Fully responsive with a clean design, skeleton loading states, and animated icons.
-
-🚀 Tech Stack
-
-Framework: Next.js 15 (App Router)
-
-Language: TypeScript
-
-Styling: Tailwind CSS with shadcn/ui
-
-Charting: Recharts
-
-APIs: Open-Meteo (Weather), BigDataCloud (Reverse Geocoding)
-
-Native Features: Capacitor (Geolocation)
-
-🏁 Getting Started
-
-Clone the repo:
-
-Generated sh
-git clone https://github.com/your-username/weather-v2.git
-cd weather-v2
+-   **Framework:** [Next.js](https://nextjs.org/) 15 (App Router)
+-   **Language:** [TypeScript](https://www.typescriptlang.org/)
+-   **Styling:** [Tailwind CSS](https://tailwindcss.com/) with [shadcn/ui](https://ui.shadcn.com/)
+-   **Charting:** [Recharts](https://recharts.org/)
+-   **APIs:**
+    -   [Open-Meteo](https://open-meteo.com/) (Weather Data)
+    -   [BigDataCloud](https://www.bigdatacloud.com/) (Reverse Geocoding)
+-   **Native Features:** [Capacitor](https://capacitorjs.com/) (Geolocation)
 
 
-Install dependencies:
+### Installation
 
-Generated sh
-npm install
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-Sh
+1.  **Clone the repository:**
+    ```sh
+    git clone https://github.com/pasteq7/weather-nextjs
+    cd weather-nextjs
+    ```
 
+2.  **Install dependencies:**
+    ```sh
+    npm install
+    ```
+    *Note: No `.env` file or environment variables are required to run this project.*
 
-Run the development server:
+3.  **Run the development server:**
+    ```sh
+    npm run dev
+    ```
 
-Generated sh
-npm run dev
-IGNORE_WHEN_COPYING_START
-content_copy
-download
-Use code with caution.
-Sh
+4.  Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
-Open http://localhost:3000 in your browser.
+## 🙏 Acknowledgments
 
-🙏 Acknowledgments
-
-Data: Open-Meteo
-
-UI: shadcn/ui
-
-Icons: Lucide
+-   **Data:** [Open-Meteo](https://open-meteo.com/)
+-   **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
+-   **Icons:** [Lucide](https://lucide.dev/)

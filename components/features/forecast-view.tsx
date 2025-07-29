@@ -251,9 +251,33 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
             {view === 'chart' && (
               <ToggleGroup type="multiple" variant="outline" size="sm" value={displayModes} onValueChange={(value) => setDisplayModes(value.length > 0 ? value : ['temperature'])}>
                 <TooltipProvider>
-                  <Tooltip><TooltipTrigger asChild><ToggleGroupItem value="temperature" aria-label="Temperature" disabled><Thermometer className="h-4 w-4" /></ToggleGroupItem></TooltipTrigger><TooltipContent><p>Temperature (Always Shown)</p></TooltipContent></Tooltip>
-                  <Tooltip><TooltipTrigger asChild><ToggleGroupItem value="rain" aria-label="Rain"><Droplets className="h-4 w-4" /></ToggleGroupItem></TooltipTrigger><TooltipContent><p>Toggle Rain Probability</p></TooltipContent></Tooltip>
-                  <Tooltip><TooltipTrigger asChild><ToggleGroupItem value="wind" aria-label="Wind"><Wind className="h-4 w-4" /></ToggleGroupItem></TooltipTrigger><TooltipContent><p>Toggle Wind Speed</p></TooltipContent></Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      {/* Wrap disabled element in a span for tooltip to work */}
+                      <span>
+                        <ToggleGroupItem value="temperature" aria-label="Temperature" disabled data-chart="temperature">
+                          <Thermometer className="h-4 w-4" />
+                        </ToggleGroupItem>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Temperature (Always Shown)</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <ToggleGroupItem value="rain" aria-label="Rain" data-chart="rain">
+                        <Droplets className="h-4 w-4" />
+                      </ToggleGroupItem>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Toggle Rain Probability</p></TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <ToggleGroupItem value="wind" aria-label="Wind" data-chart="wind">
+                        <Wind className="h-4 w-4" />
+                      </ToggleGroupItem>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Toggle Wind Speed</p></TooltipContent>
+                  </Tooltip>
                 </TooltipProvider>
               </ToggleGroup>
             )}

@@ -21,7 +21,7 @@ export default function DataCard({ iconType, title, data, unit }: DataCardProps)
           <Skeleton className="w-3/4 h-6 mt-1" />
         ) : (
           <div className="flex items-baseline">
-            <p className="text-xl font-semibold">{data}</p>
+            <p className="text-l font-semibold">{data}</p>
             {unit && <p className="text-sm text-muted-foreground ml-1">{unit}</p>}
           </div>
         )}
