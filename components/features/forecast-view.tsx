@@ -41,7 +41,6 @@ function DailyForecastItem({ day, units }: { day: DailyDataPoint; units: string 
 function HourlyForecastItem({ hour, units, timezone }: { hour: HourlyDataPoint; units: string; timezone: string; }) {
     const [temp, tempUnit] = formatTemperature(hour.temperature, units);
     const { icon, description } = mapWmoToWeather(hour.weather_code, hour.is_day);
-    // FIX: Use the location's timezone to format the time label
     const timeLabel = new Date(hour.time * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: timezone });
 
     return (
@@ -87,7 +86,7 @@ const CustomTooltipContent = ({ active, payload, label, units }: CustomTooltipPr
           }
           return (
             <p key={pld.dataKey} style={{ color: pld.color }} className="text-xs capitalize">
-              {`${pld.dataKey}: ${pld.dataKey}: ${value}${unit}`}
+              {`${pld.dataKey}: ${value}${unit}`}
             </p>
           );
         })}
@@ -162,12 +161,22 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         weather_code: weatherData.daily.weather_code[i],
       }));
     } else { // hourly
-        if (!weatherData?.hourly?.time?.length || !weatherData?.daily?.time?.length) {
+        const { hourly, daily } = weatherData;
+
+        // Guard against missing or empty data arrays that are essential
+        if (
+            !hourly?.time?.length ||
+            !daily?.time?.length ||
+            !daily?.sunrise?.length ||
+            !daily?.sunset?.length ||
+            !hourly?.temperature_2m?.length ||
+            !hourly?.weather_code?.length
+        ) {
             return [];
         }
         
         const nowInSeconds = Math.floor(Date.now() / 1000);
-        const startIndex = weatherData.hourly.time.findIndex(t => t >= nowInSeconds);
+        const startIndex = hourly.time.findIndex(t => t >= nowInSeconds);
 
         if (startIndex === -1) {
             return [];
@@ -176,27 +185,43 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         const result: HourlyDataPoint[] = [];
         for (let i = 0; i < 8; i++) {
             const hourlyIndex = startIndex + (i * 3);
-            if (hourlyIndex < weatherData.hourly.time.length) {
-                const hourTimestamp = weatherData.hourly.time[hourlyIndex];
 
-                // FIX: Use a more robust method to find the correct day's data
-                const dayIndex = weatherData.daily.time.findLastIndex(dayStart => hourTimestamp >= dayStart);
-                const clampedDayIndex = Math.max(0, dayIndex);
-
-                const sunrise = weatherData.daily.sunrise[clampedDayIndex];
-                const sunset = weatherData.daily.sunset[clampedDayIndex];
-
-                const calculatedIsDay = (hourTimestamp >= sunrise && hourTimestamp < sunset) ? 1 : 0;
-
-                result.push({
-                    time: hourTimestamp,
-                    temperature: weatherData.hourly.temperature_2m[hourlyIndex],
-                    weather_code: weatherData.hourly.weather_code[hourlyIndex],
-                    is_day: calculatedIsDay,
-                });
-            } else {
+            // Ensure the index is within the bounds of the hourly arrays
+            if (hourlyIndex >= hourly.time.length) {
                 break;
             }
+            
+            const hourTimestamp = hourly.time[hourlyIndex];
+
+            // Find the corresponding day for this hour to get sunrise/sunset
+            const dayIndex = daily.time.findLastIndex(dayStart => hourTimestamp >= dayStart);
+
+            // If we can't find a corresponding day, we can't determine if it's day or night.
+            // It's safer to skip this data point than to guess.
+            if (dayIndex === -1) {
+                continue;
+            }
+
+            const sunrise = daily.sunrise[dayIndex];
+            const sunset = daily.sunset[dayIndex];
+            
+            // Also ensure the data for the specific hour is valid
+            const temperature = hourly.temperature_2m[hourlyIndex];
+            const weather_code = hourly.weather_code[hourlyIndex];
+
+            // If any required data for this point is missing, skip it
+            if (sunrise === undefined || sunset === undefined || temperature === undefined || weather_code === undefined) {
+                continue;
+            }
+
+            const calculatedIsDay = (hourTimestamp >= sunrise && hourTimestamp < sunset) ? 1 : 0;
+
+            result.push({
+                time: hourTimestamp,
+                temperature: temperature,
+                weather_code: weather_code,
+                is_day: calculatedIsDay,
+            });
         }
         return result;
     }
@@ -254,7 +279,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                   <ReferenceLine y={tempMetrics.max} yAxisId="temp" stroke={chartColors.chart1} strokeDasharray="2 10" strokeOpacity={0.7} />
                   <ReferenceLine y={tempMetrics.min} yAxisId="temp" stroke={chartColors.chart3} strokeDasharray="2 10" strokeOpacity={0.7} />
 
-                  {displayModes.includes('temperature') && <Line yAxisId="temp" type="monotone" dataKey="temperature" stroke={chartColors.chart3} dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
+                  {displayModes.includes('temperature') && <Line yAxisId="temp" type="monotone" dataKey="temperature" stroke={chartColors.mutedForeground} dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
                   {displayModes.includes('rain') && <Line yAxisId="rain" type="monotone" dataKey="rain" stroke={chartColors.chart2} dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
                   {displayModes.includes('wind') && <Line yAxisId="wind" type="monotone" dataKey="wind" stroke={chartColors.chart4} dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
                 </LineChart>
