@@ -11,12 +11,12 @@ import { WeatherData } from '@/lib/types';
 
 // This async function will fetch all necessary data.
 // Errors thrown here will be caught by the nearest error.tsx boundary.
-async function getWeather(searchParams: { [key: string]: string | string[] | undefined }) {
-  const locationQuery = searchParams?.q as string | undefined;
-  const lat = searchParams?.lat as string | undefined;
-  const lon = searchParams?.lon as string | undefined;
-  const units = (searchParams?.units as string) || 'metric';
-
+async function getWeather(
+  locationQuery: string | undefined,
+  lat: string | undefined,
+  lon: string | undefined,
+  units: string
+) {
   let weatherData: WeatherData;
   let locationName: string;
 
@@ -37,9 +37,17 @@ async function getWeather(searchParams: { [key: string]: string | string[] | und
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const { weatherData, locationName, units } = await getWeather(searchParams);
+  // Await searchParams before accessing its properties
+  const params = await searchParams;
+  
+  const locationQuery = params?.q as string | undefined;
+  const lat = params?.lat as string | undefined;
+  const lon = params?.lon as string | undefined;
+  const units = (params?.units as string) || 'metric';
+
+  const { weatherData, locationName } = await getWeather(locationQuery, lat, lon, units);
 
   return (
     <Suspense fallback={<Loading />}>
