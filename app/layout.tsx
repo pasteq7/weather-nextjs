@@ -6,6 +6,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Weather",
   description: "A modern weather application built with Next.js",
+  icons: {
+    icon: "/animated/weather/03d.svg",
+  },
 };
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-figtree" });

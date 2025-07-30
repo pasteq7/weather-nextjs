@@ -1,20 +1,16 @@
-// C:\Dev\weather-v2\components\features\forecast-view.tsx
-
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { LineChart, Line, XAxis, YAxis, ReferenceLine, Tooltip as RechartsTooltip } from 'recharts';
 import { BarChart, List, Thermometer, Wind, Droplets } from 'lucide-react';
-import { formatTemperature, mapWmoToWeather, formatWindSpeed } from '@/lib/utils';
+import { formatTemperature, mapWmoToWeather, formatWindSpeed, cn } from '@/lib/utils';
 import { WeatherData, DailyDataPoint, HourlyDataPoint } from '@/lib/types';
 import CurrentWeatherIcon from '../icons/current-weather-icon';
 import { Skeleton } from '../ui/skeleton';
 import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
-
-// --- (Sub-components for List View remain the same) ---
 
 function DailyForecastItem({ day, units }: { day: DailyDataPoint; units: string }) {
   const [maxTemp, maxTempUnit] = formatTemperature(day.temperature_2m_max, units);
@@ -27,9 +23,16 @@ function DailyForecastItem({ day, units }: { day: DailyDataPoint; units: string 
   return (
     <div className="flex flex-col items-center justify-center text-center gap-1 p-2">
       <p className="font-semibold text-sm">{dayLabel}</p>
-      <TooltipProvider><Tooltip><TooltipTrigger>
-        <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
-      </TooltipTrigger><TooltipContent><p className="capitalize">{description}</p></TooltipContent></Tooltip></TooltipProvider>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="capitalize">{description}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <div className="text-sm">
         <span className="font-bold">{maxTemp}{maxTempUnit}</span>
         <span className="text-muted-foreground"> / {minTemp}{maxTempUnit}</span>
@@ -41,14 +44,26 @@ function DailyForecastItem({ day, units }: { day: DailyDataPoint; units: string 
 function HourlyForecastItem({ hour, units, timezone }: { hour: HourlyDataPoint; units: string; timezone: string; }) {
     const [temp, tempUnit] = formatTemperature(hour.temperature, units);
     const { icon, description } = mapWmoToWeather(hour.weather_code, hour.is_day);
-    const timeLabel = new Date(hour.time * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: timezone });
+    const timeLabel = new Date(hour.time * 1000).toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: false, 
+      timeZone: timezone 
+    });
 
     return (
         <div className="flex flex-col items-center justify-center text-center gap-1 p-2">
             <p className="font-semibold text-sm">{timeLabel}</p>
-            <TooltipProvider><Tooltip><TooltipTrigger>
-                <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
-            </TooltipTrigger><TooltipContent><p className="capitalize">{description}</p></TooltipContent></Tooltip></TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                    <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="capitalize">{description}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <p className="text-sm font-bold">{temp}{tempUnit}</p>
         </div>
     );
@@ -69,7 +84,6 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-
 interface ForecastViewProps {
   type: 'hourly' | 'daily';
   weatherData: WeatherData;
@@ -77,17 +91,35 @@ interface ForecastViewProps {
 }
 
 export default function ForecastView({ type, weatherData, units }: ForecastViewProps) {
-  const [view, setView] = useState('chart');
-  const [displayModes, setDisplayModes] = useState(['temperature']);
+  const [view, setView] = useState<'chart' | 'list'>('chart');
+  const [displayModes, setDisplayModes] = useState<string[]>(['temperature']);
+
+  // Prevent any form submissions or default behaviors
+  const handleViewChange = useCallback((value: string) => {
+    if (value && (value === 'chart' || value === 'list')) {
+      setView(value);
+    }
+  }, []);
+
+  const handleDisplayModesChange = useCallback((value: string[]) => {
+    setDisplayModes(value.length > 0 ? value : ['temperature']);
+  }, []);
 
   const config = useMemo(() => ({
     hourly: {
       title: 'Next 24 Hours',
-      tickFormatter: (tick: number) => new Date(tick * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+      tickFormatter: (tick: number) => new Date(tick * 1000).toLocaleTimeString([], { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: false 
+      }),
     },
     daily: {
       title: 'Next 4 Days',
-      tickFormatter: (tick: number) => new Date(tick * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+      tickFormatter: (tick: number) => new Date(tick * 1000).toLocaleDateString(undefined, { 
+        month: 'short', 
+        day: 'numeric' 
+      }),
     },
   }), []);
 
@@ -222,12 +254,23 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
           <h3 className="font-semibold text-muted-foreground">{config[type].title}</h3>
           <div className="flex items-center gap-2">
             {view === 'chart' && (
-              <ToggleGroup type="multiple" variant="outline" size="sm" value={displayModes} onValueChange={(value) => setDisplayModes(value.length > 0 ? value : ['temperature'])}>
+              <ToggleGroup 
+                type="multiple" 
+                variant="outline" 
+                size="sm" 
+                value={displayModes} 
+                onValueChange={handleDisplayModesChange}
+              >
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span>
-                        <ToggleGroupItem value="temperature" aria-label="Temperature" disabled data-chart="temperature">
+                        <ToggleGroupItem 
+                          value="temperature" 
+                          aria-label="Temperature" 
+                          disabled 
+                          data-chart="temperature"
+                        >
                           <Thermometer className="h-4 w-4" />
                         </ToggleGroupItem>
                       </span>
@@ -253,33 +296,45 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                 </TooltipProvider>
               </ToggleGroup>
             )}
-            <ToggleGroup type="single" variant="outline" size="sm" value={view} onValueChange={(value) => value && setView(value)}>
-              <ToggleGroupItem value="chart" aria-label="Chart view"><BarChart className="h-4 w-4" /></ToggleGroupItem>
-              <ToggleGroupItem value="list" aria-label="List view"><List className="h-4 w-4" /></ToggleGroupItem>
+            <ToggleGroup 
+              type="single" 
+              variant="outline" 
+              size="sm" 
+              value={view} 
+              onValueChange={handleViewChange}
+            >
+              <ToggleGroupItem value="chart" aria-label="Chart view">
+                <BarChart className="h-4 w-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="list" aria-label="List view">
+                <List className="h-4 w-4" />
+              </ToggleGroupItem>
             </ToggleGroup>
           </div>
         </div>
         
-        {view === 'chart' ? (
-          <div className="h-[150px] w-full">
+        {/*-- START MODIFICATION --*/}
+        {/* Render both views but hide one with CSS to prevent re-mounting and ensure icons are pre-loaded */}
+        <div className="relative h-[150px] w-full">
+          <div className={cn("w-full h-full", { 'hidden': view !== 'chart' })}>
             {!chartData.length ? <Skeleton className="w-full h-full" /> : (
               <ChartContainer config={chartConfig} className="w-full h-full">
                 <LineChart data={chartData} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
-                  <XAxis 
-                    dataKey="time" 
+                  <XAxis
+                    dataKey="time"
                     type="number"
                     domain={['dataMin', 'dataMax']}
-                    ticks={type === 'daily' ? midnightTimestamps.slice(1, -1) : hourlyTicks} 
-                    tickFormatter={config[type].tickFormatter} 
-                    tickLine={false} 
+                    ticks={type === 'daily' ? midnightTimestamps.slice(1, -1) : hourlyTicks}
+                    tickFormatter={config[type].tickFormatter}
+                    tickLine={false}
                     axisLine={false}
                     fontSize={12}
                   />
-                  <YAxis 
-                    yAxisId="temp" 
-                    tickLine={true} 
-                    axisLine={true} 
-                    tickFormatter={(value) => `${value}°`} 
+                  <YAxis
+                    yAxisId="temp"
+                    tickLine={true}
+                    axisLine={true}
+                    tickFormatter={(value) => `${value}°`}
                     domain={tempMetrics.domain}
                     ticks={tempMetrics.ticks}
                     fontSize={12}
@@ -291,16 +346,26 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                     cursor={true}
                     content={
                       <ChartTooltipContent
-                        labelFormatter={(label) => new Date(Number(label) * 1000).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
+                        labelFormatter={(label) => new Date(Number(label) * 1000).toLocaleString(undefined, {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: false
+                        })}
                         formatter={(value, name, item) => {
-                          let formattedValue, unit;
+                          let displayValue;
+
                           if (name === 'temperature') {
-                            [formattedValue, unit] = formatTemperature(value as number, units);
+                            const [val, unit] = formatTemperature(value as number, units);
+                            displayValue = `${val}${unit}`;
                           } else if (name === 'wind') {
-                            [formattedValue, unit] = formatWindSpeed(value as number, units);
+                            const [val, unit] = formatWindSpeed(value as number, units);
+                            displayValue = `${val} ${unit}`;
                           } else if (name === 'rain') {
-                            formattedValue = Math.round(value as number);
-                            unit = '%';
+                            const val = Math.round(value as number);
+                            displayValue = `${val}%`;
                           } else {
                             return null;
                           }
@@ -309,10 +374,13 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
 
                           return (
                             <div className="flex items-center gap-2 text-xs">
-                              <div className="w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
-                              <div className="flex flex-1 justify-between">
+                              <div
+                                className="w-2.5 h-2.5 rounded-full"
+                                style={{ background: item.color }}
+                              />
+                              <div className="flex flex-1 justify-between gap-2">
                                 <span className="text-muted-foreground">{itemConfig.label}</span>
-                                <span className="font-bold">{formattedValue} {unit}</span>
+                                <span className="font-bold">{displayValue}</span>
                               </div>
                             </div>
                           )
@@ -321,25 +389,86 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                     }
                   />
 
-                  {midnightTimestamps.map((time, index) => <ReferenceLine key={index} x={time} yAxisId="temp" stroke="hsl(var(--muted-foreground))" strokeWidth={1} strokeDasharray="4 4" />)}
-                  <ReferenceLine y={tempMetrics.max} yAxisId="temp" stroke="hsl(var(--chart-1))" strokeDasharray="2 10" strokeOpacity={0.7} />
-                  <ReferenceLine y={tempMetrics.min} yAxisId="temp" stroke="hsl(var(--chart-3))" strokeDasharray="2 10" strokeOpacity={0.7} />
+                  {midnightTimestamps.map((time, index) => (
+                    <ReferenceLine
+                      key={index}
+                      x={time}
+                      yAxisId="temp"
+                      stroke="hsl(var(--muted-foreground))"
+                      strokeWidth={1}
+                      strokeDasharray="4 4"
+                    />
+                  ))}
+                  <ReferenceLine
+                    y={tempMetrics.max}
+                    yAxisId="temp"
+                    stroke="hsl(var(--chart-1))"
+                    strokeDasharray="2 10"
+                    strokeOpacity={0.7}
+                  />
+                  <ReferenceLine
+                    y={tempMetrics.min}
+                    yAxisId="temp"
+                    stroke="hsl(var(--chart-3))"
+                    strokeDasharray="2 10"
+                    strokeOpacity={0.7}
+                  />
 
-                  {displayModes.includes('temperature') && <Line yAxisId="temp" type="monotone" dataKey="temperature" stroke="var(--color-temperature)" dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
-                  {displayModes.includes('rain') && <Line yAxisId="rain" type="monotone" dataKey="rain" stroke="var(--color-rain)" dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
-                  {displayModes.includes('wind') && <Line yAxisId="wind" type="monotone" dataKey="wind" stroke="var(--color-wind)" dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
+                  {displayModes.includes('temperature') && (
+                    <Line
+                      yAxisId="temp"
+                      type="monotone"
+                      dataKey="temperature"
+                      stroke="var(--color-temperature)"
+                      dot={false}
+                      activeDot={{ r: 6 }}
+                      strokeWidth={2}
+                    />
+                  )}
+                  {displayModes.includes('rain') && (
+                    <Line
+                      yAxisId="rain"
+                      type="monotone"
+                      dataKey="rain"
+                      stroke="var(--color-rain)"
+                      dot={false}
+                      activeDot={{ r: 6 }}
+                      strokeWidth={2}
+                    />
+                  )}
+                  {displayModes.includes('wind') && (
+                    <Line
+                      yAxisId="wind"
+                      type="monotone"
+                      dataKey="wind"
+                      stroke="var(--color-wind)"
+                      dot={false}
+                      activeDot={{ r: 6 }}
+                      strokeWidth={2}
+                    />
+                  )}
                 </LineChart>
               </ChartContainer>
             )}
           </div>
-        ) : (
-          <div className={`grid ${type === 'daily' ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-4 md:grid-cols-8'} gap-2 h-[150px] overflow-y-auto`}>
-            {type === 'daily' 
-              ? (listData as DailyDataPoint[]).map((day) => <DailyForecastItem key={day.time} day={day} units={units} />)
-              : (listData as HourlyDataPoint[]).map((hour) => <HourlyForecastItem key={hour.time} hour={hour} units={units} timezone={weatherData.timezone} />)
+
+          <div className={cn(`grid ${type === 'daily' ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-4 md:grid-cols-8'} gap-2 h-[150px] overflow-y-auto`, { 'hidden': view !== 'list' })}>
+            {type === 'daily'
+              ? (listData as DailyDataPoint[]).map((day) => (
+                  <DailyForecastItem key={day.time} day={day} units={units} />
+                ))
+              : (listData as HourlyDataPoint[]).map((hour) => (
+                  <HourlyForecastItem
+                    key={hour.time}
+                    hour={hour}
+                    units={units}
+                    timezone={weatherData.timezone}
+                  />
+                ))
             }
           </div>
-        )}
+        </div>
+        {/*-- END MODIFICATION --*/}
       </CardContent>
     </Card>
   );
