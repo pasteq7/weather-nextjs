@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Cloud } from 'lucide-react';
+import { Cloud, Github } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -15,6 +15,9 @@ export default function Footer() {
         <p>
           Made by <Link href="https://sylvainbrehaut.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">sB</Link>
         </p>
+        <Link href="https://github.com/pasteq7/weather-nextjs" target="_blank" rel="noopener noreferrer" className="hover:text-primary" aria-label="Github repository">
+          <Github className="h-5 w-5" />
+        </Link>
       </div>
     </footer>
   );
