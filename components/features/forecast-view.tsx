@@ -1,8 +1,8 @@
 // components/features/forecast-view.tsx
 'use client';
 
-import { useMemo, useCallback, useState } from 'react'; // Keep useState for displayModes
-import { useViewPreference } from '@/hooks/use-view-preference'; // Import the new hook
+import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useViewPreference } from '@/hooks/use-view-preference'; 
 import { Card, CardContent } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -121,8 +121,14 @@ interface ForecastViewProps {
 }
 
 export default function ForecastView({ type, weatherData, units }: ForecastViewProps) {
-const { view, setView } = useViewPreference(type, 'chart');
+const { view, setView } = useViewPreference(type, type === 'hourly' ? 'chart' : 'list');
   const [displayModes, setDisplayModes] = useState<string[]>(['temperature']);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    // This runs only on the client, after the component has mounted.
+    setIsMounted(true);
+  }, []);
 
   const chartId = useMemo(() => 
     `forecast-${type}-${Date.now()}-${Math.random().toString(36).substr(2, 12)}`, 
@@ -285,9 +291,9 @@ const { view, setView } = useViewPreference(type, 'chart');
   return (
     <Card>
       <CardContent>
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center ">
           <h3 className="font-semibold text-muted-foreground">{config[type].title}</h3>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center ">
             {view === 'chart' && (
               <TooltipProvider>
                 <ToggleGroup 
@@ -372,185 +378,191 @@ const { view, setView } = useViewPreference(type, 'chart');
         </div>
         
         <div className="relative h-[150px] w-full">
-          {/* Chart View - Always rendered, visibility controlled by opacity */}
-          <div
-            className={cn(
-              "absolute inset-0 w-full h-full transition-opacity duration-300",
-              view === 'chart'
-                ? "opacity-100"
-                : "opacity-0 pointer-events-none"
-            )}
-          >
-            {!chartData.length ? <Skeleton className="w-full h-full" /> : (
-              <ChartContainer config={chartConfig} className="w-full h-full">
-                <LineChart 
-                  data={chartData} 
-                  margin={{ top: 5, right: 20, left: -20, bottom: 0 }}
-                  id={`${chartId}-chart`}
-                >
-                  <XAxis
-                    dataKey="time"
-                    type="number"
-                    domain={['dataMin', 'dataMax']}
-                    ticks={type === 'daily' ? midnightTimestamps.slice(1, -1) : hourlyTicks}
-                    tickFormatter={config[type].tickFormatter}
-                    tickLine={false}
-                    axisLine={false}
-                    fontSize={12}
-                  />
-                  <YAxis
-                    yAxisId="temp"
-                    tickLine={true}
-                    axisLine={true}
-                    tickFormatter={(value) => `${value}°`}
-                    domain={tempMetrics.domain}
-                    ticks={tempMetrics.ticks}
-                    fontSize={12}
-                  />
-                  <YAxis yAxisId="rain" hide domain={[0, 105]} />
-                  <YAxis yAxisId="wind" hide domain={[0, 'dataMax + 10']} />
-                  
-                  <RechartsTooltip
-                    cursor={true}
-                    content={
-                      <ChartTooltipContent
-                        labelFormatter={(label) => new Date(Number(label) * 1000).toLocaleString(undefined, {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: false
-                        })}
-                        formatter={(value, name, item) => {
-                          let displayValue;
-
-                          if (name === 'temperature') {
-                            const [val, unit] = formatTemperature(value as number, units);
-                            displayValue = `${val}${unit}`;
-                          } else if (name === 'wind') {
-                            const [val, unit] = formatWindSpeed(value as number, units);
-                            displayValue = `${val} ${unit}`;
-                          } else if (name === 'rain') {
-                            const val = Math.round(value as number);
-                            displayValue = `${val}%`;
-                          } else {
-                            return null;
-                          }
-
-                          const itemConfig = chartConfig[name as keyof typeof chartConfig];
-
-                          return (
-                            <div className="flex items-center gap-2 text-xs">
-                              <div
-                                className="w-2.5 h-2.5 rounded-full"
-                                style={{ background: item.color }}
-                              />
-                              <div className="flex flex-1 justify-between gap-2">
-                                <span className="text-muted-foreground">{itemConfig.label}</span>
-                                <span className="font-bold">{displayValue}</span>
-                              </div>
-                            </div>
-                          )
-                        }}
+          {!isMounted ? (
+            <Skeleton className="w-full h-full" />
+          ) : (
+            <>
+              {/* Chart View - Always rendered, visibility controlled by opacity */}
+              <div
+                className={cn(
+                  "absolute inset-0 w-full h-full transition-opacity duration-300",
+                  view === 'chart'
+                    ? "opacity-100"
+                    : "opacity-0 pointer-events-none"
+                )}
+              >
+                {!chartData.length ? <Skeleton className="w-full h-full" /> : (
+                  <ChartContainer config={chartConfig} className="w-full h-full">
+                    <LineChart
+                      data={chartData}
+                      margin={{ top: 5, right: 20, left: -20, bottom: 0 }}
+                      id={`${chartId}-chart`}
+                    >
+                      <XAxis
+                        dataKey="time"
+                        type="number"
+                        domain={['dataMin', 'dataMax']}
+                        ticks={type === 'daily' ? midnightTimestamps.slice(1, -1) : hourlyTicks}
+                        tickFormatter={config[type].tickFormatter}
+                        tickLine={false}
+                        axisLine={false}
+                        fontSize={12}
                       />
-                    }
-                  />
+                      <YAxis
+                        yAxisId="temp"
+                        tickLine={true}
+                        axisLine={true}
+                        tickFormatter={(value) => `${value}°`}
+                        domain={tempMetrics.domain}
+                        ticks={tempMetrics.ticks}
+                        fontSize={12}
+                      />
+                      <YAxis yAxisId="rain" hide domain={[0, 105]} />
+                      <YAxis yAxisId="wind" hide domain={[0, 'dataMax + 10']} />
+                      
+                      <RechartsTooltip
+                        cursor={true}
+                        content={
+                          <ChartTooltipContent
+                            labelFormatter={(label) => new Date(Number(label) * 1000).toLocaleString(undefined, {
+                              weekday: 'short',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: false
+                            })}
+                            formatter={(value, name, item) => {
+                              let displayValue;
 
-                  {midnightTimestamps.map((time, index) => (
-                    <ReferenceLine
-                      key={`${chartId}-ref-${index}`}
-                      x={time}
-                      yAxisId="temp"
-                      stroke="hsl(var(--muted-foreground))"
-                      strokeWidth={1}
-                      strokeDasharray="4 4"
-                    />
-                  ))}
-                  <ReferenceLine
-                    y={tempMetrics.max}
-                    yAxisId="temp"
-                    stroke="hsl(var(--chart-1))"
-                    strokeDasharray="2 10"
-                    strokeOpacity={0.7}
-                  />
-                  <ReferenceLine
-                    y={tempMetrics.min}
-                    yAxisId="temp"
-                    stroke="hsl(var(--chart-3))"
-                    strokeDasharray="2 10"
-                    strokeOpacity={0.7}
-                  />
+                              if (name === 'temperature') {
+                                const [val, unit] = formatTemperature(value as number, units);
+                                displayValue = `${val}${unit}`;
+                              } else if (name === 'wind') {
+                                const [val, unit] = formatWindSpeed(value as number, units);
+                                displayValue = `${val} ${unit}`;
+                              } else if (name === 'rain') {
+                                const val = Math.round(value as number);
+                                displayValue = `${val}%`;
+                              } else {
+                                return null;
+                              }
 
-                  {displayModes.includes('temperature') && (
-                    <Line
-                      yAxisId="temp"
-                      type="monotone"
-                      dataKey="temperature"
-                      stroke="var(--color-temperature)"
-                      dot={false}
-                      activeDot={{ r: 6 }}
-                      strokeWidth={2}
-                    />
-                  )}
-                  {displayModes.includes('rain') && (
-                    <Line
-                      yAxisId="rain"
-                      type="monotone"
-                      dataKey="rain"
-                      stroke="var(--color-rain)"
-                      dot={false}
-                      activeDot={{ r: 6 }}
-                      strokeWidth={2}
-                    />
-                  )}
-                  {displayModes.includes('wind') && (
-                    <Line
-                      yAxisId="wind"
-                      type="monotone"
-                      dataKey="wind"
-                      stroke="var(--color-wind)"
-                      dot={false}
-                      activeDot={{ r: 6 }}
-                      strokeWidth={2}
-                    />
-                  )}
-                </LineChart>
-              </ChartContainer>
-            )}
-          </div>
+                              const itemConfig = chartConfig[name as keyof typeof chartConfig];
 
-          {/* List View - Always rendered, visibility controlled by opacity */}
-          <div
-            className={cn(
-              `absolute inset-0 grid ${type === 'daily' ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-4 md:grid-cols-8'} gap-2 h-full overflow-y-auto transition-opacity duration-300`,
-              view === 'list'
-                ? "opacity-100"
-                : "opacity-0 pointer-events-none"
-            )}
-          >
-            {type === 'daily'
-              ? (listData as DailyDataPoint[]).map((day, index) => (
-                  <DailyForecastItem
-                    key={`${day.time}-${index}`}
-                    day={day}
-                    units={units}
-                    chartId={chartId}
-                    itemIndex={index}
-                  />
-                ))
-              : (listData as HourlyDataPoint[]).map((hour, index) => (
-                  <HourlyForecastItem
-                    key={`${hour.time}-${index}`}
-                    hour={hour}
-                    units={units}
-                    timezone={weatherData.timezone}
-                    chartId={chartId}
-                    itemIndex={index}
-                  />
-                ))
-            }
-          </div>
+                              return (
+                                <div className="flex items-center gap-2 text-xs">
+                                  <div
+                                    className="w-2.5 h-2.5 rounded-full"
+                                    style={{ background: item.color }}
+                                  />
+                                  <div className="flex flex-1 justify-between gap-2">
+                                    <span className="text-muted-foreground">{itemConfig.label}</span>
+                                    <span className="font-bold">{displayValue}</span>
+                                  </div>
+                                </div>
+                              )
+                            }}
+                          />
+                        }
+                      />
+
+                      {midnightTimestamps.map((time, index) => (
+                        <ReferenceLine
+                          key={`${chartId}-ref-${index}`}
+                          x={time}
+                          yAxisId="temp"
+                          stroke="hsl(var(--muted-foreground))"
+                          strokeWidth={1}
+                          strokeDasharray="4 4"
+                        />
+                      ))}
+                      <ReferenceLine
+                        y={tempMetrics.max}
+                        yAxisId="temp"
+                        stroke="hsl(var(--chart-1))"
+                        strokeDasharray="2 10"
+                        strokeOpacity={0.7}
+                      />
+                      <ReferenceLine
+                        y={tempMetrics.min}
+                        yAxisId="temp"
+                        stroke="hsl(var(--chart-3))"
+                        strokeDasharray="2 10"
+                        strokeOpacity={0.7}
+                      />
+
+                      {displayModes.includes('temperature') && (
+                        <Line
+                          yAxisId="temp"
+                          type="monotone"
+                          dataKey="temperature"
+                          stroke="var(--color-temperature)"
+                          dot={false}
+                          activeDot={{ r: 6 }}
+                          strokeWidth={2}
+                        />
+                      )}
+                      {displayModes.includes('rain') && (
+                        <Line
+                          yAxisId="rain"
+                          type="monotone"
+                          dataKey="rain"
+                          stroke="var(--color-rain)"
+                          dot={false}
+                          activeDot={{ r: 6 }}
+                          strokeWidth={2}
+                        />
+                      )}
+                      {displayModes.includes('wind') && (
+                        <Line
+                          yAxisId="wind"
+                          type="monotone"
+                          dataKey="wind"
+                          stroke="var(--color-wind)"
+                          dot={false}
+                          activeDot={{ r: 6 }}
+                          strokeWidth={2}
+                        />
+                      )}
+                    </LineChart>
+                  </ChartContainer>
+                )}
+              </div>
+
+              {/* List View - Always rendered, visibility controlled by opacity */}
+              <div
+                className={cn(
+                  `absolute inset-0 grid ${type === 'daily' ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-4 md:grid-cols-8'} gap-2 h-full overflow-y-auto transition-opacity duration-300`,
+                  view === 'list'
+                    ? "opacity-100"
+                    : "opacity-0 pointer-events-none"
+                )}
+              >
+                {type === 'daily'
+                  ? (listData as DailyDataPoint[]).map((day, index) => (
+                      <DailyForecastItem
+                        key={`${day.time}-${index}`}
+                        day={day}
+                        units={units}
+                        chartId={chartId}
+                        itemIndex={index}
+                      />
+                    ))
+                  : (listData as HourlyDataPoint[]).map((hour, index) => (
+                      <HourlyForecastItem
+                        key={`${hour.time}-${index}`}
+                        hour={hour}
+                        units={units}
+                        timezone={weatherData.timezone}
+                        chartId={chartId}
+                        itemIndex={index}
+                      />
+                    ))
+                }
+              </div>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
