@@ -6,6 +6,7 @@ import ForecastView from '@/components/features/forecast-view';
 import TopBar from '@/components/layout/top-bar';
 import Footer from '@/components/layout/footer';
 import { WeatherData } from '@/lib/types';
+import Loading from './loading';
 
 // This async function will fetch all necessary data.
 // Errors thrown here will be caught by the nearest error.tsx boundary.
@@ -15,6 +16,12 @@ async function getWeather(
   lon: string | undefined,
   units: string
 ) {
+  // If no location is provided in the URL, return null to trigger the loading state.
+  // The client-side TopBar component will handle geolocation.
+  if (!locationQuery && !lat && !lon) {
+    return { weatherData: null, locationName: null, units };
+  }
+
   let weatherData: WeatherData;
   let locationName: string;
 
@@ -23,8 +30,8 @@ async function getWeather(
     weatherData = await fetchWeatherData(parseFloat(lat), parseFloat(lon), units);
     locationName = await getCityNameFromCoordinates(parseFloat(lat), parseFloat(lon));
   } else {
-    // Fallback to city query or a default
-    const city = locationQuery || 'Paris';
+    // A location query is guaranteed to exist here because of the initial check.
+    const city = locationQuery!;
     weatherData = await fetchWeatherByCity(city, units);
     locationName = weatherData.name!;
   }
@@ -49,21 +56,28 @@ export default async function HomePage({
 
   return (
     <div className="p-2 md:p-4 lg:p-6 mx-auto max-w-7xl w-full flex-grow flex flex-col gap-4">
-      <TopBar locationName={locationName} />
-      <main className="flex-grow flex flex-col gap-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-1 flex flex-col gap-4">
-            <LocationCard location={locationName} />
-            <TodayWeatherCard weatherData={weatherData} units={units} />
+      {/* Always render TopBar - it handles geolocation */}
+      <TopBar locationName={locationName || ''} />
+      
+      {/* If getWeather returns null, show loading for the main content */}
+      {!weatherData || !locationName ? (
+        <Loading />
+      ) : (
+        <main className="flex-grow flex flex-col gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-1 flex flex-col gap-4">
+              <LocationCard location={locationName} />
+              <TodayWeatherCard weatherData={weatherData} units={units} />
+            </div>
+            <div className="lg:col-span-2 flex flex-col gap-4">
+              <WeatherDataGrid weatherData={weatherData} units={units} />
+              <ForecastView type="hourly" weatherData={weatherData} units={units} />
+            </div>
           </div>
-          <div className="lg:col-span-2 flex flex-col gap-4">
-            <WeatherDataGrid weatherData={weatherData} units={units} />
-            <ForecastView type="hourly" weatherData={weatherData} units={units} />
-          </div>
-        </div>
-        <ForecastView type="daily" weatherData={weatherData} units={units} />
-        <Footer />
-      </main>
+          <ForecastView type="daily" weatherData={weatherData} units={units} />
+          <Footer />
+        </main>
+      )}
     </div>
   );
 }

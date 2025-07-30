@@ -24,6 +24,47 @@ export default function TopBar({ locationName }: TopBarProps) {
   const { favorites, addFavorite, removeFavorite } = useFavorites();
 
   const [locationInput, setLocationInput] = useState(searchParams.get('q') || '');
+  const [isGeolocating, setIsGeolocating] = useState(false);
+
+  useEffect(() => {
+    // Check if a location is already specified in the URL. If so, do nothing.
+    if (searchParams.has('q') || searchParams.has('lat') || searchParams.has('lon')) {
+      return;
+    }
+
+    const geolocateOnLoad = async () => {
+      setIsGeolocating(true);
+      try {
+        let position;
+        if (Capacitor.isNativePlatform()) {
+          await Geolocation.requestPermissions();
+          position = await Geolocation.getCurrentPosition();
+        } else if (navigator.geolocation) {
+          position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 10000,
+              enableHighAccuracy: false
+            });
+          });
+        } else {
+          return; // Geolocation not supported.
+        }
+
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('lat', position.coords.latitude.toString());
+        params.set('lon', position.coords.longitude.toString());
+        params.delete('q');
+        router.push(`?${params.toString()}`);
+      } catch (error) {
+        console.error("Initial geolocation failed:", error);
+        // Optionally set a default location or show an error message
+      } finally {
+        setIsGeolocating(false);
+      }
+    };
+
+    geolocateOnLoad();
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   useEffect(() => {
     // Sync input with URL query param 'q' if it exists
@@ -42,6 +83,7 @@ export default function TopBar({ locationName }: TopBarProps) {
   };
 
   const handleGeolocate = async () => {
+    setIsGeolocating(true);
     try {
       let position;
       if (Capacitor.isNativePlatform()) {
@@ -49,7 +91,10 @@ export default function TopBar({ locationName }: TopBarProps) {
         position = await Geolocation.getCurrentPosition();
       } else {
         position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            timeout: 10000,
+            enableHighAccuracy: false
+          });
         });
       }
       const params = new URLSearchParams(searchParams.toString());
@@ -60,6 +105,8 @@ export default function TopBar({ locationName }: TopBarProps) {
     } catch (error) {
       console.error("Geolocation failed:", error);
       alert("Could not get your location.");
+    } finally {
+      setIsGeolocating(false);
     }
   };
   
@@ -84,11 +131,16 @@ export default function TopBar({ locationName }: TopBarProps) {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={handleGeolocate}>
-              <Locate className="h-4 w-4" />
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={handleGeolocate}
+              disabled={isGeolocating}
+            >
+              <Locate className={`h-4 w-4 ${isGeolocating ? 'animate-spin' : ''}`} />
             </Button>
           </TooltipTrigger>
-          <TooltipContent><p>My Location</p></TooltipContent>
+          <TooltipContent><p>{isGeolocating ? 'Getting Location...' : 'My Location'}</p></TooltipContent>
         </Tooltip>
       </TooltipProvider>
 
@@ -129,16 +181,21 @@ export default function TopBar({ locationName }: TopBarProps) {
         />
       </form>
 
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={() => addFavorite(locationName)}>
-              <Star className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent><p>Add to Favorites</p></TooltipContent>
-        </Tooltip>
+      {/* Only show favorite button if we have a location name */}
+      {locationName && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="icon" onClick={() => addFavorite(locationName)}>
+                <Star className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent><p>Add to Favorites</p></TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
 
+      <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="outline" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>

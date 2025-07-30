@@ -2,16 +2,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="p-2 md:p-4 lg:p-6 mx-auto max-w-7xl w-full flex-grow flex flex-col gap-4">
-      <header className="flex items-center gap-2 w-full">
-        <Skeleton className="h-9 w-9" />
-        <Skeleton className="h-9 w-9" />
-        <Skeleton className="h-9 flex-grow" />
-        <Skeleton className="h-9 w-9" />
-        <Skeleton className="h-9 w-9" />
-        <Skeleton className="h-9 w-24" />
-      </header>
-      <main className="flex-grow flex flex-col gap-4">
+    <div className="p-2 md:p-4 lg:p-6 mx-auto max-w-7xl w-full flex-grow flex flex-col">
+      <main className="flex-grow flex flex-col">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-1 flex flex-col gap-4">
             <Skeleton className="h-16 w-full" />
@@ -23,7 +15,7 @@ export default function Loading() {
                 <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
-            <Skeleton className="h-[202px] w-full" />
+            <Skeleton className="h-[220px] w-full" />
           </div>
         </div>
         <Skeleton className="h-[202px] w-full" />

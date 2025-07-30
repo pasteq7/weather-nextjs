@@ -2,19 +2,19 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { useTheme } from 'next-themes';
+import { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip as ChartTooltip, ReferenceLine } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, ReferenceLine, Tooltip as RechartsTooltip } from 'recharts';
 import { BarChart, List, Thermometer, Wind, Droplets } from 'lucide-react';
 import { formatTemperature, mapWmoToWeather, formatWindSpeed } from '@/lib/utils';
 import { WeatherData, DailyDataPoint, HourlyDataPoint } from '@/lib/types';
 import CurrentWeatherIcon from '../icons/current-weather-icon';
 import { Skeleton } from '../ui/skeleton';
+import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 
-// --- (Sub-components for List View and CustomTooltipContent remain the same) ---
+// --- (Sub-components for List View remain the same) ---
 
 function DailyForecastItem({ day, units }: { day: DailyDataPoint; units: string }) {
   const [maxTemp, maxTempUnit] = formatTemperature(day.temperature_2m_max, units);
@@ -54,47 +54,20 @@ function HourlyForecastItem({ hour, units, timezone }: { hour: HourlyDataPoint; 
     );
 }
 
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: Array<{
-    color: string;
-    dataKey: string;
-    value: number;
-  }>;
-  label?: number;
-  units: string;
-}
-
-const CustomTooltipContent = ({ active, payload, label, units }: CustomTooltipProps) => {
-  if (active && payload && payload.length && label !== undefined) {
-    const date = new Date(label * 1000);
-  const formattedLabel = date.toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
-    return (
-      <div className="p-2 bg-background/80 backdrop-blur-sm border border-border rounded-lg shadow-lg">
-        <p className="label text-sm font-bold text-foreground">{formattedLabel}</p>
-        {payload.map((pld) => {
-          let value, unit;
-          if (pld.value === undefined) return null;
-
-          if (pld.dataKey === 'temperature') {
-            [value, unit] = formatTemperature(pld.value, units);
-          } else if (pld.dataKey === 'wind') {
-            [value, unit] = formatWindSpeed(pld.value, units);
-          } else if (pld.dataKey === 'rain') {
-            value = Math.round(pld.value);
-            unit = '%';
-          }
-          return (
-            <p key={pld.dataKey} style={{ color: pld.color }} className="text-xs capitalize">
-              {`${pld.dataKey}: ${value}${unit}`}
-            </p>
-          );
-        })}
-      </div>
-    );
-  }
-  return null;
-};
+const chartConfig = {
+  temperature: {
+    label: "Temperature",
+    color: "var(--muted-foreground)",
+  },
+  rain: {
+    label: "Rain",
+    color: "var(--chart-2)",
+  },
+  wind: {
+    label: "Wind",
+    color: "var(--chart-4)",
+  },
+} satisfies ChartConfig;
 
 
 interface ForecastViewProps {
@@ -106,25 +79,6 @@ interface ForecastViewProps {
 export default function ForecastView({ type, weatherData, units }: ForecastViewProps) {
   const [view, setView] = useState('chart');
   const [displayModes, setDisplayModes] = useState(['temperature']);
-  const { theme } = useTheme();
-  const [chartColors, setChartColors] = useState<{ [key: string]: string } | null>(null);
-
-  // Effect to get computed CSS variables for chart colors
-  useEffect(() => {
-    const rootStyle = getComputedStyle(document.documentElement);
-    const getColor = (cssVar: string) => rootStyle.getPropertyValue(cssVar).trim();
-
-    setChartColors({
-      primary: getColor('--color-primary'),
-      mutedForeground: getColor('--color-muted-foreground'),
-      border: getColor('--color-border'),
-      chart1: getColor('--color-chart-1'),
-      chart2: getColor('--color-chart-2'),
-      chart3: getColor('--color-chart-3'),
-      chart4: getColor('--color-chart-4'),
-      chart5: getColor('--color-chart-5'),
-    });
-  }, [theme]); // Rerun when theme changes
 
   const config = useMemo(() => ({
     hourly: {
@@ -132,18 +86,28 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
       tickFormatter: (tick: number) => new Date(tick * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
     },
     daily: {
-      title: 'Next 5 Days',
+      title: 'Next 4 Days',
       tickFormatter: (tick: number) => new Date(tick * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
     },
   }), []);
 
   const chartData = useMemo(() => {
-    if (!weatherData?.hourly?.time) return [];
+    if (!weatherData?.hourly?.time || !weatherData?.daily?.time?.[0]) return [];
     const { time, temperature_2m, precipitation_probability, wind_speed_10m } = weatherData.hourly;
-    const nowInSeconds = Math.floor(Date.now() / 1000);
-    const startIndex = time.findIndex(t => t >= nowInSeconds);
+
+    let startIndex;
+    if (type === 'hourly') {
+      const nowInSeconds = Math.floor(Date.now() / 1000);
+      startIndex = time.findIndex(t => t >= nowInSeconds);
+    } else { // daily
+      const firstDayTimestamp = weatherData.daily.time[0];
+      startIndex = time.findIndex(t => t >= firstDayTimestamp);
+    }
+
+    if (startIndex === -1) return [];
+
     const dataSlice = type === 'hourly' ? 24 : 96;
-    
+
     return time.slice(startIndex, startIndex + dataSlice).map((t, i) => ({
       time: t,
       temperature: temperature_2m[startIndex + i],
@@ -151,6 +115,16 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
       wind: wind_speed_10m[startIndex + i],
     }));
   }, [weatherData, type]);
+
+  const hourlyTicks = useMemo(() => {
+    if (type !== 'hourly' || !chartData.length) return undefined;
+    const ticks = [];
+    // Add a tick every 6 hours for a cleaner look
+    for (let i = 0; i < chartData.length; i += 6) {
+        ticks.push(chartData[i].time);
+    }
+    return ticks;
+  }, [chartData, type]);
 
   const listData = useMemo(() => {
     if (type === 'daily') {
@@ -163,7 +137,6 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
     } else { // hourly
         const { hourly, daily } = weatherData;
 
-        // Guard against missing or empty data arrays that are essential
         if (
             !hourly?.time?.length ||
             !daily?.time?.length ||
@@ -175,7 +148,9 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
             return [];
         }
         
-        const nowInSeconds = Math.floor(Date.now() / 1000);
+        const now = new Date();
+        now.setHours(now.getHours() + 1, 0, 0, 0);
+        const nowInSeconds = Math.floor(now.getTime() / 1000);
         const startIndex = hourly.time.findIndex(t => t >= nowInSeconds);
 
         if (startIndex === -1) {
@@ -186,18 +161,14 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         for (let i = 0; i < 8; i++) {
             const hourlyIndex = startIndex + (i * 3);
 
-            // Ensure the index is within the bounds of the hourly arrays
             if (hourlyIndex >= hourly.time.length) {
                 break;
             }
             
             const hourTimestamp = hourly.time[hourlyIndex];
 
-            // Find the corresponding day for this hour to get sunrise/sunset
             const dayIndex = daily.time.findLastIndex(dayStart => hourTimestamp >= dayStart);
 
-            // If we can't find a corresponding day, we can't determine if it's day or night.
-            // It's safer to skip this data point than to guess.
             if (dayIndex === -1) {
                 continue;
             }
@@ -205,11 +176,9 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
             const sunrise = daily.sunrise[dayIndex];
             const sunset = daily.sunset[dayIndex];
             
-            // Also ensure the data for the specific hour is valid
             const temperature = hourly.temperature_2m[hourlyIndex];
             const weather_code = hourly.weather_code[hourlyIndex];
 
-            // If any required data for this point is missing, skip it
             if (sunrise === undefined || sunset === undefined || temperature === undefined || weather_code === undefined) {
                 continue;
             }
@@ -228,15 +197,19 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   }, [weatherData, type]);
 
   const tempMetrics = useMemo(() => {
-    if (!chartData.length) return { domain: [0, 0], min: 0, max: 0 };
+    if (!chartData.length) return { domain: [0, 0], min: 0, max: 0, ticks: [0] };
     const temps = chartData.map(d => d.temperature);
     const min = Math.min(...temps);
     const max = Math.max(...temps);
     const padding = (max - min) * 0.2 || 5;
+    const domainMin = Math.floor(min - padding);
+    const domainMax = Math.ceil(max + padding);
+    
     return {
-        domain: [Math.floor(min - padding), Math.ceil(max + padding)],
+        domain: [domainMin, domainMax],
         min: Math.round(min),
-        max: Math.round(max)
+        max: Math.round(max),
+        ticks: [Math.round(min), Math.round(max)]
     };
   }, [chartData]);
   
@@ -253,7 +226,6 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      {/* Wrap disabled element in a span for tooltip to work */}
                       <span>
                         <ToggleGroupItem value="temperature" aria-label="Temperature" disabled data-chart="temperature">
                           <Thermometer className="h-4 w-4" />
@@ -290,24 +262,74 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         
         {view === 'chart' ? (
           <div className="h-[150px] w-full">
-            {!chartColors ? <Skeleton className="w-full h-full" /> : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
-                  <XAxis dataKey="time" ticks={type === 'daily' ? midnightTimestamps : undefined} tickFormatter={config[type].tickFormatter} stroke={chartColors.mutedForeground} fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis yAxisId="temp" stroke={chartColors.mutedForeground} fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}°`} domain={tempMetrics.domain} />
-                  <YAxis yAxisId="rain" hide domain={[0, 105]} /><YAxis yAxisId="wind" hide domain={[0, 'dataMax + 10']} />
+            {!chartData.length ? <Skeleton className="w-full h-full" /> : (
+              <ChartContainer config={chartConfig} className="w-full h-full">
+                <LineChart data={chartData} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
+                  <XAxis 
+                    dataKey="time" 
+                    type="number"
+                    domain={['dataMin', 'dataMax']}
+                    ticks={type === 'daily' ? midnightTimestamps.slice(1, -1) : hourlyTicks} 
+                    tickFormatter={config[type].tickFormatter} 
+                    tickLine={false} 
+                    axisLine={false}
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    yAxisId="temp" 
+                    tickLine={true} 
+                    axisLine={true} 
+                    tickFormatter={(value) => `${value}°`} 
+                    domain={tempMetrics.domain}
+                    ticks={tempMetrics.ticks}
+                    fontSize={12}
+                  />
+                  <YAxis yAxisId="rain" hide domain={[0, 105]} />
+                  <YAxis yAxisId="wind" hide domain={[0, 'dataMax + 10']} />
                   
-                  <ChartTooltip content={<CustomTooltipContent units={units} />} />
+                  <RechartsTooltip
+                    cursor={true}
+                    content={
+                      <ChartTooltipContent
+                        labelFormatter={(label) => new Date(Number(label) * 1000).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
+                        formatter={(value, name, item) => {
+                          let formattedValue, unit;
+                          if (name === 'temperature') {
+                            [formattedValue, unit] = formatTemperature(value as number, units);
+                          } else if (name === 'wind') {
+                            [formattedValue, unit] = formatWindSpeed(value as number, units);
+                          } else if (name === 'rain') {
+                            formattedValue = Math.round(value as number);
+                            unit = '%';
+                          } else {
+                            return null;
+                          }
 
-                  {midnightTimestamps.map((time, index) => <ReferenceLine key={index} x={time} yAxisId="temp" stroke={chartColors.border} strokeDasharray="3 3" />)}
-                  <ReferenceLine y={tempMetrics.max} yAxisId="temp" stroke={chartColors.chart1} strokeDasharray="2 10" strokeOpacity={0.7} />
-                  <ReferenceLine y={tempMetrics.min} yAxisId="temp" stroke={chartColors.chart3} strokeDasharray="2 10" strokeOpacity={0.7} />
+                          const itemConfig = chartConfig[name as keyof typeof chartConfig];
 
-                  {displayModes.includes('temperature') && <Line yAxisId="temp" type="monotone" dataKey="temperature" stroke={chartColors.mutedForeground} dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
-                  {displayModes.includes('rain') && <Line yAxisId="rain" type="monotone" dataKey="rain" stroke={chartColors.chart2} dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
-                  {displayModes.includes('wind') && <Line yAxisId="wind" type="monotone" dataKey="wind" stroke={chartColors.chart4} dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
+                          return (
+                            <div className="flex items-center gap-2 text-xs">
+                              <div className="w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
+                              <div className="flex flex-1 justify-between">
+                                <span className="text-muted-foreground">{itemConfig.label}</span>
+                                <span className="font-bold">{formattedValue} {unit}</span>
+                              </div>
+                            </div>
+                          )
+                        }}
+                      />
+                    }
+                  />
+
+                  {midnightTimestamps.map((time, index) => <ReferenceLine key={index} x={time} yAxisId="temp" stroke="hsl(var(--muted-foreground))" strokeWidth={1} strokeDasharray="4 4" />)}
+                  <ReferenceLine y={tempMetrics.max} yAxisId="temp" stroke="hsl(var(--chart-1))" strokeDasharray="2 10" strokeOpacity={0.7} />
+                  <ReferenceLine y={tempMetrics.min} yAxisId="temp" stroke="hsl(var(--chart-3))" strokeDasharray="2 10" strokeOpacity={0.7} />
+
+                  {displayModes.includes('temperature') && <Line yAxisId="temp" type="monotone" dataKey="temperature" stroke="var(--color-temperature)" dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
+                  {displayModes.includes('rain') && <Line yAxisId="rain" type="monotone" dataKey="rain" stroke="var(--color-rain)" dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
+                  {displayModes.includes('wind') && <Line yAxisId="wind" type="monotone" dataKey="wind" stroke="var(--color-wind)" dot={false} activeDot={{ r: 6 }} strokeWidth={2} />}
                 </LineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             )}
           </div>
         ) : (
