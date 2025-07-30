@@ -5,9 +5,10 @@ const nextConfig: NextConfig = {
     styledComponents: true,
   },
   webpack: (config) => {
-    // Handle SVG files with SVGR (as React components)
+    // Handle SVG files with SVGR (as React components), excluding favicon.ico
     config.module.rules.push({
       test: /\.svg$/,
+      exclude: /favicon\.ico$/,
       use: [
         {
           loader: '@svgr/webpack',
