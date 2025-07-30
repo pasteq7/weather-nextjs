@@ -65,19 +65,19 @@
         opacity="0"
       >
         <animateTransform
-          id="x1"
           additive="sum"
           attributeName="transform"
-          begin="0s; x1.end+.33s"
-          dur=".67s"
+          begin="0s"
+          dur="1.2s"
+          repeatCount="indefinite"
           type="translate"
           values="0 -60; 0 60"
         />
         <animate
-          id="y1"
           attributeName="opacity"
-          begin="0s; y1.end+.33s"
-          dur=".67s"
+          begin="0s"
+          dur="1.2s"
+          repeatCount="indefinite"
           keyTimes="0; .25; 1"
           values="0; 1; 0"
         />
@@ -88,19 +88,19 @@
         opacity="0"
       >
         <animateTransform
-          id="x2"
           additive="sum"
           attributeName="transform"
-          begin=".33s; x2.end+.33s"
-          dur=".67s"
+          begin="0.4s"
+          dur="1.2s"
+          repeatCount="indefinite"
           type="translate"
           values="0 -60; 0 60"
         />
         <animate
-          id="y2"
           attributeName="opacity"
-          begin=".33s; y2.end+.33s"
-          dur=".67s"
+          begin="0.4s"
+          dur="1.2s"
+          repeatCount="indefinite"
           keyTimes="0; .25; 1"
           values="0; 1; 0"
         />
@@ -111,19 +111,19 @@
         opacity="0"
       >
         <animateTransform
-          id="x3"
           additive="sum"
           attributeName="transform"
-          begin="-.33s; x3.end+.33s"
-          dur=".67s"
+          begin="0.8s"
+          dur="1.2s"
+          repeatCount="indefinite"
           type="translate"
           values="0 -60; 0 60"
         />
         <animate
-          id="y3"
           attributeName="opacity"
-          begin="-.33s; y3.end+.33s"
-          dur=".67s"
+          begin="0.8s"
+          dur="1.2s"
+          repeatCount="indefinite"
           keyTimes="0; .25; 1"
           values="0; 1; 0"
         />
