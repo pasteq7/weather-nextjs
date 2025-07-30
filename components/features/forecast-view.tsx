@@ -264,47 +264,28 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
           <h3 className="font-semibold text-muted-foreground">{config[type].title}</h3>
           <div className="flex items-center gap-2">
             {view === 'chart' && (
-              <ToggleGroup 
-                type="multiple" 
-                variant="outline" 
-                size="sm" 
-                value={displayModes} 
-                onValueChange={handleDisplayModesChange}
-              >
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span>
-                        <ToggleGroupItem 
-                          value="temperature" 
-                          aria-label="Temperature" 
-                          disabled 
-                          data-chart="temperature"
-                        >
-                          <Thermometer className="h-4 w-4" />
-                        </ToggleGroupItem>
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Temperature (Always Shown)</p></TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <ToggleGroupItem value="rain" aria-label="Rain" data-chart="rain">
-                        <Droplets className="h-4 w-4" />
-                      </ToggleGroupItem>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Toggle Rain Probability</p></TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <ToggleGroupItem value="wind" aria-label="Wind" data-chart="wind">
-                        <Wind className="h-4 w-4" />
-                      </ToggleGroupItem>
-                    </TooltipTrigger>
-                    <TooltipContent><p>Toggle Wind Speed</p></TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </ToggleGroup>
+             <ToggleGroup 
+  type="multiple" 
+  variant="outline" 
+  size="sm" 
+  value={displayModes} 
+  onValueChange={handleDisplayModesChange}
+>
+  <ToggleGroupItem 
+    value="temperature" 
+    aria-label="Temperature" 
+    disabled 
+    data-chart="temperature"
+  >
+    <Thermometer className="h-4 w-4" />
+  </ToggleGroupItem>
+  <ToggleGroupItem value="rain" aria-label="Rain" data-chart="rain">
+    <Droplets className="h-4 w-4" />
+  </ToggleGroupItem>
+  <ToggleGroupItem value="wind" aria-label="Wind" data-chart="wind">
+    <Wind className="h-4 w-4" />
+  </ToggleGroupItem>
+</ToggleGroup>
             )}
             <ToggleGroup 
               type="single" 
@@ -325,8 +306,8 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         
         {/* Render both views but hide one with CSS to prevent re-mounting and ensure icons are pre-loaded */}
         <div className="relative h-[150px] w-full">
-          {/* Chart View with SVG isolation */}
-          <div className={cn("w-full h-full svg-isolated-chart", { 'hidden': view !== 'chart' })}>
+          {/* Chart View */}
+          <div className={cn("w-full h-full", { 'hidden': view !== 'chart' })}>
             {!chartData.length ? <Skeleton className="w-full h-full" /> : (
               <ChartContainer config={chartConfig} className="w-full h-full">
                 <LineChart 
@@ -428,63 +409,61 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                     strokeOpacity={0.7}
                   />
 
-                  {displayModes.includes('temperature') && (
-                    <Line
-                      yAxisId="temp"
-                      type="monotone"
-                      dataKey="temperature"
-                      stroke="var(--color-temperature)"
-                      dot={false}
-                      activeDot={{ r: 6 }}
-                      strokeWidth={2}
-                    />
-                  )}
-                  {displayModes.includes('rain') && (
-                    <Line
-                      yAxisId="rain"
-                      type="monotone"
-                      dataKey="rain"
-                      stroke="var(--color-rain)"
-                      dot={false}
-                      activeDot={{ r: 6 }}
-                      strokeWidth={2}
-                    />
-                  )}
-                  {displayModes.includes('wind') && (
-                    <Line
-                      yAxisId="wind"
-                      type="monotone"
-                      dataKey="wind"
-                      stroke="var(--color-wind)"
-                      dot={false}
-                      activeDot={{ r: 6 }}
-                      strokeWidth={2}
-                    />
-                  )}
+                 {displayModes.includes('temperature') && (
+  <Line
+    yAxisId="temp"
+    type="monotone"
+    dataKey="temperature"
+    stroke="var(--color-temperature)"
+    dot={false}
+    activeDot={{ r: 6 }}
+    strokeWidth={2}
+  />
+)}
+{displayModes.includes('rain') && (
+  <Line
+    yAxisId="rain"
+    type="monotone"
+    dataKey="rain"
+    stroke="var(--color-rain)"
+    dot={false}
+    activeDot={{ r: 6 }}
+    strokeWidth={2}
+  />
+)}
+{displayModes.includes('wind') && (
+  <Line
+    yAxisId="wind"
+    type="monotone"
+    dataKey="wind"
+    stroke="var(--color-wind)"
+    dot={false}
+    activeDot={{ r: 6 }}
+    strokeWidth={2}
+  />
+)}
                 </LineChart>
               </ChartContainer>
             )}
           </div>
 
-          {/* List View with SVG isolation - force remount with key */}
-          {view === 'list' && (
-            <div key={`${chartId}-list-${view}`} className={cn(`grid ${type === 'daily' ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-4 md:grid-cols-8'} gap-2 h-[150px] overflow-y-auto svg-isolated-list`)}>
-              {type === 'daily'
-                ? (listData as DailyDataPoint[]).map((day) => (
-                    <DailyForecastItem key={day.time} day={day} units={units} chartId={chartId} />
-                  ))
-                : (listData as HourlyDataPoint[]).map((hour) => (
-                    <HourlyForecastItem
-                      key={hour.time}
-                      hour={hour}
-                      units={units}
-                      timezone={weatherData.timezone}
-                      chartId={chartId}
-                    />
-                  ))
-              }
-            </div>
-          )}
+          {/* List View */}
+          <div className={cn(`grid ${type === 'daily' ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-4 md:grid-cols-8'} gap-2 h-[150px] overflow-y-auto`, { 'hidden': view !== 'list' })}>
+            {type === 'daily'
+              ? (listData as DailyDataPoint[]).map((day) => (
+                  <DailyForecastItem key={day.time} day={day} units={units} chartId={chartId} />
+                ))
+              : (listData as HourlyDataPoint[]).map((hour) => (
+                  <HourlyForecastItem
+                    key={hour.time}
+                    hour={hour}
+                    units={units}
+                    timezone={weatherData.timezone}
+                    chartId={chartId}
+                  />
+                ))
+            }
+          </div>
         </div>
       </CardContent>
     </Card>

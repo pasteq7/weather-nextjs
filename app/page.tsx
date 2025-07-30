@@ -7,6 +7,7 @@ import TopBar from '@/components/layout/top-bar';
 import Footer from '@/components/layout/footer';
 import { WeatherData } from '@/lib/types';
 import Loading from './loading';
+import ErrorDisplay from '@/components/features/error-display';
 
 // This async function will fetch all necessary data.
 // Errors thrown here will be caught by the nearest error.tsx boundary.
@@ -52,14 +53,30 @@ export default async function HomePage({
   const lon = params?.lon as string | undefined;
   const units = (params?.units as string) || 'metric';
 
-  const { weatherData, locationName } = await getWeather(locationQuery, lat, lon, units);
+  let weatherData: WeatherData | null = null;
+  let locationName: string | null = null;
+  let error: string | null = null;
+
+  try {
+    const result = await getWeather(locationQuery, lat, lon, units);
+    weatherData = result.weatherData;
+    locationName = result.locationName;
+  } catch (e) {
+    if (e instanceof Error) {
+      error = e.message;
+    } else {
+      error = 'An unknown error occurred while fetching weather data.';
+    }
+    console.error(e);
+  }
 
   return (
     <div className="p-2 md:p-4 lg:p-6 mx-auto max-w-7xl w-full flex-grow flex flex-col gap-4">
       {/* Always render TopBar - it handles geolocation */}
       <TopBar locationName={locationName || ''} />
+      <ErrorDisplay error={error} />
       
-      {/* If getWeather returns null, show loading for the main content */}
+      {/* If getWeather returns null or throws an error, show loading for the main content */}
       {!weatherData || !locationName ? (
         <Loading />
       ) : (

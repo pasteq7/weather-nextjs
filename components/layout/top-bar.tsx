@@ -12,9 +12,18 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Sun, Moon, Star, Locate, ChevronDown, X } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
+import { toast } from 'sonner';
 
 interface TopBarProps {
   locationName: string;
+}
+
+// A simplified interface compatible with both Web and Capacitor Geolocation
+interface SimplePosition {
+  coords: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export default function TopBar({ locationName }: TopBarProps) {
@@ -26,8 +35,9 @@ export default function TopBar({ locationName }: TopBarProps) {
   const [locationInput, setLocationInput] = useState(searchParams.get('q') || '');
   const [isGeolocating, setIsGeolocating] = useState(false);
 
+  const isSearchableLocation = locationName && locationName !== 'Current Location' && locationName !== 'Unknown Location';
+
   useEffect(() => {
-    // Check if a location is already specified in the URL. If so, do nothing.
     if (searchParams.has('q') || searchParams.has('lat') || searchParams.has('lon')) {
       return;
     }
@@ -35,19 +45,20 @@ export default function TopBar({ locationName }: TopBarProps) {
     const geolocateOnLoad = async () => {
       setIsGeolocating(true);
       try {
-        let position;
+        let position: SimplePosition;
         if (Capacitor.isNativePlatform()) {
           await Geolocation.requestPermissions();
           position = await Geolocation.getCurrentPosition();
         } else if (navigator.geolocation) {
-          position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          position = await new Promise<SimplePosition>((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject, {
               timeout: 10000,
-              enableHighAccuracy: false
+              enableHighAccuracy: false,
             });
           });
         } else {
-          return; // Geolocation not supported.
+          toast.warning("Geolocation is not supported by your browser.");
+          return;
         }
 
         const params = new URLSearchParams(searchParams.toString());
@@ -57,17 +68,16 @@ export default function TopBar({ locationName }: TopBarProps) {
         router.push(`?${params.toString()}`);
       } catch (error) {
         console.error("Initial geolocation failed:", error);
-        // Optionally set a default location or show an error message
+        toast.error("Could not determine your location automatically.");
       } finally {
         setIsGeolocating(false);
       }
     };
 
     geolocateOnLoad();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
   useEffect(() => {
-    // Sync input with URL query param 'q' if it exists
     setLocationInput(searchParams.get('q') || '');
   }, [searchParams]);
 
@@ -84,37 +94,46 @@ export default function TopBar({ locationName }: TopBarProps) {
 
   const handleGeolocate = async () => {
     setIsGeolocating(true);
-    try {
-      let position;
+    const promise = () => new Promise<SimplePosition>((resolve, reject) => {
       if (Capacitor.isNativePlatform()) {
-        await Geolocation.requestPermissions();
-        position = await Geolocation.getCurrentPosition();
-      } else {
-        position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            timeout: 10000,
-            enableHighAccuracy: false
-          });
+        Geolocation.requestPermissions()
+          .then(() => Geolocation.getCurrentPosition())
+          .then(resolve)
+          .catch(reject);
+      } else if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          timeout: 10000,
+          enableHighAccuracy: false,
         });
+      } else {
+        reject(new Error("Geolocation not supported."));
       }
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('lat', position.coords.latitude.toString());
-      params.set('lon', position.coords.longitude.toString());
-      params.delete('q');
-      router.push(`?${params.toString()}`);
-    } catch (error) {
-      console.error("Geolocation failed:", error);
-      alert("Could not get your location.");
-    } finally {
-      setIsGeolocating(false);
-    }
+    });
+
+    toast.promise(promise(), {
+      loading: 'Getting your location...',
+      success: (position) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('lat', position.coords.latitude.toString());
+        params.set('lon', position.coords.longitude.toString());
+        params.delete('q');
+        router.push(`?${params.toString()}`);
+        setIsGeolocating(false);
+        return null;
+      },
+      error: (err) => {
+        console.error("Geolocation failed:", err);
+        setIsGeolocating(false);
+        return "Could not get your location.";
+      },
+    });
   };
-  
+
   const handleUnitsChange = (value: string) => {
     if (value) {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('units', value);
-        router.push(`?${params.toString()}`);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('units', value);
+      router.push(`?${params.toString()}`);
     }
   };
 
@@ -131,9 +150,9 @@ export default function TopBar({ locationName }: TopBarProps) {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="icon" 
+            <Button
+              variant="outline"
+              size="icon"
               onClick={handleGeolocate}
               disabled={isGeolocating}
             >
@@ -152,7 +171,7 @@ export default function TopBar({ locationName }: TopBarProps) {
         </PopoverTrigger>
         <PopoverContent className="w-60">
           <div className="grid gap-4">
-            <h4 className="font-medium leading-none">Favorites</h4>
+            <h4 className="font-medium text-muted-foreground leading-none">Favorites</h4>
             {favorites.length > 0 ? (
               <ul className="grid gap-2">
                 {favorites.map(fav => (
@@ -181,8 +200,7 @@ export default function TopBar({ locationName }: TopBarProps) {
         />
       </form>
 
-      {/* Only show favorite button if we have a location name */}
-      {locationName && (
+      {isSearchableLocation && (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>

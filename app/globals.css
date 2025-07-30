@@ -87,7 +87,7 @@
   --card-foreground: #F1F5F9;  /* Bright white */
   --popover: #0A1220;          /* Even deeper navy */
   --popover-foreground: #F1F5F9;
-  --primary: #3B82F6;          /* Vibrant blue */
+  --primary: #dfb060;          /* Vibrant blue */
   --primary-foreground: #FFFFFF;
   --secondary: #334155;        /* Blue-gray */
   --secondary-foreground: #F8FAFC;
@@ -153,4 +153,19 @@
   body::-webkit-scrollbar-thumb:hover {
     background-color: var(--primary);
   }
+}
+
+
+/* Custom Sonner Toast Styles */
+.success-toast svg {
+  color: var(--success);
+}
+.error-toast svg {
+  color: var(--destructive);
+}
+.warning-toast svg {
+  color: var(--warning);
+}
+.info-toast svg {
+  color: var(--primary);
 }

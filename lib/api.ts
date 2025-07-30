@@ -6,8 +6,12 @@ const WEATHER_API_URL = 'https://api.open-meteo.com/v1/forecast';
 
 // Fetches coordinates for a given city name
 export const getCoordinatesForCity = async (city: string) => {
+  // Sanitize the city name by removing the country code suffix (e.g., ", FR")
+  // This ensures the geocoding API receives a clean city name.
+  const cityName = city.split(',')[0].trim();
+
   const params = new URLSearchParams({
-    name: city,
+    name: cityName, // Use the sanitized city name for the search
     count: '1',
     language: 'en',
     format: 'json'
@@ -38,6 +42,7 @@ export const getCityNameFromCoordinates = async (latitude: number, longitude: nu
     
     const data = await response.json();
     if (data && data.city) {
+      // Appending the country code is great for display, so we keep it.
       return data.countryCode ? `${data.city}, ${data.countryCode}` : data.city;
     }
     return "Current Location";
@@ -73,7 +78,11 @@ export const fetchWeatherData = async (latitude: number, longitude: number, unit
 
 // Combined function to fetch weather by city name
 export const fetchWeatherByCity = async (city: string, units: string = 'metric') => {
+  // The 'city' parameter (e.g., "Clermont-Ferrand, FR") is passed here.
+  // The sanitization will happen inside getCoordinatesForCity.
   const { latitude, longitude, name } = await getCoordinatesForCity(city);
   const weatherData = await fetchWeatherData(latitude, longitude, units);
-  return { ...weatherData, name, latitude, longitude };
+  
+  // We return the original, full city name for display consistency.
+  return { ...weatherData, name: city, latitude, longitude };
 };

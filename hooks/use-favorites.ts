@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 
 const FAVORITES_STORAGE_KEY = 'favoriteLocations';
 
@@ -23,6 +24,7 @@ export const useFavorites = () => {
       setFavorites(items);
     } catch (error) {
       console.error("Could not save favorites to localStorage", error);
+      toast.error('Could not save favorites.');
     }
   };
 
@@ -30,12 +32,16 @@ export const useFavorites = () => {
     if (location && !favorites.includes(location)) {
       const newFavorites = [...favorites, location];
       saveFavorites(newFavorites);
+      toast.success(`'${location}' has been added to your favorites.`);
+    } else {
+      toast.info(`'${location}' is already in your favorites.`);
     }
   }, [favorites]);
 
   const removeFavorite = useCallback((location: string) => {
     const newFavorites = favorites.filter(fav => fav !== location);
     saveFavorites(newFavorites);
+    toast.info(`'${location}' has been removed from your favorites.`);
   }, [favorites]);
 
   return { favorites, addFavorite, removeFavorite };
