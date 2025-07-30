@@ -12,9 +12,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
             toastOptions={{
         style: {
-          background: "var(--popover)",
+          background: "var(--card)",
           color: "var(--popover-foreground)",
-          border: "1px solid var(--border)",
+          border: "1px solid var(--secondary)",
        },
         classNames: {
           success: "success-toast",
