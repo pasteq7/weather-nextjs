@@ -49,9 +49,3 @@ A modern weather application built with Next.js that provides real-time weather 
     ```
 
 4.  Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
-
-## 🙏 Acknowledgments
-
--   **Data:** [Open-Meteo](https://open-meteo.com/)
--   **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
--   **Icons:** [Lucide](https://lucide.dev/)

@@ -38,43 +38,57 @@ export default function TopBar({ locationName }: TopBarProps) {
   const isSearchableLocation = locationName && locationName !== 'Current Location' && locationName !== 'Unknown Location';
 
   useEffect(() => {
+    // Don't geolocate if a location is already specified in the URL
     if (searchParams.has('q') || searchParams.has('lat') || searchParams.has('lon')) {
       return;
     }
 
-    const geolocateOnLoad = async () => {
+    const geolocateOnLoad = () => {
       setIsGeolocating(true);
-      try {
-        let position: SimplePosition;
-        if (Capacitor.isNativePlatform()) {
-          await Geolocation.requestPermissions();
-          position = await Geolocation.getCurrentPosition();
-        } else if (navigator.geolocation) {
-          position = await new Promise<SimplePosition>((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-              timeout: 10000,
-              enableHighAccuracy: false,
-            });
-          });
-        } else {
-          toast.warning("Geolocation is not supported by your browser.");
-          return;
+      const promise = () => new Promise<SimplePosition>(async (resolve, reject) => {
+        try {
+          if (Capacitor.isNativePlatform()) {
+            await Geolocation.requestPermissions();
+            const position = await Geolocation.getCurrentPosition({ timeout: 10000, enableHighAccuracy: false });
+            resolve(position);
+          } else if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => resolve(pos as SimplePosition),
+              reject,
+              { timeout: 10000, enableHighAccuracy: false }
+            );
+          } else {
+            reject(new Error("Geolocation is not supported by your browser."));
+          }
+        } catch (e) {
+          reject(e);
         }
+      });
 
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('lat', position.coords.latitude.toString());
-        params.set('lon', position.coords.longitude.toString());
-        params.delete('q');
-        router.push(`?${params.toString()}`);
-      } catch (error) {
-        console.error("Initial geolocation failed:", error);
-        toast.error("Could not determine your location automatically.");
-      } finally {
-        setIsGeolocating(false);
-      }
+      toast.promise(promise(), {
+        loading: 'Getting your location automatically...',
+        success: (position) => {
+          const params = new URLSearchParams(searchParams.toString());
+          params.set('lat', position.coords.latitude.toString());
+          params.set('lon', position.coords.longitude.toString());
+          params.delete('q');
+          router.push(`?${params.toString()}`);
+          setIsGeolocating(false);
+          return 'Location found!';
+        },
+        error: (err: Error) => {
+          console.error("Initial geolocation failed:", err);
+          setIsGeolocating(false);
+          if (err.message.includes('denied')) {
+            return 'Location access denied. You can search for a location manually.';
+          }
+          return "Could not determine your location automatically.";
+        },
+      });
     };
 
     geolocateOnLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -94,21 +108,25 @@ export default function TopBar({ locationName }: TopBarProps) {
 
   const handleGeolocate = async () => {
     setIsGeolocating(true);
-    const promise = () => new Promise<SimplePosition>((resolve, reject) => {
-      if (Capacitor.isNativePlatform()) {
-        Geolocation.requestPermissions()
-          .then(() => Geolocation.getCurrentPosition())
-          .then(resolve)
-          .catch(reject);
-      } else if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          timeout: 10000,
-          enableHighAccuracy: false,
-        });
-      } else {
-        reject(new Error("Geolocation not supported."));
-      }
-    });
+    const promise = () => new Promise<SimplePosition>(async (resolve, reject) => {
+        try {
+          if (Capacitor.isNativePlatform()) {
+            await Geolocation.requestPermissions();
+            const position = await Geolocation.getCurrentPosition({ timeout: 10000, enableHighAccuracy: false });
+            resolve(position);
+          } else if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => resolve(pos as SimplePosition),
+              reject,
+              { timeout: 10000, enableHighAccuracy: false }
+            );
+          } else {
+            reject(new Error("Geolocation not supported."));
+          }
+        } catch (e) {
+          reject(e);
+        }
+      });
 
     toast.promise(promise(), {
       loading: 'Getting your location...',
@@ -119,11 +137,14 @@ export default function TopBar({ locationName }: TopBarProps) {
         params.delete('q');
         router.push(`?${params.toString()}`);
         setIsGeolocating(false);
-        return null;
+        return 'Location updated!';
       },
-      error: (err) => {
+      error: (err: Error) => {
         console.error("Geolocation failed:", err);
         setIsGeolocating(false);
+        if (err.message.includes('denied')) {
+            return 'Location access denied. Please enable it in your browser settings.';
+        }
         return "Could not get your location.";
       },
     });
