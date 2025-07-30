@@ -1,5 +1,7 @@
 # Weather-NextJS
 
+![Weather-NextJS screenshot](weather.png)
+
 A modern weather application built with Next.js that provides real-time weather data, detailed forecasts, and a user-friendly, responsive interface.
 
 ## 🚀 Live Demo
