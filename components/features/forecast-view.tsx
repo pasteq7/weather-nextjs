@@ -1,3 +1,4 @@
+// components\features\forecast-view.tsx
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
@@ -12,7 +13,7 @@ import CurrentWeatherIcon from '../icons/current-weather-icon';
 import { Skeleton } from '../ui/skeleton';
 import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 
-function DailyForecastItem({ day, units }: { day: DailyDataPoint; units: string }) {
+function DailyForecastItem({ day, units, chartId }: { day: DailyDataPoint; units: string; chartId: string }) {
   const [maxTemp, maxTempUnit] = formatTemperature(day.temperature_2m_max, units);
   const [minTemp] = formatTemperature(day.temperature_2m_min, units);
   // Daily forecast always uses a day icon
@@ -26,7 +27,10 @@ function DailyForecastItem({ day, units }: { day: DailyDataPoint; units: string 
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
-            <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+            {/* Force SVG isolation with key prop and unique container */}
+            <div key={`${chartId}-daily-${day.time}`} className="weather-icon-container">
+              <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+            </div>
           </TooltipTrigger>
           <TooltipContent>
             <p className="capitalize">{description}</p>
@@ -41,7 +45,7 @@ function DailyForecastItem({ day, units }: { day: DailyDataPoint; units: string 
   );
 }
 
-function HourlyForecastItem({ hour, units, timezone }: { hour: HourlyDataPoint; units: string; timezone: string; }) {
+function HourlyForecastItem({ hour, units, timezone, chartId }: { hour: HourlyDataPoint; units: string; timezone: string; chartId: string; }) {
     const [temp, tempUnit] = formatTemperature(hour.temperature, units);
     const { icon, description } = mapWmoToWeather(hour.weather_code, hour.is_day);
     const timeLabel = new Date(hour.time * 1000).toLocaleTimeString([], { 
@@ -57,7 +61,10 @@ function HourlyForecastItem({ hour, units, timezone }: { hour: HourlyDataPoint; 
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                    <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+                    {/* Force SVG isolation with key prop and unique container */}
+                    <div key={`${chartId}-hourly-${hour.time}`} className="weather-icon-container">
+                        <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+                    </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="capitalize">{description}</p>
@@ -93,6 +100,9 @@ interface ForecastViewProps {
 export default function ForecastView({ type, weatherData, units }: ForecastViewProps) {
   const [view, setView] = useState<'chart' | 'list'>('chart');
   const [displayModes, setDisplayModes] = useState<string[]>(['temperature']);
+
+  // Generate unique ID for this component instance to prevent SVG conflicts
+  const chartId = useMemo(() => `forecast-${type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, [type]);
 
   // Prevent any form submissions or default behaviors
   const handleViewChange = useCallback((value: string) => {
@@ -313,13 +323,17 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
           </div>
         </div>
         
-        {/*-- START MODIFICATION --*/}
         {/* Render both views but hide one with CSS to prevent re-mounting and ensure icons are pre-loaded */}
         <div className="relative h-[150px] w-full">
-          <div className={cn("w-full h-full", { 'hidden': view !== 'chart' })}>
+          {/* Chart View with SVG isolation */}
+          <div className={cn("w-full h-full svg-isolated-chart", { 'hidden': view !== 'chart' })}>
             {!chartData.length ? <Skeleton className="w-full h-full" /> : (
               <ChartContainer config={chartConfig} className="w-full h-full">
-                <LineChart data={chartData} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
+                <LineChart 
+                  data={chartData} 
+                  margin={{ top: 5, right: 20, left: -20, bottom: 0 }}
+                  id={`${chartId}-chart`} // Unique ID for the chart
+                >
                   <XAxis
                     dataKey="time"
                     type="number"
@@ -391,7 +405,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
 
                   {midnightTimestamps.map((time, index) => (
                     <ReferenceLine
-                      key={index}
+                      key={`${chartId}-ref-${index}`}
                       x={time}
                       yAxisId="temp"
                       stroke="hsl(var(--muted-foreground))"
@@ -452,23 +466,26 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
             )}
           </div>
 
-          <div className={cn(`grid ${type === 'daily' ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-4 md:grid-cols-8'} gap-2 h-[150px] overflow-y-auto`, { 'hidden': view !== 'list' })}>
-            {type === 'daily'
-              ? (listData as DailyDataPoint[]).map((day) => (
-                  <DailyForecastItem key={day.time} day={day} units={units} />
-                ))
-              : (listData as HourlyDataPoint[]).map((hour) => (
-                  <HourlyForecastItem
-                    key={hour.time}
-                    hour={hour}
-                    units={units}
-                    timezone={weatherData.timezone}
-                  />
-                ))
-            }
-          </div>
+          {/* List View with SVG isolation - force remount with key */}
+          {view === 'list' && (
+            <div key={`${chartId}-list-${view}`} className={cn(`grid ${type === 'daily' ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-4 md:grid-cols-8'} gap-2 h-[150px] overflow-y-auto svg-isolated-list`)}>
+              {type === 'daily'
+                ? (listData as DailyDataPoint[]).map((day) => (
+                    <DailyForecastItem key={day.time} day={day} units={units} chartId={chartId} />
+                  ))
+                : (listData as HourlyDataPoint[]).map((hour) => (
+                    <HourlyForecastItem
+                      key={hour.time}
+                      hour={hour}
+                      units={units}
+                      timezone={weatherData.timezone}
+                      chartId={chartId}
+                    />
+                  ))
+              }
+            </div>
+          )}
         </div>
-        {/*-- END MODIFICATION --*/}
       </CardContent>
     </Card>
   );
