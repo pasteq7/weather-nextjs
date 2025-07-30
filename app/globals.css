@@ -112,8 +112,8 @@
   --chart-4: #785abe;          /* Purple */
   --chart-5: #EF4444;          /* Red */
 
-  --scrollbar-track: #1E293B; /* Dark blue-gray */
-  --scrollbar-thumb: #475569; /* Gray */
+  --scrollbar-track: #171d29; /* Dark blue-gray */
+  --scrollbar-thumb: #212e3f; /* Gray */
 }
 
 
@@ -124,34 +124,26 @@
   body {
     @apply bg-background text-foreground;
   }
-}
 
-
-@layer base {
+  /* Firefox */
   * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
     scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   }
 
-  body::-webkit-scrollbar {
-    width: 8px;
+  /* Chrome, Edge, and Safari */
+  *::-webkit-scrollbar {
+    width: 12px;
   }
 
-  body::-webkit-scrollbar-track {
-    background-color: var(--scrollbar-track);
+  *::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
   }
 
-  body::-webkit-scrollbar-thumb {
+  *::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb);
-    border-radius: 10px;
-  }
-
-  body::-webkit-scrollbar-thumb:hover {
-    background-color: var(--primary);
+    border-radius: 6px;
+    border: 3px solid var(--scrollbar-track);
   }
 }
 
