@@ -1,7 +1,7 @@
 // components/features/forecast-view.tsx
 'use client';
 
-import { useState, useMemo, useCallback, Suspense } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -12,7 +12,6 @@ import { WeatherData, DailyDataPoint, HourlyDataPoint } from '@/lib/types';
 import CurrentWeatherIcon from '../icons/current-weather-icon';
 import { Skeleton } from '../ui/skeleton';
 import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
-import ForecastListSkeleton from './forecast-list-skeleton';
 
 function DailyForecastItem({ day, units, chartId, itemIndex }: { 
   day: DailyDataPoint; 
@@ -476,7 +475,6 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
           )}
 
           {view === 'list' && (
-            <Suspense fallback={<ForecastListSkeleton itemCount={type === 'daily' ? 5 : 8} type={type} />}>
               <div className={`grid ${type === 'daily' ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-4 md:grid-cols-8'} gap-2 h-[150px] overflow-y-auto`}>
                 {type === 'daily'
                   ? (listData as DailyDataPoint[]).map((day, index) => (
@@ -500,7 +498,6 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                     ))
                 }
               </div>
-            </Suspense>
           )}
         </div>
       </CardContent>
