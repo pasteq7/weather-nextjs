@@ -1,7 +1,8 @@
 // components/features/forecast-view.tsx
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react'; // Keep useState for displayModes
+import { useViewPreference } from '@/hooks/use-view-preference'; // Import the new hook
 import { Card, CardContent } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -120,10 +121,9 @@ interface ForecastViewProps {
 }
 
 export default function ForecastView({ type, weatherData, units }: ForecastViewProps) {
-  const [view, setView] = useState<'chart' | 'list'>('chart');
+const { view, setView } = useViewPreference(type, 'chart');
   const [displayModes, setDisplayModes] = useState<string[]>(['temperature']);
 
-  // Generate unique ID for this component instance with more randomness
   const chartId = useMemo(() => 
     `forecast-${type}-${Date.now()}-${Math.random().toString(36).substr(2, 12)}`, 
     [type]
@@ -131,18 +131,17 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
 
   const handleViewChange = useCallback((value: string) => {
     if (value && (value === 'chart' || value === 'list')) {
-      setView(value);
+      setView(value as 'chart' | 'list');
     }
-  }, []); // Empty dependency array means this function is created only once.
+  }, [setView]);
 
   const handleDisplayModesChange = useCallback((value: string[]) => {
-    // If you want to ensure at least one mode is selected
     if (value.length > 0) {
       setDisplayModes(value);
     } else {
       setDisplayModes(['temperature']);
     }
-  }, []); // Empty dependency array here as well.
+  }, []);
 
   const config = useMemo(() => ({
     hourly: {
