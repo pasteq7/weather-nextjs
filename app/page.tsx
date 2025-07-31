@@ -71,7 +71,7 @@ export default async function HomePage({
   }
 
   return (
-    <div className="p-2 md:p-4 lg:p-6 mx-auto max-w-7xl w-full flex-grow flex flex-col gap-4">
+    <div className="p-2 md:p-4 mx-auto max-w-7xl w-full flex-grow flex flex-col gap-4">
       {/* Always render TopBar - it handles geolocation */}
       <TopBar locationName={locationName || ''} />
       <ErrorDisplay error={error} />
