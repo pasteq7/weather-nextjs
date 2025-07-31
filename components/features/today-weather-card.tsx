@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import CurrentWeatherIcon from "@/components/icons/current-weather-icon";
@@ -10,6 +13,17 @@ interface TodayWeatherCardProps {
 }
 
 export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCardProps) {
+  const [formattedTime, setFormattedTime] = useState('');
+
+  useEffect(() => {
+    const time = new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    setFormattedTime(time);
+  }, []); // The empty dependency array ensures this runs once on mount
+
   if (!weatherData) {
     return (
       <Card className="flex flex-col items-center justify-center p-2 flex-grow">
@@ -39,7 +53,8 @@ export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCar
           {description}
         </p>
         <p className="text-xs text-muted-foreground/50 mb-2">
-          Last updated: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+          {/* Display the time from the state */}
+          Last updated: {formattedTime}
         </p>
       </div>
     </Card>
