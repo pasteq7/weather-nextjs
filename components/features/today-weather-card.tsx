@@ -16,13 +16,15 @@ export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCar
   const [formattedTime, setFormattedTime] = useState('');
 
   useEffect(() => {
+    // This effect will now re-run whenever the `weatherData` prop changes,
+    // ensuring the timestamp is updated on new fetches.
     const time = new Date().toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false
     });
     setFormattedTime(time);
-  }, []); // The empty dependency array ensures this runs once on mount
+  }, [weatherData]); // Add weatherData to the dependency array
 
   if (!weatherData) {
     return (
@@ -53,7 +55,7 @@ export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCar
           {description}
         </p>
         <p className="text-xs text-muted-foreground/50 mb-2">
-          {/* Display the time from the state */}
+          {/* Display the time from the state, which is now correctly updated */}
           Last updated: {formattedTime}
         </p>
       </div>
