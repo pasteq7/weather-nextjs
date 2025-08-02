@@ -54,12 +54,12 @@ export const formatVisibility = (visibility: number, units: string): [string, st
   return [distanceInKm.toFixed(1), 'km'];
 };
 
-export const formatTime = (time: Date, timezone: string) => {
+export const formatTime = (time: Date, timezone: string, units: string) => {
   if (!time) return '';
   return time.toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false,
+    hour12: units === 'imperial',
     timeZone: timezone
   });
 };

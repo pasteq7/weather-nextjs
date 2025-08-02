@@ -21,10 +21,11 @@ export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCar
     const time = new Date().toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false
+      hour12: units === 'imperial',
+      timeZone: weatherData?.timezone,
     });
     setFormattedTime(time);
-  }, [weatherData]); // Add weatherData to the dependency array
+  }, [weatherData, units]); // Add weatherData and units to the dependency array
 
   if (!weatherData) {
     return (

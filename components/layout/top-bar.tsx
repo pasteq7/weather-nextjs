@@ -37,6 +37,16 @@ export default function TopBar({ locationName }: TopBarProps) {
 
   const isSearchableLocation = locationName && locationName !== 'Current Location' && locationName !== 'Unknown Location';
 
+  // Effect for auto-refreshing data every hour
+  useEffect(() => {
+    const interval = setInterval(() => {
+      toast.info("Refreshing weather data...");
+      router.refresh();
+    }, 3600000); // 1 hour in milliseconds
+
+    return () => clearInterval(interval);
+  }, [router]);
+
   useEffect(() => {
     // Don't geolocate if a location is already specified in the URL
     if (searchParams.has('q') || searchParams.has('lat') || searchParams.has('lon')) {
@@ -80,7 +90,7 @@ export default function TopBar({ locationName }: TopBarProps) {
           console.error("Initial geolocation failed:", err);
           setIsGeolocating(false);
           if (err.message.includes('denied')) {
-            return 'Location access denied. You can search for a location manually.';
+            return 'Location access denied. Please enable it in your browser settings.';
           }
           return "Could not determine your location automatically.";
         },
@@ -182,47 +192,45 @@ export default function TopBar({ locationName }: TopBarProps) {
           </TooltipTrigger>
           <TooltipContent><p>{isGeolocating ? 'Getting Location...' : 'My Location'}</p></TooltipContent>
         </Tooltip>
-      </TooltipProvider>
 
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" size="icon">
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-60">
-          <div className="grid gap-4">
-            <h4 className="font-medium text-muted-foreground leading-none">Favorites</h4>
-            {favorites.length > 0 ? (
-              <ul className="grid gap-2">
-                {favorites.map(fav => (
-                  <li key={fav} className="flex items-center justify-between">
-                    <Button variant="link" className="p-0 h-auto" onClick={() => handleFavoriteSelect(fav)}>
-                      {fav}
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFavorite(fav)}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">No favorites yet.</p>
-            )}
-          </div>
-        </PopoverContent>
-      </Popover>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="icon">
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-60">
+            <div className="grid gap-4">
+              <h4 className="font-medium text-muted-foreground leading-none">Favorites</h4>
+              {favorites.length > 0 ? (
+                <ul className="grid gap-2">
+                  {favorites.map(fav => (
+                    <li key={fav} className="flex items-center justify-between">
+                      <Button variant="link" className="p-0 h-auto" onClick={() => handleFavoriteSelect(fav)}>
+                        {fav}
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFavorite(fav)}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">No favorites yet.</p>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
 
-      <form onSubmit={handleSearch} className="flex-grow">
-        <Input
-          placeholder="Search for a location..."
-          value={locationInput}
-          onChange={(e) => setLocationInput(e.target.value)}
-        />
-      </form>
+        <form onSubmit={handleSearch} className="flex-grow">
+          <Input
+            placeholder="Search for a location..."
+            value={locationInput}
+            onChange={(e) => setLocationInput(e.target.value)}
+          />
+        </form>
 
-      {isSearchableLocation && (
-        <TooltipProvider>
+        {isSearchableLocation && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline" size="icon" onClick={() => addFavorite(locationName)}>
@@ -231,10 +239,8 @@ export default function TopBar({ locationName }: TopBarProps) {
             </TooltipTrigger>
             <TooltipContent><p>Add to Favorites</p></TooltipContent>
           </Tooltip>
-        </TooltipProvider>
-      )}
+        )}
 
-      <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="outline" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
@@ -244,12 +250,22 @@ export default function TopBar({ locationName }: TopBarProps) {
           </TooltipTrigger>
           <TooltipContent><p>Toggle Theme</p></TooltipContent>
         </Tooltip>
-      </TooltipProvider>
 
-      <ToggleGroup type="single" variant="outline" value={searchParams.get('units') || 'metric'} onValueChange={handleUnitsChange}>
-        <ToggleGroupItem value="metric" aria-label="Metric">°C</ToggleGroupItem>
-        <ToggleGroupItem value="imperial" aria-label="Imperial">°F</ToggleGroupItem>
-      </ToggleGroup>
+        <ToggleGroup type="single" variant="outline" value={searchParams.get('units') || 'metric'} onValueChange={handleUnitsChange}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem value="metric" aria-label="Metric">°C</ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent><p>Celsius</p></TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem value="imperial" aria-label="Imperial">°F</ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent><p>Fahrenheit</p></TooltipContent>
+          </Tooltip>
+        </ToggleGroup>
+      </TooltipProvider>
     </div>
   );
 }

@@ -71,7 +71,7 @@ function HourlyForecastItem({
   const timeLabel = new Date(hour.time * 1000).toLocaleTimeString([], { 
     hour: '2-digit', 
     minute: '2-digit', 
-    hour12: false, 
+    hour12: units === 'imperial', 
     timeZone: timezone 
   });
 
@@ -121,8 +121,14 @@ interface ForecastViewProps {
 }
 
 export default function ForecastView({ type, weatherData, units }: ForecastViewProps) {
-const { view, setView } = useViewPreference(type, type === 'hourly' ? 'chart' : 'list');
-  const [displayModes, setDisplayModes] = useState<string[]>(['temperature']);
+  const { preferences, setPreferences } = useViewPreference(
+    type, 
+    { 
+      view: type === 'hourly' ? 'chart' : 'list', 
+      displayModes: ['temperature'] 
+    }
+  );
+  const { view, displayModes } = preferences;
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -137,17 +143,15 @@ const { view, setView } = useViewPreference(type, type === 'hourly' ? 'chart' : 
 
   const handleViewChange = useCallback((value: string) => {
     if (value && (value === 'chart' || value === 'list')) {
-      setView(value as 'chart' | 'list');
+      setPreferences({ view: value as 'chart' | 'list' });
     }
-  }, [setView]);
+  }, [setPreferences]);
 
   const handleDisplayModesChange = useCallback((value: string[]) => {
-    if (value.length > 0) {
-      setDisplayModes(value);
-    } else {
-      setDisplayModes(['temperature']);
-    }
-  }, []);
+    // Ensure 'temperature' is always included
+    const newModes = ['temperature', ...value.filter(v => v !== 'temperature')];
+    setPreferences({ displayModes: newModes });
+  }, [setPreferences]);
 
   const config = useMemo(() => ({
     hourly: {
@@ -155,7 +159,7 @@ const { view, setView } = useViewPreference(type, type === 'hourly' ? 'chart' : 
       tickFormatter: (tick: number) => new Date(tick * 1000).toLocaleTimeString([], { 
         hour: '2-digit', 
         minute: '2-digit', 
-        hour12: false 
+        hour12: units === 'imperial'
       }),
     },
     daily: {
@@ -165,7 +169,7 @@ const { view, setView } = useViewPreference(type, type === 'hourly' ? 'chart' : 
         day: 'numeric' 
       }),
     },
-  }), []);
+  }), [units]);
 
   const chartData = useMemo(() => {
     if (!weatherData?.hourly?.time || !weatherData?.daily?.time?.[0]) return [];
@@ -182,7 +186,7 @@ const { view, setView } = useViewPreference(type, type === 'hourly' ? 'chart' : 
 
     if (startIndex === -1) return [];
 
-    const dataSlice = type === 'hourly' ? 24 : 96;
+    const dataSlice = type === 'hourly' ? 24 : 120; // 120 hours = 5 days
 
     return time.slice(startIndex, startIndex + dataSlice).map((t, i) => ({
       time: t,
@@ -402,7 +406,7 @@ const { view, setView } = useViewPreference(type, type === 'hourly' ? 'chart' : 
                         dataKey="time"
                         type="number"
                         domain={['dataMin', 'dataMax']}
-                        ticks={type === 'daily' ? midnightTimestamps.slice(1, -1) : hourlyTicks}
+                        ticks={type === 'daily' ? midnightTimestamps.slice(1) : hourlyTicks}
                         tickFormatter={config[type].tickFormatter}
                         tickLine={false}
                         axisLine={false}
@@ -430,7 +434,7 @@ const { view, setView } = useViewPreference(type, type === 'hourly' ? 'chart' : 
                               day: 'numeric',
                               hour: '2-digit',
                               minute: '2-digit',
-                              hour12: false
+                              hour12: units === 'imperial'
                             })}
                             formatter={(value, name, item) => {
                               let displayValue;
