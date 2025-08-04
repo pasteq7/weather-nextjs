@@ -8,7 +8,7 @@ export const TEMPERATURE_UNIT_FAHRENHEIT = '°F';
 
 export const WMO_CODES: { [key: number]: { desc: string; icon: string } } = {
   0: { desc: 'Clear sky', icon: '01' },
-  1: { desc: 'Mainly clear', icon: '02' },
+  1: { desc: 'Mainly clear', icon: '01' },
   2: { desc: 'Partly cloudy', icon: '02' },
   3: { desc: 'Overcast', icon: '04' },
   45: { desc: 'Fog', icon: '50' },
