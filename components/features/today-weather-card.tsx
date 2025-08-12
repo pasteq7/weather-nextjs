@@ -15,19 +15,21 @@ interface TodayWeatherCardProps {
 
 export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCardProps) {
   const t = useTranslations();
-  const [formattedTime, setFormattedTime] = useState('');
+  const [lastFetchedTime, setLastFetchedTime] = useState('');
 
   useEffect(() => {
-    if (weatherData?.current?.time) {
-      const time = new Date(weatherData.current.time * 1000).toLocaleTimeString([], {
+    // This effect now runs whenever new weatherData is received.
+    if (weatherData) {
+      // Get the current time from the user's computer
+      const now = new Date();
+      const time = now.toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
         hour12: units === 'imperial',
-        timeZone: weatherData.timezone,
       });
-      setFormattedTime(time);
+      setLastFetchedTime(time);
     }
-  }, [weatherData, units]);
+  }, [weatherData, units]); // Re-run when data or units change
 
   if (!weatherData) {
     return (
@@ -59,7 +61,7 @@ export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCar
           {description}
         </p>
         <p className="text-xs text-muted-foreground/50 mb-2">
-          {t('Weather.lastUpdated', { time: formattedTime })}
+          {t('Weather.lastUpdated', { time: lastFetchedTime })}
         </p>
       </div>
     </Card>
