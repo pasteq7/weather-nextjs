@@ -16,16 +16,17 @@ export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCar
   const [formattedTime, setFormattedTime] = useState('');
 
   useEffect(() => {
-    // This effect will now re-run whenever the `weatherData` prop changes,
-    // ensuring the timestamp is updated on new fetches.
-    const time = new Date().toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: units === 'imperial',
-      timeZone: weatherData?.timezone,
-    });
-    setFormattedTime(time);
-  }, [weatherData, units]); // Add weatherData and units to the dependency array
+    if (weatherData?.current?.time) {
+      // CHANGE: Use the timestamp from the API data instead of new Date()
+      const time = new Date(weatherData.current.time * 1000).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: units === 'imperial',
+        timeZone: weatherData.timezone,
+      });
+      setFormattedTime(time);
+    }
+  }, [weatherData, units]);
 
   if (!weatherData) {
     return (

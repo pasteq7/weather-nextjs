@@ -66,9 +66,7 @@ export const fetchWeatherData = async (latitude: number, longitude: number, unit
     wind_speed_unit: isImperial ? 'mph' : 'kmh',
   });
 
-  const response = await fetch(`${WEATHER_API_URL}?${params.toString()}`, {
-    next: { revalidate: 3600 } // Revalidate data every hour
-  });
+  const response = await fetch(`${WEATHER_API_URL}?${params.toString()}`);
 
   if (!response.ok) {
     throw new Error('Failed to fetch weather data.');

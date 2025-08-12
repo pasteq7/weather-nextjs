@@ -41,3 +41,4 @@ yarn-error.log*
 next-env.d.ts
 codebase.txt
 extract_codebase.py
+data/400Kcities.json
