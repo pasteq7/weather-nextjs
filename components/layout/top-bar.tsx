@@ -1,24 +1,29 @@
+// components/layout/top-bar.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
 import { useTheme } from 'next-themes';
 import { useFavorites } from '@/hooks/use-favorites';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Sun, Moon, Star, Locate, ChevronDown, X } from 'lucide-react';
+import { Sun, Moon, Star, Locate, X, ChevronDown, Languages } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
+import { useAppContext } from '@/app/context/AppContext';
+import { Locale } from '@/i18n-config';
+import { useLanguage } from '@/app/context/LanguageProvider'; // Import the new hook
 
-interface TopBarProps {
-  locationName: string;
-}
-
-// A simplified interface compatible with both Web and Capacitor Geolocation
 interface SimplePosition {
   coords: {
     latitude: number;
@@ -26,154 +31,143 @@ interface SimplePosition {
   };
 }
 
-export default function TopBar({ locationName }: TopBarProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export default function TopBar() {
+  const t = useTranslations();
+  // Use our new client-side language hook
+  const { locale, setLocale } = useLanguage();
+
   const { theme, setTheme } = useTheme();
   const { favorites, addFavorite, removeFavorite } = useFavorites();
+  const { 
+    location, 
+    units, 
+    setUnits, 
+    setLocationByName, 
+    setLocationByCoords, 
+    refreshData,
+    isInitializing,
+    finishInitialization
+  } = useAppContext();
 
-  const [locationInput, setLocationInput] = useState(searchParams.get('q') || '');
+  const [locationInput, setLocationInput] = useState('');
   const [isGeolocating, setIsGeolocating] = useState(false);
 
-  const isSearchableLocation = locationName && locationName !== 'Current Location' && locationName !== 'Unknown Location';
+  const isSearchableLocation = location.name && 
+    location.name !== (t('Weather.currentLocation') || 'Current Location') && 
+    location.name !== (t('Weather.unknownLocation') || 'Unknown Location');
 
-  // Effect for auto-refreshing data every hour
+  // Auto-refresh interval
   useEffect(() => {
     const interval = setInterval(() => {
-      toast.info("Refreshing weather data...");
-      router.refresh();
-    }, 3600000); // 1 hour in milliseconds
+      if (location.name || (location.lat && location.lon)) {
+        refreshData();
+      }
+    }, 3600000); // 1 hour
 
     return () => clearInterval(interval);
-  }, [router]);
+  }, [location, refreshData]);
 
-  useEffect(() => {
-    // Don't geolocate if a location is already specified in the URL
-    if (searchParams.has('q') || searchParams.has('lat') || searchParams.has('lon')) {
-      return;
-    }
-
-    const geolocateOnLoad = () => {
-      setIsGeolocating(true);
-      const promise = () => new Promise<SimplePosition>(async (resolve, reject) => {
-        try {
-          if (Capacitor.isNativePlatform()) {
-            await Geolocation.requestPermissions();
-            const position = await Geolocation.getCurrentPosition({ timeout: 10000, enableHighAccuracy: false });
-            resolve(position);
-          } else if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => resolve(pos as SimplePosition),
-              reject,
-              { timeout: 10000, enableHighAccuracy: false }
-            );
-          } else {
-            reject(new Error("Geolocation is not supported by your browser."));
+  const handleGeolocate = useCallback(async (isAuto = false) => {
+    if (isGeolocating) return;
+    
+    setIsGeolocating(true);
+    
+    const promise = () => new Promise<SimplePosition>(async (resolve, reject) => {
+      try {
+        if (Capacitor.isNativePlatform()) {
+          const permissions = await Geolocation.requestPermissions();
+          if (permissions.location !== 'granted') {
+            throw new Error('Location permission denied');
           }
-        } catch (e) {
-          reject(e);
+          const position = await Geolocation.getCurrentPosition({ 
+            timeout: 10000, 
+            enableHighAccuracy: false 
+          });
+          resolve(position);
+        } else if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve(pos as SimplePosition),
+            (error) => {
+              let message = 'Geolocation failed';
+              if (error.code === error.PERMISSION_DENIED) {
+                message = 'Location permission denied';
+              } else if (error.code === error.POSITION_UNAVAILABLE) {
+                message = 'Location unavailable';
+              } else if (error.code === error.TIMEOUT) {
+                message = 'Location request timeout';
+              }
+              reject(new Error(message));
+            },
+            { timeout: 10000, enableHighAccuracy: false }
+          );
+        } else {
+          reject(new Error('Geolocation not supported'));
         }
-      });
+      } catch (e) {
+        reject(e);
+      }
+    });
 
-      toast.promise(promise(), {
-        loading: 'Getting your location automatically...',
-        success: (position) => {
-          const params = new URLSearchParams(searchParams.toString());
-          params.set('lat', position.coords.latitude.toString());
-          params.set('lon', position.coords.longitude.toString());
-          params.delete('q');
-          router.push(`?${params.toString()}`);
-          setIsGeolocating(false);
-          return 'Location found!';
-        },
-        error: (err: Error) => {
-          console.error("Initial geolocation failed:", err);
-          setIsGeolocating(false);
-          if (err.message.includes('denied')) {
-            return 'Location access denied. Please enable it in your browser settings.';
-          }
-          return "Could not determine your location automatically.";
-        },
-      });
-    };
+    toast.promise(promise(), {
+      loading: isAuto 
+        ? (t('Toasts.gettingLocationAuto') || 'Getting your location...') 
+        : (t('Toasts.gettingLocation') || 'Getting location...'),
+      success: (position) => {
+        if (isAuto) finishInitialization();
+        setLocationByCoords(position.coords.latitude, position.coords.longitude);
+        setIsGeolocating(false);
+        return t('Toasts.locationFound') || 'Location found!';
+      },
+      error: (err: Error) => {
+        if (isAuto) finishInitialization();
+        console.error("Geolocation failed:", err);
+        setIsGeolocating(false);
+        if (err.message.includes('denied') || err.message.includes('permission')) {
+          return t('Toasts.locationDenied') || 'Location access denied';
+        }
+        return isAuto 
+          ? (t('Toasts.locationErrorAuto') || 'Could not get your location automatically') 
+          : (t('Toasts.locationError') || 'Could not get your location');
+      },
+    });
+  }, [isGeolocating, finishInitialization, setLocationByCoords, t]);
 
-    geolocateOnLoad();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  // Auto-geolocate only during true initialization
   useEffect(() => {
-    setLocationInput(searchParams.get('q') || '');
-  }, [searchParams]);
+    if (isInitializing) {
+      handleGeolocate(true);
+    }
+  }, [isInitializing, handleGeolocate]);
+
+  // Update input when location changes
+  useEffect(() => {
+    setLocationInput(location.name || '');
+  }, [location.name]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (locationInput.trim()) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('q', locationInput.trim());
-      params.delete('lat');
-      params.delete('lon');
-      router.push(`?${params.toString()}`);
+    const searchTerm = locationInput.trim();
+    if (searchTerm) {
+      setLocationByName(searchTerm);
     }
   };
 
-  const handleGeolocate = async () => {
-    setIsGeolocating(true);
-    const promise = () => new Promise<SimplePosition>(async (resolve, reject) => {
-        try {
-          if (Capacitor.isNativePlatform()) {
-            await Geolocation.requestPermissions();
-            const position = await Geolocation.getCurrentPosition({ timeout: 10000, enableHighAccuracy: false });
-            resolve(position);
-          } else if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => resolve(pos as SimplePosition),
-              reject,
-              { timeout: 10000, enableHighAccuracy: false }
-            );
-          } else {
-            reject(new Error("Geolocation not supported."));
-          }
-        } catch (e) {
-          reject(e);
-        }
-      });
-
-    toast.promise(promise(), {
-      loading: 'Getting your location...',
-      success: (position) => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('lat', position.coords.latitude.toString());
-        params.set('lon', position.coords.longitude.toString());
-        params.delete('q');
-        router.push(`?${params.toString()}`);
-        setIsGeolocating(false);
-        return 'Location updated!';
-      },
-      error: (err: Error) => {
-        console.error("Geolocation failed:", err);
-        setIsGeolocating(false);
-        if (err.message.includes('denied')) {
-            return 'Location access denied. Please enable it in your browser settings.';
-        }
-        return "Could not get your location.";
-      },
-    });
+  const handleUnitsChange = (value: 'metric' | 'imperial') => {
+    if (value) {
+      setUnits(value);
+    }
   };
 
-  const handleUnitsChange = (value: string) => {
-    if (value) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('units', value);
-      router.push(`?${params.toString()}`);
+  // REWRITTEN: This function now uses the client-side context to change the locale instantly.
+  const handleLangChange = (value: string) => {
+    const newLocale = value as Locale;
+    if (newLocale && newLocale !== locale) {
+      setLocale(newLocale);
     }
   };
 
   const handleFavoriteSelect = (fav: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('q', fav);
-    params.delete('lat');
-    params.delete('lon');
-    router.push(`?${params.toString()}`);
+    setLocationByName(fav);
   };
 
   return (
@@ -184,39 +178,59 @@ export default function TopBar({ locationName }: TopBarProps) {
             <Button
               variant="outline"
               size="icon"
-              onClick={handleGeolocate}
+              onClick={() => handleGeolocate(false)}
               disabled={isGeolocating}
             >
               <Locate className={`h-4 w-4 ${isGeolocating ? 'animate-spin' : ''}`} />
             </Button>
           </TooltipTrigger>
-          <TooltipContent><p>{isGeolocating ? 'Getting Location...' : 'My Location'}</p></TooltipContent>
+          <TooltipContent>
+            <p>
+              {isGeolocating 
+                ? (t('TopBar.gettingLocationTooltip') || 'Getting location...') 
+                : (t('TopBar.myLocationTooltip') || 'Use my location')
+              }
+            </p>
+          </TooltipContent>
         </Tooltip>
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" aria-label={t('TopBar.favoritesTooltip') || 'Favorites'}>
               <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-60">
             <div className="grid gap-4">
-              <h4 className="font-medium text-muted-foreground leading-none">Favorites</h4>
+              <h4 className="font-medium text-muted-foreground leading-none">
+                {t('TopBar.favoritesTitle') || 'Favorites'}
+              </h4>
               {favorites.length > 0 ? (
                 <ul className="grid gap-2">
                   {favorites.map(fav => (
                     <li key={fav} className="flex items-center justify-between">
-                      <Button variant="link" className="p-0 h-auto" onClick={() => handleFavoriteSelect(fav)}>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto" 
+                        onClick={() => handleFavoriteSelect(fav)}
+                      >
                         {fav}
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFavorite(fav)}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6" 
+                        onClick={() => removeFavorite(fav)}
+                      >
                         <X className="h-4 w-4" />
                       </Button>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-muted-foreground">No favorites yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  {t('TopBar.noFavorites') || 'No favorites yet'}
+                </p>
               )}
             </div>
           </PopoverContent>
@@ -224,7 +238,7 @@ export default function TopBar({ locationName }: TopBarProps) {
 
         <form onSubmit={handleSearch} className="flex-grow">
           <Input
-            placeholder="Search for a location..."
+            placeholder={t('TopBar.searchPlaceholder') || 'Search for a city...'}
             value={locationInput}
             onChange={(e) => setLocationInput(e.target.value)}
           />
@@ -233,36 +247,80 @@ export default function TopBar({ locationName }: TopBarProps) {
         {isSearchableLocation && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" onClick={() => addFavorite(locationName)}>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={() => addFavorite(location.name!)}
+              >
                 <Star className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent><p>Add to Favorites</p></TooltipContent>
+            <TooltipContent>
+              <p>{t('TopBar.addFavoriteTooltip') || 'Add to favorites'}</p>
+            </TooltipContent>
           </Tooltip>
         )}
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            >
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent><p>Toggle Theme</p></TooltipContent>
+          <TooltipContent>
+            <p>{t('TopBar.toggleThemeTooltip') || 'Toggle theme'}</p>
+          </TooltipContent>
         </Tooltip>
 
-        <ToggleGroup type="single" variant="outline" value={searchParams.get('units') || 'metric'} onValueChange={handleUnitsChange}>
+        <DropdownMenu>
           <Tooltip>
             <TooltipTrigger asChild>
-              <ToggleGroupItem value="metric" aria-label="Metric">°C</ToggleGroupItem>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Languages className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
             </TooltipTrigger>
-            <TooltipContent><p>Celsius</p></TooltipContent>
+            <TooltipContent>
+              <p>{t('TopBar.changeLanguageTooltip') || 'Change language'}</p>
+            </TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleLangChange('en')} disabled={locale === 'en'}>
+              {t('TopBar.english') || 'English'}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleLangChange('fr')} disabled={locale === 'fr'}>
+              {t('TopBar.french') || 'French'}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <ToggleGroup 
+          type="single" 
+          variant="outline" 
+          value={units} 
+          onValueChange={(v) => handleUnitsChange(v as 'metric' | 'imperial')}
+        >
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem value="metric" aria-label="Metric">
+                °C
+              </ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent><p>{t('TopBar.celsiusTooltip') || 'Celsius'}</p></TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <ToggleGroupItem value="imperial" aria-label="Imperial">°F</ToggleGroupItem>
+              <ToggleGroupItem value="imperial" aria-label="Imperial">
+                °F
+              </ToggleGroupItem>
             </TooltipTrigger>
-            <TooltipContent><p>Fahrenheit</p></TooltipContent>
+            <TooltipContent><p>{t('TopBar.fahrenheitTooltip') || 'Fahrenheit'}</p></TooltipContent>
           </Tooltip>
         </ToggleGroup>
       </TooltipProvider>

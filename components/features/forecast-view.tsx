@@ -12,39 +12,47 @@ import { formatTemperature, mapWmoToWeather, formatWindSpeed, cn } from '@/lib/u
 import { WeatherData, DailyDataPoint, HourlyDataPoint } from '@/lib/types';
 import CurrentWeatherIcon from '../icons/current-weather-icon';
 import { Skeleton } from '../ui/skeleton';
-import { ChartContainer, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
+import { useTranslations, useLocale } from 'next-intl';
 
-function DailyForecastItem({ day, units, chartId, itemIndex }: { 
+function DailyForecastItem({ day, units, chartId, itemIndex, locale }: { 
   day: DailyDataPoint; 
   units: string; 
   chartId: string;
   itemIndex: number;
+  locale: string;
 }) {
+  const t = useTranslations('WMO');
+  const [isHovered, setIsHovered] = useState(false);
   const [maxTemp, maxTempUnit] = formatTemperature(day.temperature_2m_max, units);
   const [minTemp] = formatTemperature(day.temperature_2m_min, units);
-  const { icon, description } = mapWmoToWeather(day.weather_code, 1);
+  const { icon, descriptionKey } = mapWmoToWeather(day.weather_code, 1);
+  const description = t(descriptionKey);
   const date = new Date(day.time * 1000);
-  const dayLabel = date.toLocaleDateString(undefined, { weekday: 'long' });
+  const dayLabel = date.toLocaleDateString(locale, { weekday: 'long' });
+  const capitalizedDayLabel = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
 
   return (
-    <div className="flex flex-col items-center justify-center text-center gap-1 p-2">
-      <p className="font-semibold text-sm">{dayLabel}</p>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            <div 
-              key={`${chartId}-daily-${day.time}-${itemIndex}`} 
-              className="weather-icon-container"
-              style={{ isolation: 'isolate' }} // CSS isolation
-            >
-              <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="capitalize">{description}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+    <div 
+      className="flex flex-col items-center justify-center text-center gap-1 p-2"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <p className="font-semibold text-sm">{capitalizedDayLabel}</p>
+      <div className="w-16 h-16 flex items-center justify-center relative">
+        <div className={cn("transition-opacity duration-300", { "opacity-0": isHovered })}>
+          <div 
+            key={`${chartId}-daily-${day.time}-${itemIndex}`} 
+            className="weather-icon-container w-full h-full"
+            style={{ isolation: 'isolate' }}
+          >
+            <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+          </div>
+        </div>
+        <div className={cn("absolute p-1 inset-0 flex items-center justify-center text-center transition-opacity duration-300", { "opacity-0": !isHovered, "pointer-events-none": !isHovered })}>
+          <p className="text-xs capitalize">{description}</p>
+        </div>
+      </div>
       <div className="text-sm">
         <span className="font-bold">{maxTemp}{maxTempUnit}</span>
         <span className="text-muted-foreground"> / {minTemp}{maxTempUnit}</span>
@@ -58,17 +66,22 @@ function HourlyForecastItem({
   units, 
   timezone, 
   chartId, 
-  itemIndex 
+  itemIndex,
+  locale
 }: { 
   hour: HourlyDataPoint; 
   units: string; 
   timezone: string; 
   chartId: string;
   itemIndex: number;
+  locale: string;
 }) {
-  const [temp, tempUnit] = formatTemperature(hour.temperature, units);
-  const { icon, description } = mapWmoToWeather(hour.weather_code, hour.is_day);
-  const timeLabel = new Date(hour.time * 1000).toLocaleTimeString([], { 
+  const t = useTranslations('WMO');
+  const [isHovered, setIsHovered] = useState(false);
+  const [temp, tempUnit] = formatTemperature(hour.temperature_2m, units);
+  const { icon, descriptionKey } = mapWmoToWeather(hour.weather_code, hour.is_day);
+  const description = t(descriptionKey);
+  const timeLabel = new Date(hour.time * 1000).toLocaleTimeString(locale, { 
     hour: '2-digit', 
     minute: '2-digit', 
     hour12: units === 'imperial', 
@@ -76,43 +89,30 @@ function HourlyForecastItem({
   });
 
   return (
-    <div className="flex flex-col items-center justify-center text-center gap-1 p-2">
+    <div 
+      className="flex flex-col items-center justify-center text-center gap-1 p-2"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <p className="font-semibold text-sm">{timeLabel}</p>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            <div 
-              key={`${chartId}-hourly-${hour.time}-${itemIndex}`} 
-              className="weather-icon-container"
-              style={{ isolation: 'isolate' }} // CSS isolation
-            >
-              <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="capitalize">{description}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="w-16 h-16 flex items-center justify-center relative">
+        <div className={cn("transition-opacity duration-300", { "opacity-0": isHovered })}>
+          <div 
+            key={`${chartId}-hourly-${hour.time}-${itemIndex}`} 
+            className="weather-icon-container w-full h-full"
+            style={{ isolation: 'isolate' }}
+          >
+            <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+          </div>
+        </div>
+        <div className={cn("absolute p-1 inset-0 flex items-center justify-center text-center transition-opacity duration-300", { "opacity-0": !isHovered, "pointer-events-none": !isHovered })}>
+          <p className="text-xs capitalize">{description}</p>
+        </div>
+      </div>
       <p className="text-sm font-bold">{temp}{tempUnit}</p>
     </div>
   );
 }
-
-const chartConfig = {
-  temperature: {
-    label: "Temperature",
-    color: "var(--muted-foreground)",
-  },
-  rain: {
-    label: "Rain",
-    color: "var(--chart-2)",
-  },
-  wind: {
-    label: "Wind",
-    color: "var(--chart-4)",
-  },
-} satisfies ChartConfig;
 
 interface ForecastViewProps {
   type: 'hourly' | 'daily';
@@ -121,6 +121,23 @@ interface ForecastViewProps {
 }
 
 export default function ForecastView({ type, weatherData, units }: ForecastViewProps) {
+  const t = useTranslations('Forecast');
+  const locale = useLocale();
+  const chartConfig = useMemo(() => ({
+    temperature: {
+      label: t('temperature'),
+      color: "var(--muted-foreground)",
+    },
+    rain: {
+      label: t('rain'),
+      color: "var(--chart-2)",
+    },
+    wind: {
+      label: t('wind'),
+      color: "var(--chart-4)",
+    },
+  }), [t]);
+
   const { preferences, setPreferences } = useViewPreference(
     type, 
     { 
@@ -132,7 +149,6 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // This runs only on the client, after the component has mounted.
     setIsMounted(true);
   }, []);
 
@@ -148,28 +164,27 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   }, [setPreferences]);
 
   const handleDisplayModesChange = useCallback((value: string[]) => {
-    // Ensure 'temperature' is always included
     const newModes = ['temperature', ...value.filter(v => v !== 'temperature')];
     setPreferences({ displayModes: newModes });
   }, [setPreferences]);
 
   const config = useMemo(() => ({
     hourly: {
-      title: 'Next 24 Hours',
-      tickFormatter: (tick: number) => new Date(tick * 1000).toLocaleTimeString([], { 
+      title: t('hourlyTitle'),
+      tickFormatter: (tick: number) => new Date(tick * 1000).toLocaleTimeString(locale, { 
         hour: '2-digit', 
         minute: '2-digit', 
         hour12: units === 'imperial'
       }),
     },
     daily: {
-      title: 'Next 5 Days',
-      tickFormatter: (tick: number) => new Date(tick * 1000).toLocaleDateString(undefined, { 
+      title: t('dailyTitle'),
+      tickFormatter: (tick: number) => new Date(tick * 1000).toLocaleDateString(locale, { 
         month: 'short', 
         day: 'numeric' 
       }),
     },
-  }), [units]);
+  }), [units, t, locale]);
 
   const chartData = useMemo(() => {
     if (!weatherData?.hourly?.time || !weatherData?.daily?.time?.[0]) return [];
@@ -255,8 +270,11 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         const sunset = daily.sunset[dayIndex];
         const temperature = hourly.temperature_2m[hourlyIndex];
         const weather_code = hourly.weather_code[hourlyIndex];
+        const precipitation_probability = hourly.precipitation_probability[hourlyIndex];
+        const wind_speed_10m = hourly.wind_speed_10m[hourlyIndex];
+        const visibility = hourly.visibility[hourlyIndex];
 
-        if (sunrise === undefined || sunset === undefined || temperature === undefined || weather_code === undefined) {
+        if (sunrise === undefined || sunset === undefined || temperature === undefined || weather_code === undefined || precipitation_probability === undefined || wind_speed_10m === undefined || visibility === undefined) {
           continue;
         }
 
@@ -264,9 +282,12 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
 
         result.push({
           time: hourTimestamp,
-          temperature: temperature,
+          temperature_2m: temperature,
           weather_code: weather_code,
           is_day: calculatedIsDay,
+          precipitation_probability: precipitation_probability,
+          wind_speed_10m: wind_speed_10m,
+          visibility: visibility,
         });
       }
       return result;
@@ -309,7 +330,6 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                 >
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      {/* Disabled items need a wrapper for the trigger to work */}
                       <span>
                         <ToggleGroupItem 
                           value="temperature" 
@@ -322,7 +342,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Temperature (Always Shown)</p>
+                      <p>{t('tempAlwaysShown')}</p>
                     </TooltipContent>
                   </Tooltip>
                   <Tooltip>
@@ -332,7 +352,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                       </ToggleGroupItem>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Toggle Rain Probability</p>
+                      <p>{t('toggleRain')}</p>
                     </TooltipContent>
                   </Tooltip>
                   <Tooltip>
@@ -342,7 +362,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                       </ToggleGroupItem>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Toggle Wind Speed</p>
+                      <p>{t('toggleWind')}</p>
                     </TooltipContent>
                   </Tooltip>
                 </ToggleGroup>
@@ -363,7 +383,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                     </ToggleGroupItem>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Chart View</p>
+                    <p>{t('chartView')}</p>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -373,7 +393,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                     </ToggleGroupItem>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>List View</p>
+                    <p>{t('listView')}</p>
                   </TooltipContent>
                 </Tooltip>
               </ToggleGroup>
@@ -386,7 +406,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
             <Skeleton className="w-full h-full" />
           ) : (
             <>
-              {/* Chart View - Always rendered, visibility controlled by opacity */}
+              {/* Chart View */}
               <div
                 className={cn(
                   "absolute inset-0 w-full h-full transition-opacity duration-300",
@@ -428,7 +448,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                         cursor={true}
                         content={
                           <ChartTooltipContent
-                            labelFormatter={(label) => new Date(Number(label) * 1000).toLocaleString(undefined, {
+                            labelFormatter={(label) => new Date(Number(label) * 1000).toLocaleString(locale, {
                               weekday: 'short',
                               month: 'short',
                               day: 'numeric',
@@ -534,7 +554,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                 )}
               </div>
 
-              {/* List View - Always rendered, visibility controlled by opacity */}
+              {/* List View */}
               <div
                 className={cn(
                   `absolute inset-0 grid ${type === 'daily' ? 'grid-cols-3 sm:grid-cols-5' : 'grid-cols-4 md:grid-cols-8'} gap-2 h-full overflow-y-auto transition-opacity duration-300`,
@@ -551,6 +571,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                         units={units}
                         chartId={chartId}
                         itemIndex={index}
+                        locale={locale}
                       />
                     ))
                   : (listData as HourlyDataPoint[]).map((hour, index) => (
@@ -561,6 +582,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                         timezone={weatherData.timezone}
                         chartId={chartId}
                         itemIndex={index}
+                        locale={locale}
                       />
                     ))
                 }
@@ -570,5 +592,5 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         </div>
       </CardContent>
     </Card>
-  );
+    );
 }

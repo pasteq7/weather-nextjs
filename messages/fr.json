@@ -1,0 +1,100 @@
+{
+  "Metadata": {
+    "title": "Météo",
+    "description": "Une application météo moderne construite avec Next.js"
+  },
+  "TopBar": {
+    "searchPlaceholder": "Rechercher un lieu...",
+    "myLocationTooltip": "Ma position",
+    "gettingLocationTooltip": "Obtention de la position...",
+    "favoritesTooltip": "Favoris",
+    "favoritesTitle": "Favoris",
+    "noFavorites": "Aucun favori pour le moment.",
+    "addFavoriteTooltip": "Ajouter le lieu aux favoris",
+    "toggleThemeTooltip": "Changer de thème",
+    "changeLanguageTooltip": "Changer de langue",
+    "celsiusTooltip": "Celsius",
+    "fahrenheitTooltip": "Fahrenheit",
+    "english": "Anglais",
+    "french": "Français"
+  },
+  "Toasts": {
+    "refreshingData": "Actualisation des données météo...",
+    "gettingLocation": "Obtention de votre position...",
+    "gettingLocationAuto": "Obtention automatique de votre position...",
+    "locationFound": "Position trouvée !",
+    "locationDenied": "Accès à la localisation refusé. Veuillez l'activer dans les paramètres de votre navigateur.",
+    "locationErrorAuto": "Impossible de déterminer votre position automatiquement.",
+    "locationUpdated": "Position mise à jour !",
+    "locationError": "Impossible d'obtenir votre position.",
+    "addFavoriteSuccess": "{location} a été ajouté à vos favoris.",
+    "addFavoriteInfo": "{location} est déjà dans vos favoris.",
+    "removeFavoriteInfo": "{location} a été retiré de vos favoris.",
+    "saveFavoriteError": "Impossible d'enregistrer les favoris."
+  },
+  "Errors": {
+    "ERROR_FETCH_COORDINATES": "Échec de la récupération des coordonnées de la ville.",
+    "ERROR_CITY_NOT_FOUND": "Ville non trouvée. Veuillez essayer un autre nom.",
+    "ERROR_FETCH_WEATHER": "Échec de la récupération des données météo.",
+    "ERROR_UNKNOWN": "Une erreur inconnue est survenue lors de la récupération des données météo."
+  },
+  "Weather": {
+    "lastUpdated": "Dernière mise à jour : {time}",
+    "humidity": "Humidité",
+    "windSpeed": "Vitesse du vent",
+    "pressure": "Pression",
+    "visibility": "Visibilité",
+    "sunrise": "Lever du soleil",
+    "sunset": "Coucher du soleil",
+    "currentLocation": "Position actuelle",
+    "unknownLocation": "Lieu inconnu"
+  },
+  "Forecast": {
+    "hourlyTitle": "Prochaines 24 heures",
+    "dailyTitle": "5 prochains jours",
+    "tempAlwaysShown": "Température (toujours affichée)",
+    "toggleRain": "Afficher/Masquer la probabilité de pluie",
+    "toggleWind": "Afficher/Masquer la vitesse du vent",
+    "chartView": "Vue graphique",
+    "listView": "Vue liste",
+    "temperature": "Température",
+    "rain": "Pluie",
+    "wind": "Vent"
+  },
+  "Footer": {
+    "dataBy": "Données par",
+    "madeBy": "Fait par",
+    "githubAria": "Dépôt Github"
+  },
+  "WMO": {
+    "0": "Ciel dégagé",
+    "1": "Généralement dégagé",
+    "2": "Partiellement nuageux",
+    "3": "Couvert",
+    "45": "Brouillard",
+    "48": "Brouillard givrant",
+    "51": "Bruine légère",
+    "53": "Bruine modérée",
+    "55": "Bruine dense",
+    "56": "Légère bruine verglaçante",
+    "57": "Dense bruine verglaçante",
+    "61": "Pluie faible",
+    "63": "Pluie modérée",
+    "65": "Forte pluie",
+    "66": "Légère pluie verglaçante",
+    "67": "Forte pluie verglaçante",
+    "71": "Faible chute de neige",
+    "73": "Chute de neige modérée",
+    "75": "Forte chute de neige",
+    "77": "Grains de neige",
+    "80": "Averses de pluie faibles",
+    "81": "Averses de pluie modérées",
+    "82": "Averses de pluie violentes",
+    "85": "Faibles averses de neige",
+    "86": "Fortes averses de neige",
+    "95": "Orage",
+    "96": "Orage avec grêle faible",
+    "99": "Orage avec forte grêle",
+    "unknown": "Inconnu"
+  }
+}

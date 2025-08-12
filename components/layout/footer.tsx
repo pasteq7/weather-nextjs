@@ -1,7 +1,12 @@
+'use client';
+
 import Link from 'next/link';
 import { Cloud, Github } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function Footer() {
+  const t = useTranslations('Footer');
+
   return (
     <footer className="w-full rounded-lg border bg-card text-card-foreground shadow-sm p-4 flex justify-between items-center">
       <div className="flex items-center gap-2">
@@ -10,12 +15,12 @@ export default function Footer() {
       </div>
       <div className="flex items-center gap-4 text-xs text-muted-foreground">
         <p>
-          Data by <Link href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Open-Meteo</Link>
+          {t('dataBy')} <Link href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Open-Meteo</Link>
         </p>
         <p>
-          Made by <Link href="https://sylvainbrehaut.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">sB</Link>
+          {t('madeBy')} <Link href="https://sylvainbrehaut.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">sB</Link>
         </p>
-        <Link href="https://github.com/pasteq7/weather-nextjs" target="_blank" rel="noopener noreferrer" className="hover:text-primary" aria-label="Github repository">
+        <Link href="https://github.com/pasteq7/weather-nextjs" target="_blank" rel="noopener noreferrer" className="hover:text-primary" aria-label={t('githubAria')}>
           <Github className="h-5 w-5" />
         </Link>
       </div>

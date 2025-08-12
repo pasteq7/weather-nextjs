@@ -1,0 +1,100 @@
+{
+  "Metadata": {
+    "title": "Weather",
+    "description": "A modern weather application built with Next.js"
+  },
+  "TopBar": {
+    "searchPlaceholder": "Search for a location...",
+    "myLocationTooltip": "My Location",
+    "gettingLocationTooltip": "Getting Location...",
+    "favoritesTooltip": "Favorites",
+    "favoritesTitle": "Favorites",
+    "noFavorites": "No favorites yet.",
+    "addFavoriteTooltip": "Add to location to Favorites",
+    "toggleThemeTooltip": "Toggle Theme",
+    "changeLanguageTooltip": "Change language",
+    "celsiusTooltip": "Celsius",
+    "fahrenheitTooltip": "Fahrenheit",
+    "english": "English",
+    "french": "Français"
+  },
+  "Toasts": {
+    "refreshingData": "Refreshing weather data...",
+    "gettingLocation": "Getting your location...",
+    "gettingLocationAuto": "Getting your location automatically...",
+    "locationFound": "Location found!",
+    "locationDenied": "Location access denied. Please enable it in your browser settings.",
+    "locationErrorAuto": "Could not determine your location automatically.",
+    "locationUpdated": "Location updated!",
+    "locationError": "Could not get your location.",
+    "addFavoriteSuccess": "{location} has been added to your favorites.",
+    "addFavoriteInfo": "{location} is already in your favorites.",
+    "removeFavoriteInfo": "{location} has been removed from your favorites.",
+    "saveFavoriteError": "Could not save favorites."
+  },
+  "Errors": {
+    "ERROR_FETCH_COORDINATES": "Failed to fetch city coordinates.",
+    "ERROR_CITY_NOT_FOUND": "City not found. Please try a different name.",
+    "ERROR_FETCH_WEATHER": "Failed to fetch weather data.",
+    "ERROR_UNKNOWN": "An unknown error occurred while fetching weather data."
+  },
+  "Weather": {
+    "lastUpdated": "Last updated: {time}",
+    "humidity": "Humidity",
+    "windSpeed": "Wind Speed",
+    "pressure": "Pressure",
+    "visibility": "Visibility",
+    "sunrise": "Sunrise",
+    "sunset": "Sunset",
+    "currentLocation": "Current Location",
+    "unknownLocation": "Unknown Location"
+  },
+  "Forecast": {
+    "hourlyTitle": "Next 24 Hours",
+    "dailyTitle": "Next 5 Days",
+    "tempAlwaysShown": "Temperature (Always Shown)",
+    "toggleRain": "Toggle Rain Probability",
+    "toggleWind": "Toggle Wind Speed",
+    "chartView": "Chart View",
+    "listView": "List View",
+    "temperature": "Temperature",
+    "rain": "Rain",
+    "wind": "Wind"
+  },
+  "Footer": {
+    "dataBy": "Data by",
+    "madeBy": "Made by",
+    "githubAria": "Github repository"
+  },
+  "WMO": {
+    "0": "Clear sky",
+    "1": "Mainly clear",
+    "2": "Partly cloudy",
+    "3": "Overcast",
+    "45": "Fog",
+    "48": "Depositing rime fog",
+    "51": "Light drizzle",
+    "53": "Moderate drizzle",
+    "55": "Dense drizzle",
+    "56": "Light freezing drizzle",
+    "57": "Dense freezing drizzle",
+    "61": "Slight rain",
+    "63": "Moderate rain",
+    "65": "Heavy rain",
+    "66": "Light freezing rain",
+    "67": "Heavy freezing rain",
+    "71": "Slight snow fall",
+    "73": "Moderate snow fall",
+    "75": "Heavy snow fall",
+    "77": "Snow grains",
+    "80": "Slight rain showers",
+    "81": "Moderate rain showers",
+    "82": "Violent rain showers",
+    "85": "Slight snow showers",
+    "86": "Heavy snow showers",
+    "95": "Thunderstorm",
+    "96": "Thunderstorm with slight hail",
+    "99": "Thunderstorm with heavy hail",
+    "unknown": "Unknown"
+  }
+}

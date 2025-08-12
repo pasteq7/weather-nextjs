@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import CurrentWeatherIcon from "@/components/icons/current-weather-icon";
 import { formatTemperature, mapWmoToWeather } from "@/lib/utils";
 import { WeatherData } from "@/lib/types";
+import { useTranslations } from 'next-intl';
 
 interface TodayWeatherCardProps {
   weatherData: WeatherData;
@@ -13,11 +14,11 @@ interface TodayWeatherCardProps {
 }
 
 export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCardProps) {
+  const t = useTranslations();
   const [formattedTime, setFormattedTime] = useState('');
 
   useEffect(() => {
     if (weatherData?.current?.time) {
-      // CHANGE: Use the timestamp from the API data instead of new Date()
       const time = new Date(weatherData.current.time * 1000).toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit',
@@ -40,7 +41,8 @@ export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCar
   }
 
   const { current } = weatherData;
-  const { description, icon } = mapWmoToWeather(current.weather_code, current.is_day);
+  const { descriptionKey, icon } = mapWmoToWeather(current.weather_code, current.is_day);
+  const description = t(`WMO.${descriptionKey}`);
   const [temp, tempUnit] = formatTemperature(current.temperature_2m, units);
 
   return (
@@ -57,8 +59,7 @@ export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCar
           {description}
         </p>
         <p className="text-xs text-muted-foreground/50 mb-2">
-          {/* Display the time from the state, which is now correctly updated */}
-          Last updated: {formattedTime}
+          {t('Weather.lastUpdated', { time: formattedTime })}
         </p>
       </div>
     </Card>

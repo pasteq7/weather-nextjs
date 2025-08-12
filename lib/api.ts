@@ -1,3 +1,5 @@
+// lib/api.ts
+
 import { WeatherData } from './types';
 
 const GEO_API_URL = 'https://geocoding-api.open-meteo.com/v1/search';
@@ -6,12 +8,10 @@ const WEATHER_API_URL = 'https://api.open-meteo.com/v1/forecast';
 
 // Fetches coordinates for a given city name
 export const getCoordinatesForCity = async (city: string) => {
-  // Sanitize the city name by removing the country code suffix (e.g., ", FR")
-  // This ensures the geocoding API receives a clean city name.
   const cityName = city.split(',')[0].trim();
 
   const params = new URLSearchParams({
-    name: cityName, // Use the sanitized city name for the search
+    name: cityName,
     count: '1',
     language: 'en',
     format: 'json'
@@ -19,33 +19,37 @@ export const getCoordinatesForCity = async (city: string) => {
 
   const response = await fetch(`${GEO_API_URL}?${params.toString()}`);
   if (!response.ok) {
-    throw new Error('Failed to fetch city coordinates.');
+    throw new Error('ERROR_FETCH_COORDINATES');
   }
   const data = await response.json();
 
   if (!data.results || data.results.length === 0) {
-    throw new Error('City not found. Please try a different name.');
+    throw new Error('ERROR_CITY_NOT_FOUND');
   }
   const { latitude, longitude, name } = data.results[0];
   return { latitude, longitude, name };
 };
 
-// Fetches a city name from given coordinates (reverse geocoding)
-export const getCityNameFromCoordinates = async (latitude: number, longitude: number): Promise<string> => {
+// Fetches a city name from given coordinates (reverse geocoding) - UPDATED
+export const getCityNameFromCoordinates = async (latitude: number, longitude: number): Promise<string | null> => {
     const params = new URLSearchParams({
         latitude: latitude.toString(),
         longitude: longitude.toString(),
         localityLanguage: 'en',
     });
-    const response = await fetch(`${REVERSE_GEO_API_URL}?${params.toString()}`);
-    if (!response.ok) return "Unknown Location";
-    
-    const data = await response.json();
-    if (data && data.city) {
-      // Appending the country code is great for display, so we keep it.
-      return data.countryCode ? `${data.city}, ${data.countryCode}` : data.city;
+    try {
+        const response = await fetch(`${REVERSE_GEO_API_URL}?${params.toString()}`);
+        if (!response.ok) return null;
+        
+        const data = await response.json();
+        if (data && data.city) {
+          return data.countryCode ? `${data.city}, ${data.countryCode}` : data.city;
+        }
+        return null;
+    } catch (error) {
+        console.error("Failed to fetch city name from coordinates", error);
+        return null;
     }
-    return "Current Location";
 };
 
 
@@ -69,18 +73,15 @@ export const fetchWeatherData = async (latitude: number, longitude: number, unit
   const response = await fetch(`${WEATHER_API_URL}?${params.toString()}`);
 
   if (!response.ok) {
-    throw new Error('Failed to fetch weather data.');
+    throw new Error('ERROR_FETCH_WEATHER');
   }
   return response.json();
 };
 
 // Combined function to fetch weather by city name
 export const fetchWeatherByCity = async (city: string, units: string = 'metric') => {
-  // The 'city' parameter (e.g., "Clermont-Ferrand, FR") is passed here.
-  // The sanitization will happen inside getCoordinatesForCity.
-  const { latitude, longitude, name } = await getCoordinatesForCity(city);
+  const { latitude, longitude } = await getCoordinatesForCity(city);
   const weatherData = await fetchWeatherData(latitude, longitude, units);
   
-  // We return the original, full city name for display consistency.
   return { ...weatherData, name: city, latitude, longitude };
 };

@@ -1,7 +1,6 @@
 // C:\Dev\weather-v2\components\icons\current-weather-icon.tsx
 
 import { FC, ComponentType } from 'react';
-// REMOVE: import dynamic from 'next/dynamic'; // No longer needed
 
 // --- START: New Imports ---
 // Import all the icons directly at the top of the file.

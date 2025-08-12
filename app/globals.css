@@ -55,7 +55,7 @@
   --primary: #3B82F6;          /* Vibrant blue (same) */
   --primary-foreground: #1E293B;
   --secondary: #E2E8F0;        /* Light blue-gray */
-  --secondary-foreground: #1E293B;
+  --primary: #1E293B;
   --muted: #F1F5F9;            /* Very light blue-gray */
   --muted-foreground: #64748B; /* Medium blue-gray */
   --accent: #d68801;           /* Warm amber (same) */

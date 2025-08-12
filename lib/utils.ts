@@ -9,11 +9,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const mapWmoToWeather = (wmoCode: number, isDay: number) => {
-  const weather = WMO_CODES[wmoCode] || { desc: 'Unknown', icon: '01' };
-  // Ensure isDay is strictly 1 for day, otherwise it's night (0)
+  const weather = WMO_CODES[wmoCode];
   const dayNightSuffix = isDay === 1 ? 'd' : 'n';
+  
+  if (!weather) {
+    return {
+      descriptionKey: 'unknown',
+      icon: `01${dayNightSuffix}`,
+    };
+  }
+
   return {
-    description: weather.desc,
+    descriptionKey: `${wmoCode}`,
     icon: `${weather.icon}${dayNightSuffix}`,
   };
 };
@@ -25,18 +32,18 @@ export const formatTemperature = (temp: number, units: string): [string, string]
 };
 
 export const formatWindSpeed = (speed: number, units: string): [string, string] => {
-  if (speed === null || speed === undefined) return ['', ''];
+  if (speed === null || speed === undefined) return ['--', ''];
   const unit = units === 'imperial' ? WIND_UNIT_MPH : WIND_UNIT_KMH;
   return [Math.round(speed).toString(), unit];
 };
 
 export const formatHumidity = (humidity: number): [string, string] => {
-  if (humidity === null || humidity === undefined) return ['', ''];
+  if (humidity === null || humidity === undefined) return ['--', '%'];
   return [Math.round(humidity).toString(), '%'];
 };
 
 export const formatPressure = (pressure: number, units: string): [string, string] => {
-  if (pressure === null || pressure === undefined) return ['', ''];
+  if (pressure === null || pressure === undefined) return ['--', ''];
   if (units === 'imperial') {
     const pressureInInHg = pressure * 0.02953;
     return [pressureInInHg.toFixed(2), 'inHg'];
@@ -45,7 +52,7 @@ export const formatPressure = (pressure: number, units: string): [string, string
 };
 
 export const formatVisibility = (visibility: number, units: string): [string, string] => {
-  if (visibility === null || visibility === undefined) return ['', ''];
+  if (visibility === null || visibility === undefined) return ['--', ''];
   const distanceInKm = visibility / 1000;
   if (units === 'imperial') {
     const distanceInMiles = distanceInKm * 0.621371;
@@ -55,7 +62,7 @@ export const formatVisibility = (visibility: number, units: string): [string, st
 };
 
 export const formatTime = (time: Date, timezone: string, units: string) => {
-  if (!time) return '';
+  if (!time || isNaN(time.getTime())) return '--';
   return time.toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',

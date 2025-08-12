@@ -1,3 +1,5 @@
+'use client';
+
 import DataCard from "./data-card";
 import { WeatherData } from "@/lib/types";
 import { 
@@ -7,6 +9,7 @@ import {
   formatWindSpeed,
   formatTime 
 } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface WeatherDataGridProps {
   weatherData: WeatherData;
@@ -14,12 +17,12 @@ interface WeatherDataGridProps {
 }
 
 export default function WeatherDataGrid({ weatherData, units }: WeatherDataGridProps) {
+  const t = useTranslations('Weather');
   const { current, daily, hourly, timezone } = weatherData;
 
   const humidity = formatHumidity(current.relative_humidity_2m);
   const pressure = formatPressure(current.pressure_msl, units);
   
-  // Find the current hour's visibility from the hourly forecast
   const now = new Date();
   const currentHourIndex = hourly.time.findIndex(t => {
     const hourDate = new Date(t * 1000);
@@ -33,12 +36,12 @@ export default function WeatherDataGrid({ weatherData, units }: WeatherDataGridP
   const wind = formatWindSpeed(current.wind_speed_10m, units);
 
   const cardData = [
-    { iconType: 'humidity', title: 'Humidity', data: humidity[0], unit: humidity[1] },
-    { iconType: 'wind', title: 'Wind Speed', data: wind[0], unit: wind[1] },
-    { iconType: 'pressure', title: 'Pressure', data: pressure[0], unit: pressure[1] },
-    { iconType: 'visibility', title: 'Visibility', data: visibility[0], unit: visibility[1] },
-    { iconType: 'sunrise', title: 'Sunrise', data: sunrise },
-    { iconType: 'sunset', title: 'Sunset', data: sunset },
+    { iconType: 'humidity', title: t('humidity'), data: humidity[0], unit: humidity[1] },
+    { iconType: 'wind', title: t('windSpeed'), data: wind[0], unit: wind[1] },
+    { iconType: 'pressure', title: t('pressure'), data: pressure[0], unit: pressure[1] },
+    { iconType: 'visibility', title: t('visibility'), data: visibility[0], unit: visibility[1] },
+    { iconType: 'sunrise', title: t('sunrise'), data: sunrise },
+    { iconType: 'sunset', title: t('sunset'), data: sunset },
   ];
 
   return (
