@@ -41,11 +41,11 @@
   "Weather": {
     "lastUpdated": "Dernière mise à jour : {time}",
     "humidity": "Humidité",
-    "windSpeed": "Vitesse du vent",
+    "windSpeed": "Vent",
     "pressure": "Pression",
     "visibility": "Visibilité",
-    "sunrise": "Lever du soleil",
-    "sunset": "Coucher du soleil",
+    "sunrise": "Aurore",
+    "sunset": "Crépuscule",
     "currentLocation": "Position actuelle",
     "unknownLocation": "Lieu inconnu"
   },
