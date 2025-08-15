@@ -64,7 +64,19 @@
   "Footer": {
     "dataBy": "Data by",
     "madeBy": "Made by",
-    "githubAria": "Github repository"
+    "githubAria": "Github repository",
+    "apiStatus": "API Status:",
+    "geolocationApi": "Geolocation",
+    "weatherApi": "Weather",
+    "geocodingApi": "Geocoding",
+    "operational": "Operational",
+    "outage": "Outage",
+    "pending": "Pending",
+    "degradedTooltip": "Some data is unavailable for this location:"
+  },
+  "ApiParams": {
+    "wind_speed_10m": "Wind Speed",
+    "pressure_msl": "Air Pressure"
   },
   "WMO": {
     "0": "Clear sky",

@@ -5,48 +5,44 @@ import { createContext, useState, useContext, ReactNode } from 'react';
 import { NextIntlClientProvider, AbstractIntlMessages } from 'next-intl';
 import { Locale } from '@/i18n-config';
 
-// Define the shape of all messages, indexed by locale
 interface AllMessages {
   [key: string]: AbstractIntlMessages;
 }
 
-// Define the context shape
 interface LanguageContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
 }
 
-// Create the context
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-// Define the provider props
+// Update the provider props to include timeZone
 interface LanguageProviderProps {
   children: ReactNode;
   initialLocale: Locale;
   allMessages: AllMessages;
+  timeZone: string; // Add this line
 }
 
-export const LanguageProvider = ({ children, initialLocale, allMessages }: LanguageProviderProps) => {
+export const LanguageProvider = ({ children, initialLocale, allMessages, timeZone }: LanguageProviderProps) => {
   const [locale, setLocale] = useState<Locale>(initialLocale);
 
-  // The currently active messages
   const messages = allMessages[locale];
 
   return (
     <LanguageContext.Provider value={{ locale, setLocale }}>
-      {/* 
-        The key={locale} prop is crucial here. It tells React to re-render 
-        the provider and its children whenever the locale changes, ensuring 
-        the new messages are applied throughout the component tree.
-      */}
-      <NextIntlClientProvider locale={locale} messages={messages} key={locale}>
+      <NextIntlClientProvider 
+        locale={locale} 
+        messages={messages} 
+        timeZone={timeZone} // Pass the prop here
+        key={locale}
+      >
         {children}
       </NextIntlClientProvider>
     </LanguageContext.Provider>
   );
 };
 
-// Custom hook to use the language context
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (context === undefined) {

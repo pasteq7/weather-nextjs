@@ -1,5 +1,7 @@
 // lib/types.ts
 
+export type ApiIssueKey = 'wind_speed_10m' | 'pressure_msl';
+
 export interface WeatherData {
   name?: string;
   latitude?: number;
@@ -15,15 +17,15 @@ export interface WeatherData {
     relative_humidity_2m: number;
     is_day: number;
     weather_code: number;
-    wind_speed_10m: number;
-    pressure_msl: number;
+    wind_speed_10m: number; // No longer optional
+    pressure_msl: number;   // No longer optional
   };
   hourly: {
     time: number[];
     temperature_2m: number[];
     precipitation_probability: number[];
     weather_code: number[];
-    wind_speed_10m: number[];
+    wind_speed_10m: number[]; // No longer optional
     visibility: number[];
     is_day: number[];
   };
@@ -49,7 +51,7 @@ export interface HourlyDataPoint {
   temperature_2m: number;
   precipitation_probability: number;
   weather_code: number;
-  wind_speed_10m: number;
+  wind_speed_10m: number; // No longer optional
   visibility: number;
   is_day: number;
 }

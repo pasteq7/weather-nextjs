@@ -22,7 +22,7 @@ import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useAppContext } from '@/app/context/AppContext';
 import { Locale } from '@/i18n-config';
-import { useLanguage } from '@/app/context/LanguageProvider'; // Import the new hook
+import { useLanguage } from '@/app/context/LanguageProvider';
 
 interface SimplePosition {
   coords: {
@@ -33,9 +33,7 @@ interface SimplePosition {
 
 export default function TopBar() {
   const t = useTranslations();
-  // Use our new client-side language hook
   const { locale, setLocale } = useLanguage();
-
   const { theme, setTheme } = useTheme();
   const { favorites, addFavorite, removeFavorite } = useFavorites();
   const { 
@@ -46,7 +44,8 @@ export default function TopBar() {
     setLocationByCoords, 
     refreshData,
     isInitializing,
-    finishInitialization
+    finishInitialization,
+    setApiStatus
   } = useAppContext();
 
   const [locationInput, setLocationInput] = useState('');
@@ -56,13 +55,12 @@ export default function TopBar() {
     location.name !== (t('Weather.currentLocation') || 'Current Location') && 
     location.name !== (t('Weather.unknownLocation') || 'Unknown Location');
 
-  // Auto-refresh interval
   useEffect(() => {
     const interval = setInterval(() => {
       if (location.name || (location.lat && location.lon)) {
         refreshData();
       }
-    }, 3600000); // 1 hour
+    }, 3600000);
 
     return () => clearInterval(interval);
   }, [location, refreshData]);
@@ -89,13 +87,9 @@ export default function TopBar() {
             (pos) => resolve(pos as SimplePosition),
             (error) => {
               let message = 'Geolocation failed';
-              if (error.code === error.PERMISSION_DENIED) {
-                message = 'Location permission denied';
-              } else if (error.code === error.POSITION_UNAVAILABLE) {
-                message = 'Location unavailable';
-              } else if (error.code === error.TIMEOUT) {
-                message = 'Location request timeout';
-              }
+              if (error.code === error.PERMISSION_DENIED) message = 'Location permission denied';
+              else if (error.code === error.POSITION_UNAVAILABLE) message = 'Location unavailable';
+              else if (error.code === error.TIMEOUT) message = 'Location request timeout';
               reject(new Error(message));
             },
             { timeout: 10000, enableHighAccuracy: false }
@@ -109,37 +103,35 @@ export default function TopBar() {
     });
 
     toast.promise(promise(), {
-      loading: isAuto 
-        ? (t('Toasts.gettingLocationAuto') || 'Getting your location...') 
-        : (t('Toasts.gettingLocation') || 'Getting location...'),
+      loading: isAuto ? t('Toasts.gettingLocationAuto') : t('Toasts.gettingLocation'),
       success: (position) => {
         if (isAuto) finishInitialization();
+        // FIX: Wrap status in an object
+        setApiStatus('geolocation', { status: 'operational' });
         setLocationByCoords(position.coords.latitude, position.coords.longitude);
         setIsGeolocating(false);
-        return t('Toasts.locationFound') || 'Location found!';
+        return t('Toasts.locationFound');
       },
       error: (err: Error) => {
         if (isAuto) finishInitialization();
+        // FIX: Wrap status in an object
+        setApiStatus('geolocation', { status: 'outage' });
         console.error("Geolocation failed:", err);
         setIsGeolocating(false);
         if (err.message.includes('denied') || err.message.includes('permission')) {
-          return t('Toasts.locationDenied') || 'Location access denied';
+          return t('Toasts.locationDenied');
         }
-        return isAuto 
-          ? (t('Toasts.locationErrorAuto') || 'Could not get your location automatically') 
-          : (t('Toasts.locationError') || 'Could not get your location');
+        return isAuto ? t('Toasts.locationErrorAuto') : t('Toasts.locationError');
       },
     });
-  }, [isGeolocating, finishInitialization, setLocationByCoords, t]);
+  }, [isGeolocating, finishInitialization, setLocationByCoords, t, setApiStatus]);
 
-  // Auto-geolocate only during true initialization
   useEffect(() => {
     if (isInitializing) {
       handleGeolocate(true);
     }
   }, [isInitializing, handleGeolocate]);
 
-  // Update input when location changes
   useEffect(() => {
     setLocationInput(location.name || '');
   }, [location.name]);
@@ -153,12 +145,9 @@ export default function TopBar() {
   };
 
   const handleUnitsChange = (value: 'metric' | 'imperial') => {
-    if (value) {
-      setUnits(value);
-    }
+    if (value) setUnits(value);
   };
 
-  // REWRITTEN: This function now uses the client-side context to change the locale instantly.
   const handleLangChange = (value: string) => {
     const newLocale = value as Locale;
     if (newLocale && newLocale !== locale) {
@@ -175,152 +164,71 @@ export default function TopBar() {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => handleGeolocate(false)}
-              disabled={isGeolocating}
-            >
+            <Button variant="outline" size="icon" onClick={() => handleGeolocate(false)} disabled={isGeolocating}>
               <Locate className={`h-4 w-4 ${isGeolocating ? 'animate-spin' : ''}`} />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>
-              {isGeolocating 
-                ? (t('TopBar.gettingLocationTooltip') || 'Getting location...') 
-                : (t('TopBar.myLocationTooltip') || 'Use my location')
-              }
-            </p>
-          </TooltipContent>
+          <TooltipContent><p>{isGeolocating ? t('TopBar.gettingLocationTooltip') : t('TopBar.myLocationTooltip')}</p></TooltipContent>
         </Tooltip>
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="icon" aria-label={t('TopBar.favoritesTooltip') || 'Favorites'}>
-              <ChevronDown className="h-4 w-4" />
-            </Button>
+            <Button variant="outline" size="icon" aria-label={t('TopBar.favoritesTooltip')}><ChevronDown className="h-4 w-4" /></Button>
           </PopoverTrigger>
           <PopoverContent className="w-60">
             <div className="grid gap-4">
-              <h4 className="font-medium text-muted-foreground leading-none">
-                {t('TopBar.favoritesTitle') || 'Favorites'}
-              </h4>
+              <h4 className="font-medium text-muted-foreground leading-none">{t('TopBar.favoritesTitle')}</h4>
               {favorites.length > 0 ? (
                 <ul className="grid gap-2">
                   {favorites.map(fav => (
                     <li key={fav} className="flex items-center justify-between">
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto" 
-                        onClick={() => handleFavoriteSelect(fav)}
-                      >
-                        {fav}
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6" 
-                        onClick={() => removeFavorite(fav)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                      <Button variant="link" className="p-0 h-auto" onClick={() => handleFavoriteSelect(fav)}>{fav}</Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFavorite(fav)}><X className="h-4 w-4" /></Button>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  {t('TopBar.noFavorites') || 'No favorites yet'}
-                </p>
+                <p className="text-sm text-muted-foreground">{t('TopBar.noFavorites')}</p>
               )}
             </div>
           </PopoverContent>
         </Popover>
 
         <form onSubmit={handleSearch} className="flex-grow">
-          <Input
-            placeholder={t('TopBar.searchPlaceholder') || 'Search for a city...'}
-            value={locationInput}
-            onChange={(e) => setLocationInput(e.target.value)}
-          />
+          <Input placeholder={t('TopBar.searchPlaceholder')} value={locationInput} onChange={(e) => setLocationInput(e.target.value)} />
         </form>
 
         {isSearchableLocation && (
           <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={() => addFavorite(location.name!)}
-              >
-                <Star className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{t('TopBar.addFavoriteTooltip') || 'Add to favorites'}</p>
-            </TooltipContent>
+            <TooltipTrigger asChild><Button variant="outline" size="icon" onClick={() => addFavorite(location.name!)}><Star className="h-4 w-4" /></Button></TooltipTrigger>
+            <TooltipContent><p>{t('TopBar.addFavoriteTooltip')}</p></TooltipContent>
           </Tooltip>
         )}
 
         <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            >
-              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{t('TopBar.toggleThemeTooltip') || 'Toggle theme'}</p>
-          </TooltipContent>
+          <TooltipTrigger asChild><Button variant="outline" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" /><Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" /></Button></TooltipTrigger>
+          <TooltipContent><p>{t('TopBar.toggleThemeTooltip')}</p></TooltipContent>
         </Tooltip>
 
         <DropdownMenu>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Languages className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{t('TopBar.changeLanguageTooltip') || 'Change language'}</p>
-            </TooltipContent>
+            <TooltipTrigger asChild><DropdownMenuTrigger asChild><Button variant="outline" size="icon"><Languages className="h-4 w-4" /></Button></DropdownMenuTrigger></TooltipTrigger>
+            <TooltipContent><p>{t('TopBar.changeLanguageTooltip')}</p></TooltipContent>
           </Tooltip>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleLangChange('en')} disabled={locale === 'en'}>
-              {t('TopBar.english') || 'English'}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleLangChange('fr')} disabled={locale === 'fr'}>
-              {t('TopBar.french') || 'French'}
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleLangChange('en')} disabled={locale === 'en'}>{t('TopBar.english')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleLangChange('fr')} disabled={locale === 'fr'}>{t('TopBar.french')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <ToggleGroup 
-          type="single" 
-          variant="outline" 
-          value={units} 
-          onValueChange={(v) => handleUnitsChange(v as 'metric' | 'imperial')}
-        >
+        <ToggleGroup type="single" variant="outline" value={units} onValueChange={(v) => handleUnitsChange(v as 'metric' | 'imperial')}>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <ToggleGroupItem value="metric" aria-label="Metric">
-                °C
-              </ToggleGroupItem>
-            </TooltipTrigger>
-            <TooltipContent><p>{t('TopBar.celsiusTooltip') || 'Celsius'}</p></TooltipContent>
+            <TooltipTrigger asChild><ToggleGroupItem value="metric" aria-label="Metric">°C</ToggleGroupItem></TooltipTrigger>
+            <TooltipContent><p>{t('TopBar.celsiusTooltip')}</p></TooltipContent>
           </Tooltip>
           <Tooltip>
-            <TooltipTrigger asChild>
-              <ToggleGroupItem value="imperial" aria-label="Imperial">
-                °F
-              </ToggleGroupItem>
-            </TooltipTrigger>
-            <TooltipContent><p>{t('TopBar.fahrenheitTooltip') || 'Fahrenheit'}</p></TooltipContent>
+            <TooltipTrigger asChild><ToggleGroupItem value="imperial" aria-label="Imperial">°F</ToggleGroupItem></TooltipTrigger>
+            <TooltipContent><p>{t('TopBar.fahrenheitTooltip')}</p></TooltipContent>
           </Tooltip>
         </ToggleGroup>
       </TooltipProvider>

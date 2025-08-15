@@ -64,7 +64,19 @@
   "Footer": {
     "dataBy": "Données par",
     "madeBy": "Fait par",
-    "githubAria": "Dépôt Github"
+    "githubAria": "Dépôt Github",
+    "apiStatus": "Statut des API :",
+    "geolocationApi": "Géolocalisation",
+    "weatherApi": "Météo",
+    "geocodingApi": "Géocodage",
+    "operational": "Opérationnel",
+    "outage": "En panne",
+    "pending": "En attente",
+    "degradedTooltip": "Certaines données sont indisponibles pour ce lieu :"
+  },
+  "ApiParams": {
+    "wind_speed_10m": "Vitesse du vent",
+    "pressure_msl": "Pression atmosphérique"
   },
   "WMO": {
     "0": "Ciel dégagé",

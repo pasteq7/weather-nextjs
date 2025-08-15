@@ -1,3 +1,5 @@
+// components/features/weather-data-grid.tsx
+
 'use client';
 
 import DataCard from "./data-card";
@@ -51,4 +53,4 @@ export default function WeatherDataGrid({ weatherData, units }: WeatherDataGridP
       ))}
     </div>
   );
-  }
+}

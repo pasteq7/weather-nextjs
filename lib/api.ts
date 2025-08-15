@@ -6,7 +6,6 @@ const GEO_API_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const REVERSE_GEO_API_URL = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
 const WEATHER_API_URL = 'https://api.open-meteo.com/v1/forecast';
 
-// Fetches coordinates for a given city name
 export const getCoordinatesForCity = async (city: string) => {
   const cityName = city.split(',')[0].trim();
 
@@ -30,8 +29,7 @@ export const getCoordinatesForCity = async (city: string) => {
   return { latitude, longitude, name };
 };
 
-// Fetches a city name from given coordinates (reverse geocoding) - UPDATED
-export const getCityNameFromCoordinates = async (latitude: number, longitude: number): Promise<string | null> => {
+export const getCityNameFromCoordinates = async (latitude: number, longitude: number): Promise<{name: string | null, ok: boolean}> => {
     const params = new URLSearchParams({
         latitude: latitude.toString(),
         longitude: longitude.toString(),
@@ -39,32 +37,31 @@ export const getCityNameFromCoordinates = async (latitude: number, longitude: nu
     });
     try {
         const response = await fetch(`${REVERSE_GEO_API_URL}?${params.toString()}`);
-        if (!response.ok) return null;
+        if (!response.ok) return { name: null, ok: false };
         
         const data = await response.json();
         if (data && data.city) {
-          return data.countryCode ? `${data.city}, ${data.countryCode}` : data.city;
+          const name = data.countryCode ? `${data.city}, ${data.countryCode}` : data.city;
+          return { name, ok: true };
         }
-        return null;
+        return { name: null, ok: true };
     } catch (error) {
         console.error("Failed to fetch city name from coordinates", error);
-        return null;
+        return { name: null, ok: false };
     }
 };
 
-
-// Fetches weather data from the API using coordinates
-export const fetchWeatherData = async (latitude: number, longitude: number, units: string): Promise<WeatherData> => {
+export const fetchWeatherData = async (latitude: number, longitude: number, units: string, timezone: string = 'auto'): Promise<WeatherData> => {
   const isImperial = units === 'imperial';
 
   const params = new URLSearchParams({
     latitude: latitude.toString(),
     longitude: longitude.toString(),
     current: 'temperature_2m,relative_humidity_2m,is_day,weather_code,wind_speed_10m,pressure_msl',
-    hourly: 'temperature_2m,precipitation_probability,weather_code,wind_speed_10m,visibility,is_day',
+    hourly: 'temperature_2m,precipitation_probability,weather_code,visibility,is_day,wind_speed_10m',
     daily: 'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset',
     timeformat: 'unixtime',
-    timezone: 'auto',
+    timezone: timezone,
     forecast_days: '5',
     temperature_unit: isImperial ? 'fahrenheit' : 'celsius',
     wind_speed_unit: isImperial ? 'mph' : 'kmh',
@@ -78,10 +75,9 @@ export const fetchWeatherData = async (latitude: number, longitude: number, unit
   return response.json();
 };
 
-// Combined function to fetch weather by city name
-export const fetchWeatherByCity = async (city: string, units: string = 'metric') => {
+export const fetchWeatherByCity = async (city: string, units: string = 'metric', timezone: string = 'auto') => {
   const { latitude, longitude } = await getCoordinatesForCity(city);
-  const weatherData = await fetchWeatherData(latitude, longitude, units);
+  const weatherData = await fetchWeatherData(latitude, longitude, units, timezone);
   
   return { ...weatherData, name: city, latitude, longitude };
 };

@@ -1,4 +1,5 @@
 // components/features/forecast-view.tsx
+
 'use client';
 
 import { useMemo, useCallback, useState, useEffect } from 'react';
@@ -201,7 +202,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
 
     if (startIndex === -1) return [];
 
-    const dataSlice = type === 'hourly' ? 24 : 120; // 120 hours = 5 days
+    const dataSlice = type === 'hourly' ? 24 : 120;
 
     return time.slice(startIndex, startIndex + dataSlice).map((t, i) => ({
       time: t,
@@ -242,6 +243,8 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         return [];
       }
       
+      const { wind_speed_10m } = hourly;
+      
       const now = new Date();
       now.setHours(now.getHours() + 1, 0, 0, 0);
       const nowInSeconds = Math.floor(now.getTime() / 1000);
@@ -271,10 +274,10 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         const temperature = hourly.temperature_2m[hourlyIndex];
         const weather_code = hourly.weather_code[hourlyIndex];
         const precipitation_probability = hourly.precipitation_probability[hourlyIndex];
-        const wind_speed_10m = hourly.wind_speed_10m[hourlyIndex];
+        const current_wind_speed = wind_speed_10m[hourlyIndex];
         const visibility = hourly.visibility[hourlyIndex];
 
-        if (sunrise === undefined || sunset === undefined || temperature === undefined || weather_code === undefined || precipitation_probability === undefined || wind_speed_10m === undefined || visibility === undefined) {
+        if (sunrise === undefined || sunset === undefined || temperature === undefined || weather_code === undefined || precipitation_probability === undefined || visibility === undefined) {
           continue;
         }
 
@@ -286,7 +289,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
           weather_code: weather_code,
           is_day: calculatedIsDay,
           precipitation_probability: precipitation_probability,
-          wind_speed_10m: wind_speed_10m,
+          wind_speed_10m: current_wind_speed,
           visibility: visibility,
         });
       }
