@@ -76,7 +76,7 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <AppProvider>
-              <div className="p-2 md:p-4 mx-auto max-w-7xl w-full flex-grow flex flex-col gap-4">
+              <div className="p-2 md:p-4 mx-auto max-w-7xl w-full flex flex-col gap-4">
                 <TopBar />
                 {children}
                 <Footer />
