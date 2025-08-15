@@ -72,7 +72,7 @@ function ForecastViewSkeleton() {
         <Skeleton className="h-6 w-24" />
         <Skeleton className="h-9 w-32" />
       </div>
-      <Skeleton className="h-[110px] w-full" />
+      <Skeleton className="h-[125px] w-full" />
     </Card>
   );
 }
