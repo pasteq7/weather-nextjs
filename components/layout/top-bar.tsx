@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Sun, Moon, Star, Locate, X, ChevronDown, Languages } from 'lucide-react';
+import { Sun, Moon, Star, Locate, X, ChevronDown, Languages, Clock } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { toast } from 'sonner';
@@ -39,6 +39,7 @@ export default function TopBar() {
   const { 
     location, 
     units, 
+    weatherData, // Added weatherData to access timezone
     setUnits, 
     setLocationByName, 
     setLocationByCoords, 
@@ -50,6 +51,7 @@ export default function TopBar() {
 
   const [locationInput, setLocationInput] = useState('');
   const [isGeolocating, setIsGeolocating] = useState(false);
+  const [currentTime, setCurrentTime] = useState<string | null>(null);
 
   const isSearchableLocation = location.name && 
     location.name !== (t('Weather.currentLocation') || 'Current Location') && 
@@ -64,6 +66,35 @@ export default function TopBar() {
 
     return () => clearInterval(interval);
   }, [location, refreshData]);
+
+  // Effect to handle the clock logic based on location timezone
+  useEffect(() => {
+    if (!weatherData?.timezone) {
+      setCurrentTime(null);
+      return;
+    }
+
+    const updateTime = () => {
+      try {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], {
+          timeZone: weatherData.timezone,
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: units === 'imperial'
+        });
+        setCurrentTime(timeString);
+      } catch (error) {
+        console.error("Error formatting time for timezone:", weatherData.timezone);
+        setCurrentTime(null);
+      }
+    };
+
+    updateTime(); // Initial update
+    const timer = setInterval(updateTime, 1000); // Update every second
+
+    return () => clearInterval(timer);
+  }, [weatherData?.timezone, units]);
 
   const handleGeolocate = useCallback(async (isAuto = false) => {
     if (isGeolocating) return;
@@ -106,7 +137,6 @@ export default function TopBar() {
       loading: isAuto ? t('Toasts.gettingLocationAuto') : t('Toasts.gettingLocation'),
       success: (position) => {
         if (isAuto) finishInitialization();
-        // FIX: Wrap status in an object
         setApiStatus('geolocation', { status: 'operational' });
         setLocationByCoords(position.coords.latitude, position.coords.longitude);
         setIsGeolocating(false);
@@ -114,7 +144,6 @@ export default function TopBar() {
       },
       error: (err: Error) => {
         if (isAuto) finishInitialization();
-        // FIX: Wrap status in an object
         setApiStatus('geolocation', { status: 'outage' });
         console.error("Geolocation failed:", err);
         setIsGeolocating(false);
@@ -161,6 +190,15 @@ export default function TopBar() {
 
   return (
     <div className="flex items-center gap-2 w-full">
+
+        {/* Current Time Display */}
+        {currentTime && (
+          <div className="hidden md:flex items-center gap-1.5 px-2 text-sm font-medium tabular-nums text-muted-foreground whitespace-nowrap bg-card border rounded-md h-9 shadow-sm">
+            <Clock className="h-3.5 w-3.5" />
+            {currentTime}
+          </div>
+        )}
+
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -197,6 +235,7 @@ export default function TopBar() {
         <form onSubmit={handleSearch} className="flex-grow">
           <Input placeholder={t('TopBar.searchPlaceholder')} value={locationInput} onChange={(e) => setLocationInput(e.target.value)} />
         </form>
+
 
         {isSearchableLocation && (
           <Tooltip>
