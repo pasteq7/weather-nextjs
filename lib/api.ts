@@ -62,7 +62,7 @@ export const fetchWeatherData = async (latitude: number, longitude: number, unit
     daily: 'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset',
     timeformat: 'unixtime',
     timezone: timezone,
-    forecast_days: '5',
+    forecast_days: '14',
     temperature_unit: isImperial ? 'fahrenheit' : 'celsius',
     wind_speed_unit: isImperial ? 'mph' : 'kmh',
   });

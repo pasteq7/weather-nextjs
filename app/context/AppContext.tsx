@@ -44,6 +44,8 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+const hasCoordinates = (location: Location) => location.lat !== null && location.lon !== null;
+
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const t = useTranslations();
   const [location, setLocation] = useState<Location>({ lat: null, lon: null, name: null });
@@ -55,7 +57,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [apiStatus, setApiStatusState] = useState<ApiStatuses>({
     openMeteo: { status: 'operational' },
     reverseGeo: { status: 'operational' },
-    geolocation: { status: 'pending' }, // <-- FIX: Initial state is now 'pending'
+    geolocation: { status: 'pending' },
   });
   
   const hasInitializedRef = useRef(false);
@@ -70,14 +72,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     hasInitializedRef.current = true;
   }, []);
 
-  const shouldAutoGeolocate = isInitializing && !hasInitializedRef.current && isFirstRender.current && !location.name && (!location.lat || !location.lon);
+  const shouldAutoGeolocate = isInitializing && !hasInitializedRef.current && isFirstRender.current && !location.name && !hasCoordinates(location);
 
   useEffect(() => {
     isFirstRender.current = false;
   }, []);
 
   const fetchAndSetWeather = useCallback(async (currentLocation: Location, currentUnits: 'metric' | 'imperial') => {
-    if (!currentLocation.name && (!currentLocation.lat || !currentLocation.lon)) {
+    if (!currentLocation.name && !hasCoordinates(currentLocation)) {
       setIsLoading(false);
       setError(null);
       setWeatherData(null);
@@ -94,7 +96,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       let lat = currentLocation.lat;
       let lon = currentLocation.lon;
 
-      if (lat && lon) {
+      if (lat !== null && lon !== null) {
         data = await fetchWeatherData(lat, lon, currentUnits, clientTimezone);
         
         if (!name) {
@@ -129,7 +131,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         : t('Errors.ERROR_UNKNOWN') || 'Failed to fetch weather data';
       
       setError(translatedError);
-      toast.error(translatedError);
       setWeatherData(null);
     } finally {
       setIsLoading(false);
@@ -137,13 +138,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }, [t, setApiStatus]);
 
   useEffect(() => {
-    if (location.name || (location.lat && location.lon)) {
+    if (location.name || hasCoordinates(location)) {
       fetchAndSetWeather(location, units);
     }
   }, [location, units, fetchAndSetWeather]);
 
   useEffect(() => {
-    if (isInitializing && hasInitializedRef.current && (location.name || (location.lat && location.lon))) {
+    if (isInitializing && hasInitializedRef.current && (location.name || hasCoordinates(location))) {
       finishInitialization();
     }
   }, [isInitializing, location, finishInitialization]);
@@ -156,14 +157,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const setLocationByCoords = useCallback((lat: number, lon: number) => {
-    if (lat && lon) {
+    if (Number.isFinite(lat) && Number.isFinite(lon)) {
       setLocation({ lat, lon, name: null });
       setError(null);
     }
   }, []);
 
   const refreshData = useCallback(() => {
-    if (location.name || (location.lat && location.lon)) {
+    if (location.name || hasCoordinates(location)) {
       toast.info(t('Toasts.refreshingData') || 'Refreshing data...');
       fetchAndSetWeather(location, units);
     }

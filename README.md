@@ -4,11 +4,11 @@
 
 A modern weather application built with Next.js that provides real-time weather data, detailed forecasts, and a user-friendly, responsive interface.
 
-## 🚀 Live Demo
+## Live Demo
 
 [https://weather-mage.vercel.app/](https://weather-mage.vercel.app/)
 
-## ✨ Features
+## Features
 
 -   **Real-time Weather:** Search for any city or use your current location to get up-to-the-minute weather data.
 -   **Detailed Forecasts:** View hourly (24-hour) and daily (5-day) forecasts in both chart and list formats.
@@ -19,7 +19,7 @@ A modern weather application built with Next.js that provides real-time weather 
     -   Save your favorite locations for quick access.
 -   **Modern UI:** A clean, fully responsive design featuring skeleton loading states and animated weather icons.
 
-## 🚀 Tech Stack
+## Tech Stack
 
 -   **Framework:** [Next.js](https://nextjs.org/) 15 (App Router)
 -   **Language:** [TypeScript](https://www.typescriptlang.org/)

@@ -51,7 +51,12 @@
   },
   "Forecast": {
     "hourlyTitle": "Prochaines 24 heures",
-    "dailyTitle": "5 prochains jours",
+    "dailyTitle": "Prévisions quotidiennes",
+    "dailyRangeLabel": "Période des prévisions quotidiennes",
+    "sevenDays": "7 jours",
+    "fourteenDays": "14 jours",
+    "next7Days": "7 prochains jours",
+    "next14Days": "14 prochains jours",
     "tempAlwaysShown": "Température (toujours affichée)",
     "toggleRain": "Afficher/Masquer la probabilité de pluie",
     "toggleWind": "Afficher/Masquer la vitesse du vent",

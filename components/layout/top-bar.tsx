@@ -59,7 +59,7 @@ export default function TopBar() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (location.name || (location.lat && location.lon)) {
+      if (location.name || (location.lat !== null && location.lon !== null)) {
         refreshData();
       }
     }, 3600000);
@@ -84,10 +84,10 @@ export default function TopBar() {
           hour12: units === 'imperial'
         });
         setCurrentTime(timeString);
-      } catch (error) {
-        console.error("Error formatting time for timezone:", weatherData.timezone);
-        setCurrentTime(null);
-      }
+    } catch {
+      console.error("Error formatting time for timezone:", weatherData.timezone);
+      setCurrentTime(null);
+    }
     };
 
     updateTime(); // Initial update
