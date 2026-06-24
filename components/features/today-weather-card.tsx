@@ -49,7 +49,7 @@ export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCar
 
   return (
     <Card className="flex flex-col items-center justify-between p-2 flex-grow">
-      <div className="w-40 h-40 text-warning drop-shadow-[0_0_22px_rgba(250,179,135,0.28)]">
+      <div className="w-40 h-40">
         <CurrentWeatherIcon iconCode={icon} />
       </div>
       <div className="text-center">

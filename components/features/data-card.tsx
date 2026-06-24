@@ -2,6 +2,7 @@ import { Card, CardContent} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import WeatherIcon from "@/components/icons/weather-icon";
 import { cn } from "@/lib/utils";
+import { getDataWeatherIconColor } from "@/lib/weather-icon-colors";
 
 interface DataCardProps {
   iconType: string;
@@ -11,18 +12,9 @@ interface DataCardProps {
 }
 
 export default function DataCard({ iconType, title, data, unit }: DataCardProps) {
-  const iconColors: Record<string, string> = {
-    humidity: "text-primary",
-    wind: "text-chart-5",
-    pressure: "text-accent",
-    visibility: "text-chart-1",
-    sunrise: "text-warning",
-    sunset: "text-chart-4",
-  };
-
   return (
     <Card className="flex-row items-center p-4 h-16">
-      <div className={cn("w-12 h-12 mr-4 drop-shadow-[0_0_14px_color-mix(in_srgb,currentColor_22%,transparent)]", iconColors[iconType])}>
+      <div className={cn("w-12 h-12 mr-4", getDataWeatherIconColor(iconType))}>
         <WeatherIcon type={iconType} />
       </div>
       <CardContent className="p-0 flex-grow">

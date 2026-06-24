@@ -1,6 +1,8 @@
 // C:\Dev\weather-v2\components\icons\current-weather-icon.tsx
 
 import { FC, ComponentType } from 'react';
+import { cn } from '@/lib/utils';
+import { getCurrentWeatherIconColor } from '@/lib/weather-icon-colors';
 
 // --- START: New Imports ---
 // Import all the icons directly at the top of the file.
@@ -63,7 +65,7 @@ const CurrentWeatherIcon: FC<CurrentWeatherIconProps> = ({ iconCode, className }
   const IconComponent = iconMap[iconCode] || iconMap['01d']; // Fallback to clear day
 
   return (
-    <div className={className}>
+    <div className={cn(getCurrentWeatherIconColor(iconCode), className)}>
       <IconComponent style={{ width: '100%', height: '100%', color: 'currentColor' }} />
     </div>
   );

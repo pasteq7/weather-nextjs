@@ -324,6 +324,15 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   }, [chartData]);
   
   const midnightTimestamps = useMemo(() => weatherData.daily.time || [], [weatherData.daily.time]);
+  const daySeparators = useMemo(() => {
+    if (!chartData.length) return [];
+
+    const chartStart = chartData[0].time;
+    const chartEnd = chartData[chartData.length - 1].time;
+
+    return midnightTimestamps.filter((time) => time > chartStart && time < chartEnd);
+  }, [chartData, midnightTimestamps]);
+
   const dailyTicks = useMemo(() => {
     if (type !== 'daily') return undefined;
     return midnightTimestamps
@@ -457,6 +466,12 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                       margin={{ top: 5, right: 20, left: -20, bottom: 0 }}
                       id={`${chartId}-chart`}
                     >
+                      <defs>
+                        <linearGradient id={`${chartId}-temperature-gradient`} x1="0" y1="1" x2="0" y2="0">
+                          <stop offset="0%" stopColor="var(--chart-1)" />
+                          <stop offset="100%" stopColor="var(--chart-3)" />
+                        </linearGradient>
+                      </defs>
                       <XAxis
                         dataKey="time"
                         type="number"
@@ -527,37 +542,22 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                         }
                       />
 
-                      {midnightTimestamps.map((time, index) => (
+                      {daySeparators.map((time, index) => (
                         <ReferenceLine
-                          key={`${chartId}-ref-${index}`}
+                          key={`${chartId}-day-separator-${index}`}
                           x={time}
                           yAxisId="temp"
                           stroke="var(--border)"
                           strokeWidth={1}
-                          strokeDasharray="4 4"
+                          strokeOpacity={0.45}
                         />
                       ))}
-                      <ReferenceLine
-                        y={tempMetrics.max}
-                        yAxisId="temp"
-                        stroke="var(--chart-1)"
-                        strokeDasharray="2 10"
-                        strokeOpacity={0.7}
-                      />
-                      <ReferenceLine
-                        y={tempMetrics.min}
-                        yAxisId="temp"
-                        stroke="var(--chart-3)"
-                        strokeDasharray="2 10"
-                        strokeOpacity={0.7}
-                      />
-
                       {displayModes.includes('temperature') && (
                         <Line
                           yAxisId="temp"
                           type="monotone"
                           dataKey="temperature"
-                          stroke="var(--color-temperature)"
+                          stroke={`url(#${chartId}-temperature-gradient)`}
                           dot={false}
                           activeDot={{ r: 5, fill: "var(--chart-1)", stroke: "var(--background)", strokeWidth: 2 }}
                           strokeWidth={2}

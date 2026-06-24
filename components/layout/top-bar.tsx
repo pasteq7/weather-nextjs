@@ -193,8 +193,8 @@ export default function TopBar() {
 
         {/* Current Time Display */}
         {currentTime && (
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 text-sm font-semibold tabular-nums text-muted-foreground whitespace-nowrap bg-card/80 border border-border/70 rounded-md h-9 shadow-sm backdrop-blur-sm">
-            <Clock className="h-3.5 w-3.5 text-primary" />
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 text-sm font-semibold tabular-nums text-muted-foreground whitespace-nowrap bg-card/80 border border-border/70 rounded-md h-9 backdrop-blur-sm">
+            <Clock className="h-3.5 w-3.5 text-chart-2" />
             {currentTime}
           </div>
         )}

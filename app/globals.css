@@ -5,6 +5,15 @@
 
 @theme inline {
   --breakpoint-lg: 52rem;
+  --text-xs: 0.7rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.1875rem;
+  --text-2xl: 1.375rem;
+  --text-3xl: 1.6875rem;
+  --text-4xl: 2rem;
+  --text-5xl: 2.625rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-figtree);
@@ -21,6 +30,22 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-weather-clear-day: var(--weather-clear-day);
+  --color-weather-clear-night: var(--weather-clear-night);
+  --color-weather-partly-cloudy-day: var(--weather-partly-cloudy-day);
+  --color-weather-partly-cloudy-night: var(--weather-partly-cloudy-night);
+  --color-weather-cloud: var(--weather-cloud);
+  --color-weather-overcast: var(--weather-overcast);
+  --color-weather-rain: var(--weather-rain);
+  --color-weather-storm: var(--weather-storm);
+  --color-weather-snow: var(--weather-snow);
+  --color-weather-fog: var(--weather-fog);
+  --color-weather-humidity: var(--weather-humidity);
+  --color-weather-wind: var(--weather-wind);
+  --color-weather-pressure: var(--weather-pressure);
+  --color-weather-visibility: var(--weather-visibility);
+  --color-weather-sunrise: var(--weather-sunrise);
+  --color-weather-sunset: var(--weather-sunset);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -51,75 +76,107 @@
 :root {
   --radius: 0.5rem;
 
-  /* Catppuccin Latte */
-  --background: #eff1f5;
-  --foreground: #4c4f69;
-  --card: #ffffffcc;
-  --card-foreground: #4c4f69;
-  --popover: #f8f8ff;
-  --popover-foreground: #4c4f69;
-  --primary: #8839ef;
+  --background: #f3f1fb;
+  --foreground: #332f4c;
+  --card: #ffffffb8;
+  --card-foreground: #332f4c;
+  --popover: #fffafff2;
+  --popover-foreground: #332f4c;
+  --primary: #9f6fe8;
   --primary-foreground: #ffffff;
-  --secondary: #e6e9ef;
-  --secondary-foreground: #4c4f69;
-  --muted: #e6e9ef;
-  --muted-foreground: #6c6f85;
-  --accent: #ea76cb;
-  --accent-foreground: #4c4f69;
-  --destructive: #d20f39;
+  --secondary: #ebe7f7;
+  --secondary-foreground: #332f4c;
+  --muted: #ebe7f7;
+  --muted-foreground: #6f668d;
+  --accent: #e779b9;
+  --accent-foreground: #332f4c;
+  --destructive: #d4426a;
   --destructive-foreground: #ffffff;
-  --success: #40a02b;
+  --success: #26d86f;
   --success-foreground: #ffffff;
-  --warning: #df8e1d;
-  --warning-foreground: #4c4f69;
-  --border: #ccd0da99;
-  --input: #eff1f5cc;
-  --ring: #8839ef;
+  --warning: #f3a84e;
+  --warning-foreground: #332f4c;
+  --border: #cfc7e5aa;
+  --input: #ffffffb8;
+  --ring: #b98af4;
 
-  --chart-1: #8839ef;
-  --chart-2: #1e66f5;
-  --chart-3: #df8e1d;
-  --chart-4: #ea76cb;
-  --chart-5: #179299;
+  --chart-1: #b98af4;
+  --chart-2: #648cff;
+  --chart-3: #f3a84e;
+  --chart-4: #e779b9;
+  --chart-5: #8e7cff;
+
+  --weather-clear-day: #f3a84e;
+  --weather-clear-night: #8e7cff;
+  --weather-partly-cloudy-day: #d99350;
+  --weather-partly-cloudy-night: #9f6fe8;
+  --weather-cloud: #7e89a8;
+  --weather-overcast: #6f668d;
+  --weather-rain: #648cff;
+  --weather-storm: #9f6fe8;
+  --weather-snow: #4fbfe8;
+  --weather-fog: #8c98ad;
+  --weather-humidity: #648cff;
+  --weather-wind: #8e7cff;
+  --weather-pressure: #e779b9;
+  --weather-visibility: #b98af4;
+  --weather-sunrise: #f3a84e;
+  --weather-sunset: #e779b9;
 
   --scrollbar-track: #e6e9ef;
   --scrollbar-thumb: #bcc0cc;
 }
 
 .dark {
-  /* Catppuccin Mocha */
-  --background: #11111b;
-  --foreground: #cdd6f4;
-  --card: #1e1e2ed9;
-  --card-foreground: #cdd6f4;
-  --popover: #1e1e2ef2;
-  --popover-foreground: #cdd6f4;
-  --primary: #cba6f7;
-  --primary-foreground: #1e1e2e;
-  --secondary: #313244;
-  --secondary-foreground: #cdd6f4;
-  --muted: #313244;
-  --muted-foreground: #bac2de;
-  --accent: #f5c2e7;
-  --accent-foreground: #1e1e2e;
-  --destructive: #f38ba8;
-  --destructive-foreground: #1e1e2e;
-  --success: #a6e3a1;
-  --success-foreground: #1e1e2e;
-  --warning: #fab387;
-  --warning-foreground: #1e1e2e;
-  --border: #45475a80;
-  --input: #1e1e2ed9;
-  --ring: #cba6f7;
+  --background: #171629;
+  --foreground: #f4ecff;
+  --card: #29283dcc;
+  --card-foreground: #f7efff;
+  --popover: #29283df2;
+  --popover-foreground: #f7efff;
+  --primary: #b98af4;
+  --primary-foreground: #19172b;
+  --secondary: #34324d;
+  --secondary-foreground: #f4ecff;
+  --muted: #34324d;
+  --muted-foreground: #c9bddf;
+  --accent: #ee87c4;
+  --accent-foreground: #19172b;
+  --destructive: #ff7c9d;
+  --destructive-foreground: #19172b;
+  --success: #22e66f;
+  --success-foreground: #101822;
+  --warning: #f4a83f;
+  --warning-foreground: #19172b;
+  --border: #45435f99;
+  --input: #29283dcc;
+  --ring: #b98af4;
 
-  --chart-1: #cba6f7;
-  --chart-2: #89b4fa;
-  --chart-3: #fab387;
-  --chart-4: #f5c2e7;
-  --chart-5: #74c7ec;
+  --chart-1: #b98af4;
+  --chart-2: #648cff;
+  --chart-3: #f4a83f;
+  --chart-4: #ee87c4;
+  --chart-5: #8e7cff;
 
-  --scrollbar-track: #11111b;
-  --scrollbar-thumb: #45475a;
+  --weather-clear-day: #f4a83f;
+  --weather-clear-night: #c5a6ff;
+  --weather-partly-cloudy-day: #f1b45b;
+  --weather-partly-cloudy-night: #b98af4;
+  --weather-cloud: #b8b3cf;
+  --weather-overcast: #c9bddf;
+  --weather-rain: #7da0ff;
+  --weather-storm: #c084fc;
+  --weather-snow: #9be7ff;
+  --weather-fog: #b9c2d3;
+  --weather-humidity: #7da0ff;
+  --weather-wind: #a99bff;
+  --weather-pressure: #ee87c4;
+  --weather-visibility: #b98af4;
+  --weather-sunrise: #f4a83f;
+  --weather-sunset: #ee87c4;
+
+  --scrollbar-track: #171629;
+  --scrollbar-thumb: #45435f;
 }
 
 
@@ -127,8 +184,10 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-size: var(--text-base);
     min-height: 100vh;
     font-feature-settings: "tnum" 1, "cv02" 1, "cv03" 1, "cv04" 1;
   }
@@ -168,12 +227,15 @@
 .success-toast svg {
   color: var(--success);
 }
+
 .error-toast svg {
   color: var(--destructive);
 }
+
 .warning-toast svg {
   color: var(--warning);
 }
+
 .info-toast svg {
   color: var(--primary);
 }
