@@ -25,6 +25,11 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -45,76 +50,76 @@
 
 :root {
   --radius: 0.5rem;
-  
-  --background: #F8FAFC;       /* Soft blue-gray white */
-  --foreground: #1E293B;       /* Dark blue-gray */
-  --card: #FFFFFF;             /* Pure white */
-  --card-foreground: #0F172A;  /* Very dark blue */
-  --popover: #FFFFFF;          /* Pure white */
-  --popover-foreground: #0F172A;
-  --primary: #3B82F6;          /* Vibrant blue (same) */
-  --primary-foreground: #1E293B;
-  --secondary: #E2E8F0;        /* Light blue-gray */
-  --primary: #1E293B;
-  --muted: #F1F5F9;            /* Very light blue-gray */
-  --muted-foreground: #64748B; /* Medium blue-gray */
-  --accent: #d68801;           /* Warm amber (same) */
-  --accent-foreground: #FFFFFF;
-  --destructive: #EF4444;      /* Modern red (same) */
-  --destructive-foreground: #FFFFFF;
-  --success: #10B981;          /* Emerald green (same) */
-  --success-foreground: #FFFFFF;
-  --warning: #F97316;          /* Orange (same) */
-  --warning-foreground: #FFFFFF;
-  --border: #E2E8F0;           /* Light blue-gray */
-  --input: #FFFFFF;            /* Pure white */
-  --ring: #3B82F6;             /* Vibrant blue (same) */
-  
-  /* Chart Colors */
-  --chart-1: #3B82F6;          /* Blue */
-  --chart-2: #10a5b9;          /* Emerald */
-  --chart-3: #F59E0B;          /* Amber */
-  --chart-4: #8B5CF6;          /* Purple */
-  --chart-5: #EF4444;          /* Red */
 
-  --scrollbar-track: #F1F5F9; /* Very light blue-gray */
-  --scrollbar-thumb: #CBD5E1; /* Light gray */
+  /* Catppuccin Latte */
+  --background: #eff1f5;
+  --foreground: #4c4f69;
+  --card: #ffffffcc;
+  --card-foreground: #4c4f69;
+  --popover: #f8f8ff;
+  --popover-foreground: #4c4f69;
+  --primary: #8839ef;
+  --primary-foreground: #ffffff;
+  --secondary: #e6e9ef;
+  --secondary-foreground: #4c4f69;
+  --muted: #e6e9ef;
+  --muted-foreground: #6c6f85;
+  --accent: #ea76cb;
+  --accent-foreground: #4c4f69;
+  --destructive: #d20f39;
+  --destructive-foreground: #ffffff;
+  --success: #40a02b;
+  --success-foreground: #ffffff;
+  --warning: #df8e1d;
+  --warning-foreground: #4c4f69;
+  --border: #ccd0da99;
+  --input: #eff1f5cc;
+  --ring: #8839ef;
+
+  --chart-1: #8839ef;
+  --chart-2: #1e66f5;
+  --chart-3: #df8e1d;
+  --chart-4: #ea76cb;
+  --chart-5: #179299;
+
+  --scrollbar-track: #e6e9ef;
+  --scrollbar-thumb: #bcc0cc;
 }
 
 .dark {
-  --background: #171d29;      /* Deep navy blue */
-  --foreground: #E2E8F0;      /* Cool white */
-  --card: #1c2330;            /* Rich dark blue */
-  --card-foreground: #F1F5F9;  /* Bright white */
-  --popover: #0A1220;          /* Even deeper navy */
-  --popover-foreground: #F1F5F9;
-  --primary: #dfb060;          /* Vibrant blue */
-  --primary-foreground: #FFFFFF;
-  --secondary: #334155;        /* Blue-gray */
-  --secondary-foreground: #F8FAFC;
-  --muted: #1E293B;            /* Dark blue-gray */
-  --muted-foreground: #94A3B8; /* Medium gray */
-  --accent: #F59E0B;           /* Warm amber */
-  --accent-foreground: #FFFFFF;
-  --destructive: #EF4444;      /* Modern red */
-  --destructive-foreground: #FFFFFF;
-  --success: #10B981;          /* Emerald green */
-  --success-foreground: #FFFFFF;
-  --warning: #F97316;          /* Orange */
-  --warning-foreground: #FFFFFF;
-  --border: #1E293B;           /* Dark blue-gray */
-  --input: #1E293B;            /* Dark blue-gray */
-  --ring: #3B82F6;             /* Vibrant blue */
-  
-  /* Chart Colors */
-  --chart-1: #3B82F6;          /* Blue */
-  --chart-2: #2b7bb1;          /* Emerald */
-  --chart-3: #F59E0B;          /* Amber */
-  --chart-4: #785abe;          /* Purple */
-  --chart-5: #EF4444;          /* Red */
+  /* Catppuccin Mocha */
+  --background: #11111b;
+  --foreground: #cdd6f4;
+  --card: #1e1e2ed9;
+  --card-foreground: #cdd6f4;
+  --popover: #1e1e2ef2;
+  --popover-foreground: #cdd6f4;
+  --primary: #cba6f7;
+  --primary-foreground: #1e1e2e;
+  --secondary: #313244;
+  --secondary-foreground: #cdd6f4;
+  --muted: #313244;
+  --muted-foreground: #bac2de;
+  --accent: #f5c2e7;
+  --accent-foreground: #1e1e2e;
+  --destructive: #f38ba8;
+  --destructive-foreground: #1e1e2e;
+  --success: #a6e3a1;
+  --success-foreground: #1e1e2e;
+  --warning: #fab387;
+  --warning-foreground: #1e1e2e;
+  --border: #45475a80;
+  --input: #1e1e2ed9;
+  --ring: #cba6f7;
 
-  --scrollbar-track: #171d29; /* Dark blue-gray */
-  --scrollbar-thumb: #212e3f; /* Gray */
+  --chart-1: #cba6f7;
+  --chart-2: #89b4fa;
+  --chart-3: #fab387;
+  --chart-4: #f5c2e7;
+  --chart-5: #74c7ec;
+
+  --scrollbar-track: #11111b;
+  --scrollbar-thumb: #45475a;
 }
 
 
@@ -124,6 +129,16 @@
   }
   body {
     @apply bg-background text-foreground;
+    min-height: 100vh;
+    font-feature-settings: "tnum" 1, "cv02" 1, "cv03" 1, "cv04" 1;
+  }
+
+  a {
+    @apply text-primary underline-offset-4 transition-colors;
+  }
+
+  a:hover {
+    color: var(--accent);
   }
 
   /* Firefox */

@@ -34,9 +34,9 @@ export default function Footer() {
       <div className="flex items-center gap-1.5">
         <span className={cn(
           "h-2 w-2 rounded-full",
-          status.status === 'operational' && 'bg-green-500',
-          status.status === 'outage' && 'bg-red-500',
-          status.status === 'pending' && 'bg-gray-400'
+          status.status === 'operational' && 'bg-success',
+          status.status === 'outage' && 'bg-destructive',
+          status.status === 'pending' && 'bg-muted-foreground'
         )} />
         <span className="text-sm capitalize text-muted-foreground">{t(status.status)}</span>
       </div>
@@ -55,9 +55,9 @@ export default function Footer() {
                 <span className="text-xs hidden sm:inline whitespace-nowrap">{t('apiStatus')}</span>
                  <span className={cn(
                   "h-1.5 w-1.5 rounded-full flex-shrink-0",
-                  generalStatus.status === 'operational' && 'bg-green-500',
-                  generalStatus.status === 'outage' && 'bg-red-500 animate-pulse',
-                  generalStatus.status === 'pending' && 'bg-gray-400' 
+                  generalStatus.status === 'operational' && 'bg-success',
+                  generalStatus.status === 'outage' && 'bg-destructive animate-pulse',
+                  generalStatus.status === 'pending' && 'bg-muted-foreground' 
                 )} />
               </TooltipTrigger>
               <TooltipContent className="p-3">

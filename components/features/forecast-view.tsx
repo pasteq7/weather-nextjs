@@ -129,7 +129,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   const chartConfig = useMemo(() => ({
     temperature: {
       label: t('temperature'),
-      color: "var(--muted-foreground)",
+      color: "var(--chart-1)",
     },
     rain: {
       label: t('rain'),
@@ -335,7 +335,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
     <Card>
       <CardContent>
         <div className="flex justify-between items-center gap-2">
-          <h3 className="font-semibold text-muted-foreground">{config[type].title}</h3>
+          <h3 className="font-bold text-muted-foreground">{config[type].title}</h3>
           <div className="flex items-center gap-2">
             {type === 'daily' && (
               <ToggleGroup
@@ -471,6 +471,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                         yAxisId="temp"
                         tickLine={true}
                         axisLine={true}
+                        stroke="var(--border)"
                         tickFormatter={(value) => `${value}°`}
                         domain={tempMetrics.domain}
                         ticks={tempMetrics.ticks}
@@ -531,7 +532,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           key={`${chartId}-ref-${index}`}
                           x={time}
                           yAxisId="temp"
-                          stroke="hsl(var(--muted-foreground))"
+                          stroke="var(--border)"
                           strokeWidth={1}
                           strokeDasharray="4 4"
                         />
@@ -539,14 +540,14 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                       <ReferenceLine
                         y={tempMetrics.max}
                         yAxisId="temp"
-                        stroke="hsl(var(--chart-1))"
+                        stroke="var(--chart-1)"
                         strokeDasharray="2 10"
                         strokeOpacity={0.7}
                       />
                       <ReferenceLine
                         y={tempMetrics.min}
                         yAxisId="temp"
-                        stroke="hsl(var(--chart-3))"
+                        stroke="var(--chart-3)"
                         strokeDasharray="2 10"
                         strokeOpacity={0.7}
                       />
@@ -558,7 +559,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           dataKey="temperature"
                           stroke="var(--color-temperature)"
                           dot={false}
-                          activeDot={{ r: 6 }}
+                          activeDot={{ r: 5, fill: "var(--chart-1)", stroke: "var(--background)", strokeWidth: 2 }}
                           strokeWidth={2}
                         />
                       )}
@@ -569,7 +570,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           dataKey="rain"
                           stroke="var(--color-rain)"
                           dot={false}
-                          activeDot={{ r: 6 }}
+                          activeDot={{ r: 5, fill: "var(--chart-2)", stroke: "var(--background)", strokeWidth: 2 }}
                           strokeWidth={2}
                         />
                       )}
@@ -580,7 +581,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           dataKey="wind"
                           stroke="var(--color-wind)"
                           dot={false}
-                          activeDot={{ r: 6 }}
+                          activeDot={{ r: 5, fill: "var(--chart-4)", stroke: "var(--background)", strokeWidth: 2 }}
                           strokeWidth={2}
                         />
                       )}

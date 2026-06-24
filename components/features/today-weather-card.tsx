@@ -49,18 +49,18 @@ export default function TodayWeatherCard({ weatherData, units }: TodayWeatherCar
 
   return (
     <Card className="flex flex-col items-center justify-between p-2 flex-grow">
-      <div className="w-40 h-40">
+      <div className="w-40 h-40 text-warning drop-shadow-[0_0_22px_rgba(250,179,135,0.28)]">
         <CurrentWeatherIcon iconCode={icon} />
       </div>
       <div className="text-center">
-        <p className="text-5xl mb-2">
+        <p className="text-5xl font-semibold mb-2 text-card-foreground">
           {temp}
-          <span className="text-2xl text-muted-foreground align-top">{tempUnit}</span>
+          <span className="text-2xl text-primary align-top">{tempUnit}</span>
         </p>
-        <p className="text-lg text-muted-foreground capitalize mb-1">
+        <p className="text-base text-muted-foreground capitalize mb-1">
           {description}
         </p>
-        <p className="text-xs text-muted-foreground/50 mb-2">
+        <p className="text-xs text-muted-foreground/70 mb-2">
           {t('Weather.lastUpdated', { time: lastFetchedTime })}
         </p>
       </div>
