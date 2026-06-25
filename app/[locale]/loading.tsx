@@ -5,63 +5,51 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <main className="flex-grow flex flex-col gap-4">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left Column Skeleton */}
-        <div className="lg:col-span-1 flex flex-col gap-4">
-          <LocationCardSkeleton />
+    <main className="flex flex-grow flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
+        <div className="min-w-0">
           <TodayWeatherCardSkeleton />
         </div>
-        {/* Right Column Skeleton */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
-          <WeatherDataGridSkeleton />
-          <ForecastViewSkeleton />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
+          <MiniPanelSkeleton />
+          <MiniPanelSkeleton />
         </div>
       </div>
-      {/* Full-width Daily Forecast Skeleton */}
+      <ForecastViewSkeleton />
       <ForecastViewSkeleton />
     </main>
   );
 }
 
-// --- Component-level Skeletons for better accuracy ---
-
-function LocationCardSkeleton() {
-  return (
-    <Card className="flex items-center justify-center h-16 p-4">
-      <Skeleton className="w-48 h-8" />
-    </Card>
-  );
-}
-
 function TodayWeatherCardSkeleton() {
   return (
-    <Card className="flex flex-col items-center justify-between p-2 flex-grow">
-      <div className="w-40 h-40">
-        <Skeleton className="w-full h-full rounded-full" />
+    <Card className="min-h-[22rem] gap-6 p-6">
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-4 w-36" />
       </div>
-      <div className="w-full flex flex-col items-center gap-2 text-center">
-        <Skeleton className="w-3/4 h-10" />
-        <Skeleton className="w-1/2 h-6" />
-        <Skeleton className="w-1/3 h-4" />
+      <div className="flex items-end gap-5">
+        <Skeleton className="h-32 w-32 rounded-full" />
+        <div className="space-y-3">
+          <Skeleton className="h-16 w-28" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-14" />)}
       </div>
     </Card>
   );
 }
 
-function WeatherDataGridSkeleton() {
+function MiniPanelSkeleton() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-      {[...Array(6)].map((_, i) => (
-        <Card key={i} className="flex flex-row items-center p-4 h-16 gap-4">
-          <Skeleton className="w-12 h-12" />
-          <div className="flex-grow flex flex-col gap-2">
-            <Skeleton className="w-1/2 h-4" />
-            <Skeleton className="w-3/4 h-6" />
-          </div>
-        </Card>
-      ))}
-    </div>
+    <Card className="gap-4 p-5">
+      <Skeleton className="h-4 w-28" />
+      <Skeleton className="h-8 w-16" />
+      <Skeleton className="h-16 w-full" />
+    </Card>
   );
 }
 

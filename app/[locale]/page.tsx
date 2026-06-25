@@ -3,7 +3,7 @@
 
 import { useAppContext } from '../context/AppContext';
 import TodayWeatherCard from '@/components/features/today-weather-card';
-import WeatherDataGrid from '@/components/features/weather-data-grid';
+import WeatherConditionCards from '@/components/features/weather-condition-cards';
 import ForecastView from '@/components/features/forecast-view';
 import ErrorDisplay from '@/components/features/error-display';
 import LoadingSkeleton from './loading';
@@ -29,16 +29,16 @@ export default function HomePage() {
           </Card>
         </main>
       ) : (
-        <main className="flex-grow flex flex-col gap-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-1 flex flex-col gap-4">
+        <main className="flex flex-grow flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
+            <div className="min-w-0">
               <TodayWeatherCard weatherData={weatherData!} units={units} location={weatherData!.name} />
             </div>
-            <div className="lg:col-span-2 flex flex-col gap-4">
-              <WeatherDataGrid weatherData={weatherData!} units={units} />
-              <ForecastView type="hourly" weatherData={weatherData!} units={units} />
+            <div className="min-w-0">
+              <WeatherConditionCards weatherData={weatherData!} units={units} />
             </div>
           </div>
+          <ForecastView type="hourly" weatherData={weatherData!} units={units} />
           <ForecastView type="daily" weatherData={weatherData!} units={units} />
         </main>
       )}

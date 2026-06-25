@@ -36,28 +36,31 @@ function DailyForecastItem({ day, units, chartId, itemIndex, locale }: {
   const capitalizedDayLabel = dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
 
   return (
-    <div 
-      className="flex flex-col items-center justify-center text-center gap-1 p-2"
+    <div
+      className="flex min-w-24 flex-col items-center justify-center gap-1 rounded-lg border border-transparent p-2 text-center transition-colors hover:border-white/10 hover:bg-white/[0.035]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <p className="font-semibold text-sm">{capitalizedDayLabel}</p>
-      <div className="w-16 h-16 flex items-center justify-center relative">
+      <p className="text-xs font-semibold text-card-foreground/85">{capitalizedDayLabel}</p>
+      <p className="-mt-1 text-[0.68rem] text-muted-foreground/70">
+        {date.toLocaleDateString(locale, { month: 'short', day: 'numeric' })}
+      </p>
+      <div className="relative flex h-11 w-11 items-center justify-center">
         <div className={cn("transition-opacity duration-300", { "opacity-0": isHovered })}>
           <div 
             key={`${chartId}-daily-${day.time}-${itemIndex}`} 
             className="weather-icon-container w-full h-full"
             style={{ isolation: 'isolate' }}
           >
-            <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+            <CurrentWeatherIcon iconCode={icon} className="h-11 w-11" />
           </div>
         </div>
         <div className={cn("absolute p-1 inset-0 flex items-center justify-center text-center transition-opacity duration-300", { "opacity-0": !isHovered, "pointer-events-none": !isHovered })}>
           <p className="text-xs capitalize">{description}</p>
         </div>
       </div>
-      <div className="text-sm">
-        <span className="font-bold">{maxTemp}{maxTempUnit}</span>
+      <div className="text-sm leading-tight">
+        <span className="font-semibold">{maxTemp}{maxTempUnit}</span>
         <span className="text-muted-foreground"> / {minTemp}{maxTempUnit}</span>
       </div>
     </div>
@@ -92,27 +95,28 @@ function HourlyForecastItem({
   });
 
   return (
-    <div 
-      className="flex flex-col items-center justify-center text-center gap-1 p-2"
+    <div
+      className="flex min-w-20 flex-col items-center justify-center gap-1 rounded-lg border border-transparent p-2 text-center transition-colors hover:border-white/10 hover:bg-white/[0.035]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <p className="font-semibold text-sm">{timeLabel}</p>
-      <div className="w-16 h-16 flex items-center justify-center relative">
+      <p className="text-xs font-semibold text-card-foreground/85">{timeLabel}</p>
+      <div className="relative flex h-11 w-11 items-center justify-center">
         <div className={cn("transition-opacity duration-300", { "opacity-0": isHovered })}>
           <div 
             key={`${chartId}-hourly-${hour.time}-${itemIndex}`} 
             className="weather-icon-container w-full h-full"
             style={{ isolation: 'isolate' }}
           >
-            <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+            <CurrentWeatherIcon iconCode={icon} className="h-11 w-11" />
           </div>
         </div>
         <div className={cn("absolute p-1 inset-0 flex items-center justify-center text-center transition-opacity duration-300", { "opacity-0": !isHovered, "pointer-events-none": !isHovered })}>
           <p className="text-xs capitalize">{description}</p>
         </div>
       </div>
-      <p className="text-sm font-bold">{temp}{tempUnit}</p>
+      <p className="text-sm font-semibold">{temp}{tempUnit}</p>
+      <p className="text-[0.68rem] font-medium text-chart-2">{Math.round(hour.precipitation_probability)}%</p>
     </div>
   );
 }
@@ -144,7 +148,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   const { preferences, setPreferences } = useViewPreference(
     type, 
     { 
-      view: type === 'hourly' ? 'chart' : 'list', 
+      view: 'list',
       displayModes: ['temperature'] 
     }
   );
@@ -347,8 +351,8 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   ), [chartConfig, displayModes]);
 
   return (
-    <Card className="border-border/25 bg-card/55 shadow-none">
-      <CardContent className="space-y-4">
+    <Card className="border-white/10 bg-card/60 shadow-xl shadow-black/5">
+      <CardContent className="space-y-4 px-4 py-4 md:px-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="font-bold text-card-foreground/85">{config[type].title}</h3>
           <div className="flex items-center gap-2">
@@ -461,7 +465,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
           </div>
         )}
 
-        <div className="relative h-[165px] w-full">
+        <div className={cn("relative w-full", view === 'list' ? "h-[8.5rem]" : "h-[165px]")}>
           {!isMounted ? (
             <Skeleton className="w-full h-full" />
           ) : (
@@ -612,7 +616,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
               {/* List View */}
               <div
                 className={cn(
-                  `absolute inset-0 grid ${type === 'daily' ? 'grid-flow-col auto-cols-[minmax(6.5rem,1fr)] grid-rows-1 overflow-x-auto overflow-y-hidden pb-2' : 'grid-cols-4 md:grid-cols-8 overflow-y-auto'} gap-2 h-full transition-opacity duration-300`,
+                  `absolute inset-0 grid ${type === 'daily' ? 'grid-flow-col auto-cols-[minmax(5.75rem,1fr)] grid-rows-1 overflow-x-auto overflow-y-hidden pb-2' : 'grid-flow-col auto-cols-[minmax(5rem,1fr)] overflow-x-auto overflow-y-hidden pb-2'} gap-2 h-full transition-opacity duration-300`,
                   view === 'list'
                     ? "opacity-100"
                     : "opacity-0 pointer-events-none"
