@@ -44,15 +44,16 @@ export default function Footer() {
   );
 
   return (
-    <Card className="p-4 w-full">
-      <div className="flex justify-between items-center gap-2 min-w-0">
+    <footer className="w-full">
+      <Card className="w-full border-border/25 bg-card/45 px-4 py-3 text-muted-foreground/75 shadow-none">
+        <div className="flex justify-between items-center gap-2 min-w-0">
         
-        <div className="flex items-center gap-4 text-muted-foreground">
-          <Cloud className="h-4 w-4 md:h-5 md:w-5" />
+        <div className="flex items-center gap-4">
+          <Cloud className="h-4 w-4 opacity-65" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger className="flex items-center gap-1.5 flex-shrink-0 cursor-help">
-                <span className="text-xs hidden sm:inline whitespace-nowrap">{t('apiStatus')}</span>
+                <span className="text-xs hidden sm:inline whitespace-nowrap opacity-80">{t('apiStatus')}</span>
                  <span className={cn(
                   "h-1.5 w-1.5 rounded-full flex-shrink-0",
                   generalStatus.status === 'operational' && 'bg-success',
@@ -71,14 +72,14 @@ export default function Footer() {
           </TooltipProvider>
         </div>
 
-        <div className="flex items-center gap-2 md:gap-4 text-xs text-muted-foreground flex-shrink-0">
+        <div className="flex items-center gap-2 md:gap-4 text-xs flex-shrink-0">
           <p className="hidden md:block whitespace-nowrap">
             <span className="hidden lg:inline">{t('dataBy')} </span>
             <Link 
               href="https://open-meteo.com/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="underline hover:text-primary"
+              className="text-muted-foreground/75 underline hover:text-primary"
             >
               Open-Meteo
             </Link>
@@ -90,7 +91,7 @@ export default function Footer() {
               href="https://sylvainbrehaut.com" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="underline hover:text-primary ml-1"
+              className="ml-1 text-muted-foreground/75 underline hover:text-primary"
             >
               sB
             </Link>
@@ -100,13 +101,14 @@ export default function Footer() {
             href="https://github.com/pasteq7/weather-nextjs" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="hover:text-primary flex-shrink-0" 
+            className="flex-shrink-0 text-muted-foreground/75 hover:text-primary" 
             aria-label={t('githubAria')}
           >
-            <Github className="h-4 w-4 md:h-5 md:w-5" />
+            <Github className="h-4 w-4" />
           </Link>
         </div>
-      </div>
-    </Card>
+        </div>
+      </Card>
+    </footer>
   );
 }

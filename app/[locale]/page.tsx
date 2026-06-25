@@ -2,7 +2,6 @@
 'use client';
 
 import { useAppContext } from '../context/AppContext';
-import LocationCard from '@/components/features/location-card';
 import TodayWeatherCard from '@/components/features/today-weather-card';
 import WeatherDataGrid from '@/components/features/weather-data-grid';
 import ForecastView from '@/components/features/forecast-view';
@@ -33,8 +32,7 @@ export default function HomePage() {
         <main className="flex-grow flex flex-col gap-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-1 flex flex-col gap-4">
-              <LocationCard location={weatherData!.name} />
-              <TodayWeatherCard weatherData={weatherData!} units={units} />
+              <TodayWeatherCard weatherData={weatherData!} units={units} location={weatherData!.name} />
             </div>
             <div className="lg:col-span-2 flex flex-col gap-4">
               <WeatherDataGrid weatherData={weatherData!} units={units} />

@@ -340,11 +340,17 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
       .filter((_, index) => dailyRange === 7 || index % 2 === 0);
   }, [dailyRange, midnightTimestamps, type]);
 
+  const visibleLegendItems = useMemo(() => (
+    displayModes
+      .filter((mode): mode is keyof typeof chartConfig => mode in chartConfig)
+      .map((mode) => chartConfig[mode])
+  ), [chartConfig, displayModes]);
+
   return (
-    <Card>
-      <CardContent>
-        <div className="flex justify-between items-center gap-2">
-          <h3 className="font-bold text-muted-foreground">{config[type].title}</h3>
+    <Card className="border-border/25 bg-card/55 shadow-none">
+      <CardContent className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="font-bold text-card-foreground/85">{config[type].title}</h3>
           <div className="flex items-center gap-2">
             {type === 'daily' && (
               <ToggleGroup
@@ -444,8 +450,18 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
             </TooltipProvider>
           </div>
         </div>
-        
-        <div className="relative h-[150px] w-full">
+        {view === 'chart' && (
+          <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-muted-foreground/70">
+            {visibleLegendItems.map((item) => (
+              <div key={item.label} className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="relative h-[165px] w-full">
           {!isMounted ? (
             <Skeleton className="w-full h-full" />
           ) : (
@@ -463,7 +479,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                   <ChartContainer config={chartConfig} className="w-full h-full">
                     <LineChart
                       data={chartData}
-                      margin={{ top: 5, right: 20, left: -20, bottom: 0 }}
+                      margin={{ top: 6, right: 28, left: 4, bottom: 0 }}
                       id={`${chartId}-chart`}
                     >
                       <defs>
@@ -480,13 +496,16 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                         tickFormatter={config[type].tickFormatter}
                         tickLine={false}
                         axisLine={false}
+                        stroke="var(--muted-foreground)"
+                        tick={{ fill: "var(--muted-foreground)", opacity: 0.65 }}
                         fontSize={12}
                       />
                       <YAxis
                         yAxisId="temp"
-                        tickLine={true}
-                        axisLine={true}
-                        stroke="var(--border)"
+                        tickLine={false}
+                        axisLine={false}
+                        stroke="var(--muted-foreground)"
+                        tick={{ fill: "var(--muted-foreground)", opacity: 0.65 }}
                         tickFormatter={(value) => `${value}°`}
                         domain={tempMetrics.domain}
                         ticks={tempMetrics.ticks}
@@ -549,7 +568,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           yAxisId="temp"
                           stroke="var(--border)"
                           strokeWidth={1}
-                          strokeOpacity={0.45}
+                          strokeOpacity={0.24}
                         />
                       ))}
                       {displayModes.includes('temperature') && (

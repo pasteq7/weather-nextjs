@@ -6,16 +6,19 @@ import { useTheme } from 'next-themes';
 import { useFavorites } from '@/hooks/use-favorites';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Sun, Moon, Star, Locate, X, ChevronDown, Languages, Clock } from 'lucide-react';
+import { Sun, Moon, Star, Locate, X, ChevronDown, Clock, Settings } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { toast } from 'sonner';
@@ -36,13 +39,13 @@ export default function TopBar() {
   const { locale, setLocale } = useLanguage();
   const { theme, setTheme } = useTheme();
   const { favorites, addFavorite, removeFavorite } = useFavorites();
-  const { 
-    location, 
-    units, 
-    weatherData, // Added weatherData to access timezone
-    setUnits, 
-    setLocationByName, 
-    setLocationByCoords, 
+  const {
+    location,
+    units,
+    weatherData,
+    setUnits,
+    setLocationByName,
+    setLocationByCoords,
     refreshData,
     isInitializing,
     finishInitialization,
@@ -53,8 +56,8 @@ export default function TopBar() {
   const [isGeolocating, setIsGeolocating] = useState(false);
   const [currentTime, setCurrentTime] = useState<string | null>(null);
 
-  const isSearchableLocation = location.name && 
-    location.name !== (t('Weather.currentLocation') || 'Current Location') && 
+  const isSearchableLocation = location.name &&
+    location.name !== (t('Weather.currentLocation') || 'Current Location') &&
     location.name !== (t('Weather.unknownLocation') || 'Unknown Location');
 
   useEffect(() => {
@@ -67,7 +70,6 @@ export default function TopBar() {
     return () => clearInterval(interval);
   }, [location, refreshData]);
 
-  // Effect to handle the clock logic based on location timezone
   useEffect(() => {
     if (!weatherData?.timezone) {
       setCurrentTime(null);
@@ -84,23 +86,23 @@ export default function TopBar() {
           hour12: units === 'imperial'
         });
         setCurrentTime(timeString);
-    } catch {
-      console.error("Error formatting time for timezone:", weatherData.timezone);
-      setCurrentTime(null);
-    }
+      } catch {
+        console.error("Error formatting time for timezone:", weatherData.timezone);
+        setCurrentTime(null);
+      }
     };
 
-    updateTime(); // Initial update
-    const timer = setInterval(updateTime, 1000); // Update every second
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
 
     return () => clearInterval(timer);
   }, [weatherData?.timezone, units]);
 
   const handleGeolocate = useCallback(async (isAuto = false) => {
     if (isGeolocating) return;
-    
+
     setIsGeolocating(true);
-    
+
     const promise = () => new Promise<SimplePosition>(async (resolve, reject) => {
       try {
         if (Capacitor.isNativePlatform()) {
@@ -108,9 +110,9 @@ export default function TopBar() {
           if (permissions.location !== 'granted') {
             throw new Error('Location permission denied');
           }
-          const position = await Geolocation.getCurrentPosition({ 
-            timeout: 10000, 
-            enableHighAccuracy: false 
+          const position = await Geolocation.getCurrentPosition({
+            timeout: 10000,
+            enableHighAccuracy: false
           });
           resolve(position);
         } else if (navigator.geolocation) {
@@ -189,87 +191,87 @@ export default function TopBar() {
   };
 
   return (
-    <div className="flex items-center gap-2 w-full">
-
-        {/* Current Time Display */}
-        {currentTime && (
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 text-sm font-semibold tabular-nums text-muted-foreground whitespace-nowrap bg-card/80 border border-border/70 rounded-md h-9 backdrop-blur-sm">
-            <Clock className="h-3.5 w-3.5 text-chart-2" />
-            {currentTime}
-          </div>
-        )}
+    <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center">
+      {currentTime && (
+        <div className="hidden items-center gap-1.5 whitespace-nowrap rounded-md border border-border/25 bg-card/35 px-2.5 text-sm font-semibold tabular-nums text-muted-foreground backdrop-blur-sm md:flex md:h-9">
+          <Clock className="h-3.5 w-3.5 text-chart-2" />
+          {currentTime}
+        </div>
+      )}
 
       <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" onClick={() => handleGeolocate(false)} disabled={isGeolocating}>
-              <Locate className={`h-4 w-4 ${isGeolocating ? 'animate-spin' : ''}`} />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent><p>{isGeolocating ? t('TopBar.gettingLocationTooltip') : t('TopBar.myLocationTooltip')}</p></TooltipContent>
-        </Tooltip>
+        <form onSubmit={handleSearch} className="flex h-9 min-w-0 flex-1 items-center gap-1 rounded-md border border-border/40 bg-card/60 shadow-sm shadow-black/5 backdrop-blur-md">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className="h-9 w-9 rounded-r-none" variant="ghost" size="icon" onClick={() => handleGeolocate(false)} disabled={isGeolocating}>
+                <Locate className={`h-4 w-4 ${isGeolocating ? 'animate-spin' : ''}`} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent><p>{isGeolocating ? t('TopBar.gettingLocationTooltip') : t('TopBar.myLocationTooltip')}</p></TooltipContent>
+          </Tooltip>
 
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="icon" aria-label={t('TopBar.favoritesTooltip')}><ChevronDown className="h-4 w-4" /></Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-60">
-            <div className="grid gap-4">
-              <h4 className="font-medium text-muted-foreground leading-none">{t('TopBar.favoritesTitle')}</h4>
-              {favorites.length > 0 ? (
-                <ul className="grid gap-2">
-                  {favorites.map(fav => (
-                    <li key={fav} className="flex items-center justify-between">
-                      <Button variant="link" className="p-0 h-auto" onClick={() => handleFavoriteSelect(fav)}>{fav}</Button>
-                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFavorite(fav)}><X className="h-4 w-4" /></Button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted-foreground">{t('TopBar.noFavorites')}</p>
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
+          <Input
+            className="h-9 flex-1 border-0 bg-transparent px-1 text-sm shadow-none focus-visible:ring-0"
+            placeholder={t('TopBar.searchPlaceholder')}
+            value={locationInput}
+            onChange={(e) => setLocationInput(e.target.value)}
+          />
 
-        <form onSubmit={handleSearch} className="flex-grow">
-          <Input placeholder={t('TopBar.searchPlaceholder')} value={locationInput} onChange={(e) => setLocationInput(e.target.value)} />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button className="h-9 w-9 rounded-l-none" variant="ghost" size="icon" aria-label={t('TopBar.favoritesTooltip')}><ChevronDown className="h-4 w-4" /></Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-60">
+              <div className="grid gap-4">
+                <h4 className="font-medium text-muted-foreground leading-none">{t('TopBar.favoritesTitle')}</h4>
+                {favorites.length > 0 ? (
+                  <ul className="grid gap-2">
+                    {favorites.map(fav => (
+                      <li key={fav} className="flex items-center justify-between">
+                        <Button variant="link" className="p-0 h-auto" onClick={() => handleFavoriteSelect(fav)}>{fav}</Button>
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFavorite(fav)}><X className="h-4 w-4" /></Button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-muted-foreground">{t('TopBar.noFavorites')}</p>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
         </form>
 
+        <div className="flex h-9 items-center justify-end gap-2">
+          {isSearchableLocation && (
+            <Tooltip>
+              <TooltipTrigger asChild><Button variant="outline" size="icon" onClick={() => addFavorite(location.name!)}><Star className="h-4 w-4" /></Button></TooltipTrigger>
+              <TooltipContent><p>{t('TopBar.addFavoriteTooltip')}</p></TooltipContent>
+            </Tooltip>
+          )}
 
-        {isSearchableLocation && (
           <Tooltip>
-            <TooltipTrigger asChild><Button variant="outline" size="icon" onClick={() => addFavorite(location.name!)}><Star className="h-4 w-4" /></Button></TooltipTrigger>
-            <TooltipContent><p>{t('TopBar.addFavoriteTooltip')}</p></TooltipContent>
+            <TooltipTrigger asChild><Button variant="outline" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" /><Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" /></Button></TooltipTrigger>
+            <TooltipContent><p>{t('TopBar.toggleThemeTooltip')}</p></TooltipContent>
           </Tooltip>
-        )}
 
-        <Tooltip>
-          <TooltipTrigger asChild><Button variant="outline" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" /><Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" /></Button></TooltipTrigger>
-          <TooltipContent><p>{t('TopBar.toggleThemeTooltip')}</p></TooltipContent>
-        </Tooltip>
-
-        <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger asChild><DropdownMenuTrigger asChild><Button variant="outline" size="icon"><Languages className="h-4 w-4" /></Button></DropdownMenuTrigger></TooltipTrigger>
-            <TooltipContent><p>{t('TopBar.changeLanguageTooltip')}</p></TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleLangChange('en')} disabled={locale === 'en'}>{t('TopBar.english')}</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleLangChange('fr')} disabled={locale === 'fr'}>{t('TopBar.french')}</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <ToggleGroup type="single" variant="outline" value={units} onValueChange={(v) => handleUnitsChange(v as 'metric' | 'imperial')}>
-          <Tooltip>
-            <TooltipTrigger asChild><ToggleGroupItem value="metric" aria-label="Metric">°C</ToggleGroupItem></TooltipTrigger>
-            <TooltipContent><p>{t('TopBar.celsiusTooltip')}</p></TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild><ToggleGroupItem value="imperial" aria-label="Imperial">°F</ToggleGroupItem></TooltipTrigger>
-            <TooltipContent><p>{t('TopBar.fahrenheitTooltip')}</p></TooltipContent>
-          </Tooltip>
-        </ToggleGroup>
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild><DropdownMenuTrigger asChild><Button variant="outline" size="icon"><Settings className="h-4 w-4" /></Button></DropdownMenuTrigger></TooltipTrigger>
+              <TooltipContent><p>{t('TopBar.settingsTooltip')}</p></TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel className="text-xs text-muted-foreground">{t('TopBar.unitsLabel')}</DropdownMenuLabel>
+              <DropdownMenuRadioGroup value={units} onValueChange={(v) => handleUnitsChange(v as 'metric' | 'imperial')}>
+                <DropdownMenuRadioItem value="metric">{t('TopBar.celsiusTooltip')}</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="imperial">{t('TopBar.fahrenheitTooltip')}</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs text-muted-foreground">{t('TopBar.languageLabel')}</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => handleLangChange('en')} disabled={locale === 'en'}>{t('TopBar.english')}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleLangChange('fr')} disabled={locale === 'fr'}>{t('TopBar.french')}</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </TooltipProvider>
     </div>
   );

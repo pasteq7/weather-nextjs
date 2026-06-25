@@ -7,13 +7,13 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const toggleVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-semibold text-muted-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-primary/15 data-[state=on]:text-primary aria-pressed:bg-primary/15 aria-pressed:text-primary aria-checked:bg-primary/15 aria-checked:text-primary [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 focus-visible:border-ring focus-visible:ring-ring/35 focus-visible:ring-[3px] outline-none transition-all aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap border border-border/70 bg-card/70",
+  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-semibold text-muted-foreground disabled:pointer-events-none disabled:opacity-45 data-[state=on]:border-primary/35 data-[state=on]:bg-primary/18 data-[state=on]:text-primary data-[state=on]:shadow-[0_0_16px_rgba(185,138,244,0.16)] aria-pressed:border-primary/35 aria-pressed:bg-primary/18 aria-pressed:text-primary aria-checked:border-primary/35 aria-checked:bg-primary/18 aria-checked:text-primary [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 focus-visible:border-ring focus-visible:ring-ring/35 focus-visible:ring-[3px] outline-none transition-all aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap border border-border/35 bg-card/45",
   {
     variants: {
       variant: {
         default: "bg-transparent hover:bg-secondary/70 hover:text-primary",
         outline:
-          "border border-input bg-card/70 hover:bg-secondary/70 hover:text-primary data-[state=on]:bg-primary/15 data-[state=on]:text-primary aria-pressed:bg-primary/15 aria-pressed:text-primary aria-checked:bg-primary/15 aria-checked:text-primary dark:bg-input/30 dark:hover:bg-secondary/60",
+          "border border-input/50 bg-card/45 hover:bg-secondary/65 hover:text-primary data-[state=on]:border-primary/35 data-[state=on]:bg-primary/18 data-[state=on]:text-primary aria-pressed:bg-primary/18 aria-pressed:text-primary aria-checked:bg-primary/18 aria-checked:text-primary dark:bg-input/20 dark:hover:bg-secondary/55",
       },
       size: {
         default: "h-9 px-2 min-w-9",

@@ -13,18 +13,18 @@ interface DataCardProps {
 
 export default function DataCard({ iconType, title, data, unit }: DataCardProps) {
   return (
-    <Card className="flex-row items-center p-4 h-16">
-      <div className={cn("w-12 h-12 mr-4", getDataWeatherIconColor(iconType))}>
+    <Card className="h-16 flex-row items-center gap-3 border-border/25 bg-card/45 p-4 shadow-none">
+      <div className={cn("h-9 w-9 shrink-0 opacity-75", getDataWeatherIconColor(iconType))}>
         <WeatherIcon type={iconType} />
       </div>
       <CardContent className="p-0 flex-grow">
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        <p className="text-xs font-medium text-muted-foreground/65">{title}</p>
         {data === undefined || data === null ? (
           <Skeleton className="w-3/4 h-6 mt-1" />
         ) : (
           <div className="flex items-baseline">
-            <p className="text-lg font-bold text-card-foreground">{data}</p>
-            {unit && <p className="text-sm text-muted-foreground ml-1">{unit}</p>}
+            <p className="text-xl font-bold text-card-foreground">{data}</p>
+            {unit && <p className="ml-1 text-xs font-semibold text-muted-foreground/70">{unit}</p>}
           </div>
         )}
       </CardContent>
