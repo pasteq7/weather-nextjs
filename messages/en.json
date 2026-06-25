@@ -47,11 +47,8 @@
     "windSpeed": "Wind Speed",
     "pressure": "Pressure",
     "visibility": "Visibility",
-    "precipitation": "Precipitation",
-    "daylight": "Daylight",
     "sunrise": "Sunrise",
     "sunset": "Sunset",
-    "nowIn": "Now in",
     "currentLocation": "Current Location",
     "unknownLocation": "Unknown Location"
   },

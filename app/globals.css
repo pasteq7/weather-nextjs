@@ -187,8 +187,6 @@
 
   body {
     @apply bg-background text-foreground;
-    background:
-      linear-gradient(135deg, color-mix(in srgb, var(--background), #ffffff 4%), var(--background) 36%, color-mix(in srgb, var(--background), #000000 10%));
     font-size: var(--text-base);
     min-height: 100vh;
     font-feature-settings: "tnum" 1, "cv02" 1, "cv03" 1, "cv04" 1;
