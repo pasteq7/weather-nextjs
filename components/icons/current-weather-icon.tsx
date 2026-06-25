@@ -6,24 +6,24 @@ import { getCurrentWeatherIconColor } from '@/lib/weather-icon-colors';
 
 // --- START: New Imports ---
 // Import all the icons directly at the top of the file.
-import Icon01d from '@/public/animated/weather/01d.svg';
-import Icon01n from '@/public/animated/weather/01n.svg';
-import Icon02d from '@/public/animated/weather/02d.svg';
-import Icon02n from '@/public/animated/weather/02n.svg';
-import Icon03d from '@/public/animated/weather/03d.svg';
-import Icon03n from '@/public/animated/weather/03n.svg';
-import Icon04d from '@/public/animated/weather/04d.svg';
-import Icon04n from '@/public/animated/weather/04n.svg';
-import Icon09d from '@/public/animated/weather/09d.svg';
-import Icon09n from '@/public/animated/weather/09n.svg';
-import Icon10d from '@/public/animated/weather/10d.svg';
-import Icon10n from '@/public/animated/weather/10n.svg';
-import Icon11d from '@/public/animated/weather/11d.svg';
-import Icon11n from '@/public/animated/weather/11n.svg';
-import Icon13d from '@/public/animated/weather/13d.svg';
-import Icon13n from '@/public/animated/weather/13n.svg';
-import Icon50d from '@/public/animated/weather/50d.svg';
-import Icon50n from '@/public/animated/weather/50n.svg';
+import Icon01d from '@/assets/animated/weather/01d.svg';
+import Icon01n from '@/assets/animated/weather/01n.svg';
+import Icon02d from '@/assets/animated/weather/02d.svg';
+import Icon02n from '@/assets/animated/weather/02n.svg';
+import Icon03d from '@/assets/animated/weather/03d.svg';
+import Icon03n from '@/assets/animated/weather/03n.svg';
+import Icon04d from '@/assets/animated/weather/04d.svg';
+import Icon04n from '@/assets/animated/weather/04n.svg';
+import Icon09d from '@/assets/animated/weather/09d.svg';
+import Icon09n from '@/assets/animated/weather/09n.svg';
+import Icon10d from '@/assets/animated/weather/10d.svg';
+import Icon10n from '@/assets/animated/weather/10n.svg';
+import Icon11d from '@/assets/animated/weather/11d.svg';
+import Icon11n from '@/assets/animated/weather/11n.svg';
+import Icon13d from '@/assets/animated/weather/13d.svg';
+import Icon13n from '@/assets/animated/weather/13n.svg';
+import Icon50d from '@/assets/animated/weather/50d.svg';
+import Icon50n from '@/assets/animated/weather/50n.svg';
 // --- END: New Imports ---
 
 

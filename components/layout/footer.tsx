@@ -1,7 +1,4 @@
 // components/layout/footer.tsx
-'use client';
-
-import Link from 'next/link';
 import { Github, Cloud } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAppContext, ApiStatus } from '@/app/context/AppContext';
@@ -75,37 +72,37 @@ export default function Footer() {
         <div className="flex items-center gap-2 md:gap-4 text-xs flex-shrink-0">
           <p className="hidden md:block whitespace-nowrap">
             <span className="hidden lg:inline">{t('dataBy')} </span>
-            <Link 
+            <a
               href="https://open-meteo.com/" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="text-muted-foreground/75 underline hover:text-primary"
             >
               Open-Meteo
-            </Link>
+            </a>
           </p>
           
           <p className="hidden xl:block whitespace-nowrap">
             {t('madeBy')} 
-            <Link 
+            <a
               href="https://sylvainbrehaut.com" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="ml-1 text-muted-foreground/75 underline hover:text-primary"
             >
               sB
-            </Link>
+            </a>
           </p>
           
-          <Link 
-            href="https://github.com/pasteq7/weather-nextjs" 
+          <a
+            href="https://github.com/pasteq7/weather-vite" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="flex-shrink-0 text-muted-foreground/75 hover:text-primary" 
             aria-label={t('githubAria')}
           >
             <Github className="h-4 w-4" />
-          </Link>
+          </a>
         </div>
         </div>
       </Card>

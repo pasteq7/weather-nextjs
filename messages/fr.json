@@ -1,7 +1,7 @@
 {
   "Metadata": {
     "title": "Météo",
-    "description": "Une application météo moderne construite avec Next.js"
+    "description": "Une application météo moderne construite avec React et Vite"
   },
   "TopBar": {
     "searchPlaceholder": "Rechercher un lieu...",

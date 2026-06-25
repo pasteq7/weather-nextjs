@@ -1,6 +1,11 @@
 import { FC, ComponentType } from 'react';
-import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
+import HumidityIcon from '@/assets/animated/humidity.svg';
+import PressureIcon from '@/assets/animated/pressure.svg';
+import SunriseIcon from '@/assets/animated/sunrise.svg';
+import SunsetIcon from '@/assets/animated/sunset.svg';
+import VisibilityIcon from '@/assets/animated/visibility.svg';
+import WindIcon from '@/assets/animated/wind-speed.svg';
 
 interface IconProps {
   className?: string;
@@ -8,12 +13,12 @@ interface IconProps {
 }
 
 const iconMap: { [key: string]: ComponentType<IconProps> } = {
-  humidity: dynamic(() => import('@/public/animated/humidity.svg')),
-  pressure: dynamic(() => import('@/public/animated/pressure.svg')),
-  sunrise: dynamic(() => import('@/public/animated/sunrise.svg')),
-  sunset: dynamic(() => import('@/public/animated/sunset.svg')),
-  visibility: dynamic(() => import('@/public/animated/visibility.svg')),
-  wind: dynamic(() => import('@/public/animated/wind-speed.svg')),
+  humidity: HumidityIcon,
+  pressure: PressureIcon,
+  sunrise: SunriseIcon,
+  sunset: SunsetIcon,
+  visibility: VisibilityIcon,
+  wind: WindIcon,
 };
 
 interface WeatherIconProps {

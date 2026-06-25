@@ -103,19 +103,20 @@ export default function TopBar() {
 
     setIsGeolocating(true);
 
-    const promise = () => new Promise<SimplePosition>(async (resolve, reject) => {
-      try {
-        if (Capacitor.isNativePlatform()) {
-          const permissions = await Geolocation.requestPermissions();
-          if (permissions.location !== 'granted') {
-            throw new Error('Location permission denied');
-          }
-          const position = await Geolocation.getCurrentPosition({
-            timeout: 10000,
-            enableHighAccuracy: false
-          });
-          resolve(position);
-        } else if (navigator.geolocation) {
+    const promise = async (): Promise<SimplePosition> => {
+      if (Capacitor.isNativePlatform()) {
+        const permissions = await Geolocation.requestPermissions();
+        if (permissions.location !== 'granted') {
+          throw new Error('Location permission denied');
+        }
+        return Geolocation.getCurrentPosition({
+          timeout: 10000,
+          enableHighAccuracy: false
+        });
+      }
+
+      if (navigator.geolocation) {
+        return new Promise<SimplePosition>((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(
             (pos) => resolve(pos as SimplePosition),
             (error) => {
@@ -127,13 +128,11 @@ export default function TopBar() {
             },
             { timeout: 10000, enableHighAccuracy: false }
           );
-        } else {
-          reject(new Error('Geolocation not supported'));
-        }
-      } catch (e) {
-        reject(e);
+        });
       }
-    });
+
+      throw new Error('Geolocation not supported');
+    };
 
     toast.promise(promise(), {
       loading: isAuto ? t('Toasts.gettingLocationAuto') : t('Toasts.gettingLocation'),

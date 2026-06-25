@@ -1,18 +1,10 @@
 // i18n-config.ts
-import {defineRouting} from 'next-intl/routing';
-
-export const routing = defineRouting({
-  // A list of all locales that are supported
+export const routing = {
   locales: ['en', 'fr'],
- 
-  // Used when no locale matches
   defaultLocale: 'en',
-
-  // Never show a locale prefix in the URL
   localePrefix: 'never'
-});
+} as const;
 
-// Legacy exports for backward compatibility
 export const locales = routing.locales;
 export const defaultLocale = routing.defaultLocale;
 export type Locale = (typeof locales)[number];

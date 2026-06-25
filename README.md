@@ -1,8 +1,8 @@
-# Weather-NextJS
+# Weather Vite
 
-![Weather-NextJS screenshot](weather.png)
+![Weather Vite screenshot](weather.png)
 
-A modern weather application built with Next.js that provides real-time weather data, detailed forecasts, and a user-friendly, responsive interface.
+A modern weather application built with React and Vite that provides real-time weather data, detailed forecasts, and a user-friendly, responsive interface.
 
 ## Live Demo
 
@@ -21,7 +21,7 @@ A modern weather application built with Next.js that provides real-time weather 
 
 ## Tech Stack
 
--   **Framework:** [Next.js](https://nextjs.org/) 15 (App Router)
+-   **Framework:** [React](https://react.dev/) + [Vite](https://vite.dev/)
 -   **Language:** [TypeScript](https://www.typescriptlang.org/)
 -   **Styling:** [Tailwind CSS](https://tailwindcss.com/) with [shadcn/ui](https://ui.shadcn.com/)
 -   **Charting:** [Recharts](https://recharts.org/)
@@ -35,8 +35,8 @@ A modern weather application built with Next.js that provides real-time weather 
 
 1.  **Clone the repository:**
     ```sh
-    git clone https://github.com/pasteq7/weather-nextjs
-    cd weather-nextjs
+    git clone https://github.com/pasteq7/weather-vite
+    cd weather-vite
     ```
 
 2.  **Install dependencies:**

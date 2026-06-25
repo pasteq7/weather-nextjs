@@ -75,6 +75,7 @@
 
 :root {
   --radius: 0.5rem;
+  --font-figtree: "Figtree", "Inter", ui-sans-serif, system-ui, sans-serif;
 
   --background: #f3f1fb;
   --foreground: #332f4c;
@@ -125,6 +126,10 @@
 
   --scrollbar-track: #e6e9ef;
   --scrollbar-thumb: #bcc0cc;
+}
+
+#root {
+  min-height: 100vh;
 }
 
 .dark {
