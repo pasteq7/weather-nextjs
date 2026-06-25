@@ -14,6 +14,7 @@ export interface WeatherData {
   current: {
     time: number;
     temperature_2m: number;
+    apparent_temperature?: number;
     relative_humidity_2m: number;
     is_day: number;
     weather_code: number;

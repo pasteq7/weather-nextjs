@@ -4,7 +4,7 @@
   viewBox="0 0 512 512"
 >
   <defs>
-    <symbol id="a" viewBox="0 0 375 375">
+    <symbol id="wi-01d-a" viewBox="0 0 375 375">
       <circle
         cx="187.5"
         cy="187.5"
@@ -34,7 +34,7 @@
     </symbol>
   </defs>
   <use
-    xlink:href="#a"
+    xlink:href="#wi-01d-a"
     width="375"
     height="375"
     transform="translate(68.5 68.5)"

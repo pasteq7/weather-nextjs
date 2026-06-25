@@ -57,7 +57,7 @@ export const fetchWeatherData = async (latitude: number, longitude: number, unit
   const params = new URLSearchParams({
     latitude: latitude.toString(),
     longitude: longitude.toString(),
-    current: 'temperature_2m,relative_humidity_2m,is_day,weather_code,wind_speed_10m,pressure_msl',
+    current: 'temperature_2m,apparent_temperature,relative_humidity_2m,is_day,weather_code,wind_speed_10m,pressure_msl',
     hourly: 'temperature_2m,precipitation_probability,weather_code,visibility,is_day,wind_speed_10m',
     daily: 'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset',
     timeformat: 'unixtime',

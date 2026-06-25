@@ -30,7 +30,7 @@ export default function App() {
         disableTransitionOnChange
       >
         <AppProvider>
-          <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-4 p-2 md:p-4">
+          <div className="mx-auto grid h-dvh max-h-dvh w-full max-w-[98rem] grid-rows-[auto_minmax(0,1fr)_auto] gap-2 overflow-hidden p-2 sm:gap-3 md:p-4">
             <TopBar />
             <HomePage />
             <Footer />

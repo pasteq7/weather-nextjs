@@ -49,6 +49,8 @@
     "visibility": "Visibilité",
     "sunrise": "Aurore",
     "sunset": "Crépuscule",
+    "feelsLike": "Ressenti",
+    "minMax": "Min / Max",
     "currentLocation": "Position actuelle",
     "unknownLocation": "Lieu inconnu"
   },

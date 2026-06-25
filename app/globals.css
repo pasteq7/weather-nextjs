@@ -128,8 +128,15 @@
   --scrollbar-thumb: #bcc0cc;
 }
 
+html,
+body,
 #root {
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  min-height: 100dvh;
 }
 
 .dark {
@@ -193,7 +200,7 @@
   body {
     @apply bg-background text-foreground;
     font-size: var(--text-base);
-    min-height: 100vh;
+    min-height: 100dvh;
     font-feature-settings: "tnum" 1, "cv02" 1, "cv03" 1, "cv04" 1;
   }
 

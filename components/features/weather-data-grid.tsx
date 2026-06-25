@@ -47,7 +47,7 @@ export default function WeatherDataGrid({ weatherData, units }: WeatherDataGridP
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3">
       {cardData.map((card) => (
         <DataCard key={card.title} {...card} />
       ))}

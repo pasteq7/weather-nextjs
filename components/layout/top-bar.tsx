@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Sun, Moon, Star, Locate, X, ChevronDown, Clock, Settings } from 'lucide-react';
+import { Sun, Moon, Star, Locate, X, ChevronDown, Clock, Settings, Search } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 import { toast } from 'sonner';
@@ -26,6 +26,7 @@ import { useTranslations } from 'next-intl';
 import { useAppContext } from '@/app/context/AppContext';
 import { Locale } from '@/i18n-config';
 import { useLanguage } from '@/app/context/LanguageProvider';
+import { cn } from '@/lib/utils';
 
 interface SimplePosition {
   coords: {
@@ -199,18 +200,13 @@ export default function TopBar() {
       )}
 
       <TooltipProvider>
-        <form onSubmit={handleSearch} className="flex h-9 min-w-0 flex-1 items-center gap-1 rounded-md border border-border/40 bg-card/60 shadow-sm shadow-black/5 backdrop-blur-md">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button className="h-9 w-9 rounded-r-none" variant="ghost" size="icon" onClick={() => handleGeolocate(false)} disabled={isGeolocating}>
-                <Locate className={`h-4 w-4 ${isGeolocating ? 'animate-spin' : ''}`} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent><p>{isGeolocating ? t('TopBar.gettingLocationTooltip') : t('TopBar.myLocationTooltip')}</p></TooltipContent>
-          </Tooltip>
+        <form onSubmit={handleSearch} className="flex h-10 min-w-0 flex-1 items-center gap-1 rounded-md border border-border/40 bg-card/60 shadow-sm shadow-black/5 backdrop-blur-md sm:h-9">
+          <Button className="h-10 w-10 rounded-r-none sm:h-9 sm:w-9" variant="ghost" size="icon" type="submit" aria-label={t('TopBar.searchPlaceholder')}>
+            <Search className="h-4 w-4" />
+          </Button>
 
           <Input
-            className="h-9 flex-1 border-0 bg-transparent px-1 text-sm shadow-none focus-visible:ring-0"
+            className="h-10 flex-1 border-0 bg-transparent px-1 text-base shadow-none focus-visible:ring-0 sm:h-9 sm:text-sm"
             placeholder={t('TopBar.searchPlaceholder')}
             value={locationInput}
             onChange={(e) => setLocationInput(e.target.value)}
@@ -218,7 +214,7 @@ export default function TopBar() {
 
           <Popover>
             <PopoverTrigger asChild>
-              <Button className="h-9 w-9 rounded-l-none" variant="ghost" size="icon" aria-label={t('TopBar.favoritesTooltip')}><ChevronDown className="h-4 w-4" /></Button>
+              <Button className="h-10 w-10 rounded-l-none sm:h-9 sm:w-9" variant="ghost" size="icon" aria-label={t('TopBar.favoritesTooltip')}><ChevronDown className="h-4 w-4" /></Button>
             </PopoverTrigger>
             <PopoverContent className="w-60">
               <div className="grid gap-4">
@@ -240,22 +236,34 @@ export default function TopBar() {
           </Popover>
         </form>
 
-        <div className="flex h-9 items-center justify-end gap-2">
+        <div className={cn(
+          "grid h-10 items-center gap-2 sm:flex sm:h-9 sm:justify-end",
+          isSearchableLocation ? "grid-cols-4" : "grid-cols-3"
+        )}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className="h-10 w-full sm:h-9 sm:w-9" type="button" variant="outline" size="icon" onClick={() => handleGeolocate(false)} disabled={isGeolocating}>
+                <Locate className={`h-4 w-4 ${isGeolocating ? 'animate-spin' : ''}`} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent><p>{isGeolocating ? t('TopBar.gettingLocationTooltip') : t('TopBar.myLocationTooltip')}</p></TooltipContent>
+          </Tooltip>
+
           {isSearchableLocation && (
             <Tooltip>
-              <TooltipTrigger asChild><Button variant="outline" size="icon" onClick={() => addFavorite(location.name!)}><Star className="h-4 w-4" /></Button></TooltipTrigger>
+              <TooltipTrigger asChild><Button className="h-10 w-full sm:h-9 sm:w-9" variant="outline" size="icon" onClick={() => addFavorite(location.name!)}><Star className="h-4 w-4" /></Button></TooltipTrigger>
               <TooltipContent><p>{t('TopBar.addFavoriteTooltip')}</p></TooltipContent>
             </Tooltip>
           )}
 
           <Tooltip>
-            <TooltipTrigger asChild><Button variant="outline" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" /><Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" /></Button></TooltipTrigger>
+            <TooltipTrigger asChild><Button className="h-10 w-full sm:h-9 sm:w-9" variant="outline" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" /><Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" /></Button></TooltipTrigger>
             <TooltipContent><p>{t('TopBar.toggleThemeTooltip')}</p></TooltipContent>
           </Tooltip>
 
           <DropdownMenu>
             <Tooltip>
-              <TooltipTrigger asChild><DropdownMenuTrigger asChild><Button variant="outline" size="icon"><Settings className="h-4 w-4" /></Button></DropdownMenuTrigger></TooltipTrigger>
+              <TooltipTrigger asChild><DropdownMenuTrigger asChild><Button className="h-10 w-full sm:h-9 sm:w-9" variant="outline" size="icon"><Settings className="h-4 w-4" /></Button></DropdownMenuTrigger></TooltipTrigger>
               <TooltipContent><p>{t('TopBar.settingsTooltip')}</p></TooltipContent>
             </Tooltip>
             <DropdownMenuContent align="end" className="w-48">

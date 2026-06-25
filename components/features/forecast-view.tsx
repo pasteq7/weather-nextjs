@@ -37,26 +37,26 @@ function DailyForecastItem({ day, units, chartId, itemIndex, locale }: {
 
   return (
     <div 
-      className="flex flex-col items-center justify-center text-center gap-1 p-2"
+      className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-md px-2 py-1 text-center"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <p className="font-semibold text-sm">{capitalizedDayLabel}</p>
-      <div className="w-16 h-16 flex items-center justify-center relative">
+      <p className="max-w-full truncate text-xs font-semibold">{capitalizedDayLabel}</p>
+      <div className="relative flex h-10 w-10 items-center justify-center sm:h-12 sm:w-12">
         <div className={cn("transition-opacity duration-300", { "opacity-0": isHovered })}>
           <div 
             key={`${chartId}-daily-${day.time}-${itemIndex}`} 
-            className="weather-icon-container w-full h-full"
+            className="weather-icon-container h-full w-full"
             style={{ isolation: 'isolate' }}
           >
-            <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+            <CurrentWeatherIcon iconCode={icon} className="h-10 w-10 sm:h-12 sm:w-12" />
           </div>
         </div>
         <div className={cn("absolute p-1 inset-0 flex items-center justify-center text-center transition-opacity duration-300", { "opacity-0": !isHovered, "pointer-events-none": !isHovered })}>
           <p className="text-xs capitalize">{description}</p>
         </div>
       </div>
-      <div className="text-sm">
+      <div className="text-xs">
         <span className="font-bold">{maxTemp}{maxTempUnit}</span>
         <span className="text-muted-foreground"> / {minTemp}{maxTempUnit}</span>
       </div>
@@ -93,19 +93,19 @@ function HourlyForecastItem({
 
   return (
     <div 
-      className="flex flex-col items-center justify-center text-center gap-1 p-2"
+      className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-md px-2 py-1 text-center"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <p className="font-semibold text-sm">{timeLabel}</p>
-      <div className="w-16 h-16 flex items-center justify-center relative">
+      <p className="text-xs font-semibold tabular-nums">{timeLabel}</p>
+      <div className="relative flex h-10 w-10 items-center justify-center sm:h-12 sm:w-12">
         <div className={cn("transition-opacity duration-300", { "opacity-0": isHovered })}>
           <div 
             key={`${chartId}-hourly-${hour.time}-${itemIndex}`} 
-            className="weather-icon-container w-full h-full"
+            className="weather-icon-container h-full w-full"
             style={{ isolation: 'isolate' }}
           >
-            <CurrentWeatherIcon iconCode={icon} className="w-16 h-16" />
+            <CurrentWeatherIcon iconCode={icon} className="h-10 w-10 sm:h-12 sm:w-12" />
           </div>
         </div>
         <div className={cn("absolute p-1 inset-0 flex items-center justify-center text-center transition-opacity duration-300", { "opacity-0": !isHovered, "pointer-events-none": !isHovered })}>
@@ -142,9 +142,9 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   }), [t]);
 
   const { preferences, setPreferences } = useViewPreference(
-    type, 
+    `${type}-compact-v2`, 
     { 
-      view: type === 'hourly' ? 'chart' : 'list', 
+      view: type === 'hourly' ? 'list' : 'chart', 
       displayModes: ['temperature'] 
     }
   );
@@ -347,11 +347,11 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   ), [chartConfig, displayModes]);
 
   return (
-    <Card className="border-border/25 bg-card/55 shadow-none">
-      <CardContent className="space-y-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="font-bold text-card-foreground/85">{config[type].title}</h3>
-          <div className="flex items-center gap-2">
+    <Card className="rounded-lg border-border/25 bg-card/55 py-0 shadow-none">
+      <CardContent className={cn("space-y-2 px-3 py-3 sm:space-y-3 sm:px-5 sm:py-4", type === 'hourly' && view === 'list' && "py-3")}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="text-base font-bold text-card-foreground/85">{config[type].title}</h3>
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {type === 'daily' && (
               <ToggleGroup
                 type="single"
@@ -450,18 +450,27 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
             </TooltipProvider>
           </div>
         </div>
-        {view === 'chart' && (
-          <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-muted-foreground/70">
-            {visibleLegendItems.map((item) => (
-              <div key={item.label} className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
-                <span>{item.label}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <div
+          className={cn(
+            "flex min-h-3 flex-wrap items-center gap-3 text-xs font-medium text-muted-foreground/70 transition-opacity duration-300 sm:min-h-4",
+            view === 'chart' ? "opacity-100" : "opacity-0 pointer-events-none"
+          )}
+        >
+          {visibleLegendItems.map((item) => (
+            <div key={item.label} className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
+              <span>{item.label}</span>
+            </div>
+          ))}
+        </div>
 
-        <div className="relative h-[165px] w-full">
+        <div
+          className={cn(
+            "relative w-full",
+            type === 'hourly' && "h-[8.75rem] sm:h-[10rem] lg:h-[7.25rem]",
+            type === 'daily' && "h-[10.5rem] sm:h-[13rem] lg:h-[8rem]"
+          )}
+        >
           {!isMounted ? (
             <Skeleton className="w-full h-full" />
           ) : (
@@ -479,15 +488,9 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                   <ChartContainer config={chartConfig} className="w-full h-full">
                     <LineChart
                       data={chartData}
-                      margin={{ top: 6, right: 28, left: 4, bottom: 0 }}
+                      margin={{ top: 6, right: 20, left: 0, bottom: 0 }}
                       id={`${chartId}-chart`}
                     >
-                      <defs>
-                        <linearGradient id={`${chartId}-temperature-gradient`} x1="0" y1="1" x2="0" y2="0">
-                          <stop offset="0%" stopColor="var(--chart-1)" />
-                          <stop offset="100%" stopColor="var(--chart-3)" />
-                        </linearGradient>
-                      </defs>
                       <XAxis
                         dataKey="time"
                         type="number"
@@ -506,7 +509,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                         axisLine={false}
                         stroke="var(--muted-foreground)"
                         tick={{ fill: "var(--muted-foreground)", opacity: 0.65 }}
-                        tickFormatter={(value) => `${value}°`}
+                        tickFormatter={(value) => `${value}\u00B0`}
                         domain={tempMetrics.domain}
                         ticks={tempMetrics.ticks}
                         fontSize={12}
@@ -576,7 +579,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           yAxisId="temp"
                           type="monotone"
                           dataKey="temperature"
-                          stroke={`url(#${chartId}-temperature-gradient)`}
+                          stroke="var(--color-temperature)"
                           dot={false}
                           activeDot={{ r: 5, fill: "var(--chart-1)", stroke: "var(--background)", strokeWidth: 2 }}
                           strokeWidth={2}
@@ -612,7 +615,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
               {/* List View */}
               <div
                 className={cn(
-                  `absolute inset-0 grid ${type === 'daily' ? 'grid-flow-col auto-cols-[minmax(6.5rem,1fr)] grid-rows-1 overflow-x-auto overflow-y-hidden pb-2' : 'grid-cols-4 md:grid-cols-8 overflow-y-auto'} gap-2 h-full transition-opacity duration-300`,
+                  `absolute inset-0 grid ${type === 'daily' ? 'grid-flow-col auto-cols-[minmax(4.8rem,1fr)] grid-rows-1 overflow-x-auto overflow-y-hidden pb-1 sm:auto-cols-[minmax(5.25rem,1fr)]' : 'grid-flow-col auto-cols-[minmax(4.35rem,1fr)] grid-rows-1 overflow-x-auto overflow-y-hidden pb-1 sm:auto-cols-[minmax(4.8rem,1fr)]'} h-full gap-1 transition-opacity duration-300`,
                   view === 'list'
                     ? "opacity-100"
                     : "opacity-0 pointer-events-none"

@@ -4,7 +4,7 @@
   viewBox="0 0 512 512"
 >
   <defs>
-    <symbol id="a" viewBox="0 0 359 231">
+    <symbol id="wi-03n-a" viewBox="0 0 359 231">
       <path
         fill="none"
         stroke="currentColor"
@@ -16,7 +16,7 @@
     </symbol>
   </defs>
   <use
-    xlink:href="#a"
+    xlink:href="#wi-03n-a"
     width="359"
     height="231"
     transform="translate(76.5 140.5)"
