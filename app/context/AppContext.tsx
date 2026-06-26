@@ -6,6 +6,7 @@ import { WeatherData, ApiIssueKey } from '@/lib/types';
 import { fetchWeatherByCity, fetchWeatherData, getCityNameFromCoordinates } from '@/lib/api';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import type { MeteoconStyle } from '@/lib/meteocons';
 
 export type ApiStatusValue = 'operational' | 'partial' | 'outage' | 'pending';
 
@@ -29,12 +30,14 @@ interface Location {
 interface AppContextType {
   location: Location;
   units: 'metric' | 'imperial';
+  iconStyle: MeteoconStyle;
   weatherData: WeatherData | null;
   isLoading: boolean;
   error: string | null;
   isInitializing: boolean;
   apiStatus: ApiStatuses;
   setUnits: (units: 'metric' | 'imperial') => void;
+  setIconStyle: (style: MeteoconStyle) => void;
   setLocationByName: (name: string) => void;
   setLocationByCoords: (lat: number, lon: number) => void;
   refreshData: () => void;
@@ -45,11 +48,20 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const hasCoordinates = (location: Location) => location.lat !== null && location.lon !== null;
+const ICON_STYLE_STORAGE_KEY = 'weather-icon-style';
+
+const getInitialIconStyle = (): MeteoconStyle => {
+  if (typeof window === 'undefined') return 'line';
+
+  const savedStyle = window.localStorage.getItem(ICON_STYLE_STORAGE_KEY);
+  return savedStyle === 'fill' || savedStyle === 'monochrome' ? savedStyle : 'line';
+};
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const t = useTranslations();
   const [location, setLocation] = useState<Location>({ lat: null, lon: null, name: null });
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
+  const [iconStyle, setIconStyleState] = useState<MeteoconStyle>(getInitialIconStyle);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +77,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const setApiStatus = useCallback((service: keyof ApiStatuses, status: ApiStatus) => {
     setApiStatusState(prev => ({ ...prev, [service]: status }));
+  }, []);
+
+  const setIconStyle = useCallback((style: MeteoconStyle) => {
+    setIconStyleState(style);
+    window.localStorage.setItem(ICON_STYLE_STORAGE_KEY, style);
   }, []);
 
   const finishInitialization = useCallback(() => {
@@ -174,12 +191,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     <AppContext.Provider value={{ 
       location, 
       units, 
+      iconStyle,
       weatherData, 
       isLoading, 
       error, 
       isInitializing: shouldAutoGeolocate,
       apiStatus,
       setUnits, 
+      setIconStyle,
       setLocationByName, 
       setLocationByCoords, 
       refreshData,

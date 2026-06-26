@@ -42,7 +42,7 @@ export default function Footer() {
 
   return (
     <footer className="weather-footer w-full">
-      <Card className="weather-footer-card w-full border-border/25 bg-card/45 px-3 py-2 text-muted-foreground/75 shadow-none sm:px-4 sm:py-3">
+      <Card className="weather-footer-card weather-surface w-full border-border/25 px-3 py-2 text-muted-foreground/75 shadow-none sm:px-4 sm:py-3">
         <div className="flex justify-between items-center gap-2 min-w-0">
         
         <div className="flex items-center gap-4">

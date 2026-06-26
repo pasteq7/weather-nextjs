@@ -27,6 +27,7 @@ import { useAppContext } from '@/app/context/AppContext';
 import { Locale } from '@/i18n-config';
 import { useLanguage } from '@/app/context/LanguageProvider';
 import { cn } from '@/lib/utils';
+import type { MeteoconStyle } from '@/lib/meteocons';
 
 interface SimplePosition {
   coords: {
@@ -38,13 +39,15 @@ interface SimplePosition {
 export default function TopBar() {
   const t = useTranslations();
   const { locale, setLocale } = useLanguage();
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const { favorites, addFavorite, removeFavorite } = useFavorites();
   const {
     location,
     units,
+    iconStyle,
     weatherData,
     setUnits,
+    setIconStyle,
     setLocationByName,
     setLocationByCoords,
     refreshData,
@@ -179,11 +182,23 @@ export default function TopBar() {
     if (value) setUnits(value);
   };
 
+  const handleIconStyleChange = (value: string) => {
+    if (value) setIconStyle(value as MeteoconStyle);
+  };
+
   const handleLangChange = (value: string) => {
     const newLocale = value as Locale;
     if (newLocale && newLocale !== locale) {
       setLocale(newLocale);
     }
+  };
+
+  const handleThemeToggle = () => {
+    const activeTheme = theme === 'system' ? resolvedTheme : theme;
+    const nextTheme = activeTheme === 'dark' ? 'light' : 'dark';
+
+    setTheme(nextTheme);
+    setIconStyle(nextTheme === 'light' ? 'monochrome' : 'line');
   };
 
   const handleFavoriteSelect = (fav: string) => {
@@ -193,14 +208,14 @@ export default function TopBar() {
   return (
     <div className="weather-top-bar flex w-full flex-col gap-2 sm:flex-row sm:items-center">
       {currentTime && (
-        <div className="weather-top-bar__time hidden items-center gap-1.5 whitespace-nowrap rounded-md border border-border/25 bg-card/35 px-2.5 text-sm font-semibold tabular-nums text-muted-foreground backdrop-blur-sm md:flex md:h-9">
+        <div className="weather-top-bar__time weather-surface hidden items-center gap-1.5 whitespace-nowrap rounded-md border border-border/25 px-2.5 text-sm font-semibold tabular-nums text-muted-foreground backdrop-blur-sm md:flex md:h-9">
           <Clock className="h-3.5 w-3.5 text-chart-2" />
           {currentTime}
         </div>
       )}
 
       <TooltipProvider>
-        <form onSubmit={handleSearch} className="weather-search-form flex h-10 min-w-0 flex-1 items-center gap-1 rounded-md border border-border/40 bg-card/60 shadow-sm shadow-black/5 backdrop-blur-md sm:h-9">
+        <form onSubmit={handleSearch} className="weather-search-form weather-surface flex h-10 min-w-0 flex-1 items-center gap-1 rounded-md border border-border/40 shadow-sm shadow-black/5 backdrop-blur-md sm:h-9">
           <Button className="h-10 w-10 rounded-r-none sm:h-9 sm:w-9" variant="ghost" size="icon" type="submit" aria-label={t('TopBar.searchPlaceholder')}>
             <Search className="h-4 w-4" />
           </Button>
@@ -258,7 +273,7 @@ export default function TopBar() {
           )}
 
           <Tooltip>
-            <TooltipTrigger asChild><Button className="h-10 w-full sm:h-9 sm:w-9" variant="outline" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}><Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" /><Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" /></Button></TooltipTrigger>
+            <TooltipTrigger asChild><Button className="h-10 w-full sm:h-9 sm:w-9" variant="outline" size="icon" onClick={handleThemeToggle}><Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" /><Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" /></Button></TooltipTrigger>
             <TooltipContent><p>{t('TopBar.toggleThemeTooltip')}</p></TooltipContent>
           </Tooltip>
 
@@ -272,6 +287,13 @@ export default function TopBar() {
               <DropdownMenuRadioGroup value={units} onValueChange={(v) => handleUnitsChange(v as 'metric' | 'imperial')}>
                 <DropdownMenuRadioItem value="metric">{t('TopBar.celsiusTooltip')}</DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="imperial">{t('TopBar.fahrenheitTooltip')}</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs text-muted-foreground">{t('TopBar.iconStyleLabel')}</DropdownMenuLabel>
+              <DropdownMenuRadioGroup value={iconStyle} onValueChange={handleIconStyleChange}>
+                <DropdownMenuRadioItem value="line">{t('TopBar.iconStyleLine')}</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="fill">{t('TopBar.iconStyleFill')}</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="monochrome">{t('TopBar.iconStyleMonochrome')}</DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
               <DropdownMenuSeparator />
               <DropdownMenuLabel className="text-xs text-muted-foreground">{t('TopBar.languageLabel')}</DropdownMenuLabel>

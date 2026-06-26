@@ -13,6 +13,7 @@
   "dependencies": {
     "@capacitor/core": "^7.4.2",
     "@capacitor/geolocation": "^7.1.4",
+    "@meteocons/svg": "^0.1.0",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
     "@radix-ui/react-popover": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.3",

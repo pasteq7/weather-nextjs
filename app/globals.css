@@ -30,22 +30,6 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
-  --color-weather-clear-day: var(--weather-clear-day);
-  --color-weather-clear-night: var(--weather-clear-night);
-  --color-weather-partly-cloudy-day: var(--weather-partly-cloudy-day);
-  --color-weather-partly-cloudy-night: var(--weather-partly-cloudy-night);
-  --color-weather-cloud: var(--weather-cloud);
-  --color-weather-overcast: var(--weather-overcast);
-  --color-weather-rain: var(--weather-rain);
-  --color-weather-storm: var(--weather-storm);
-  --color-weather-snow: var(--weather-snow);
-  --color-weather-fog: var(--weather-fog);
-  --color-weather-humidity: var(--weather-humidity);
-  --color-weather-wind: var(--weather-wind);
-  --color-weather-pressure: var(--weather-pressure);
-  --color-weather-visibility: var(--weather-visibility);
-  --color-weather-sunrise: var(--weather-sunrise);
-  --color-weather-sunset: var(--weather-sunset);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -77,10 +61,12 @@
   --radius: 0.5rem;
   --font-figtree: "Figtree", "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --background: #f3f1fb;
+  --background: #f1e8e3;
   --foreground: #332f4c;
   --card: #ffffffb8;
   --card-foreground: #332f4c;
+  --weather-surface: #ffffffb8;
+  --weather-surface-hover: #ffffffd9;
   --popover: #fffafff2;
   --popover-foreground: #332f4c;
   --primary: #f09a76;
@@ -101,28 +87,11 @@
   --input: #ffffffb8;
   --ring: #f09a76;
 
-  --chart-1: #b98af4;
+  --chart-1: #f3a84e;
   --chart-2: #648cff;
   --chart-3: #f3a84e;
-  --chart-4: #f09a76;
+  --chart-4: #7e92a0;
   --chart-5: #8e7cff;
-
-  --weather-clear-day: #f3a84e;
-  --weather-clear-night: #8e7cff;
-  --weather-partly-cloudy-day: #d99350;
-  --weather-partly-cloudy-night: #9f6fe8;
-  --weather-cloud: #7e89a8;
-  --weather-overcast: #6f668d;
-  --weather-rain: #648cff;
-  --weather-storm: #9f6fe8;
-  --weather-snow: #4fbfe8;
-  --weather-fog: #8c98ad;
-  --weather-humidity: #648cff;
-  --weather-wind: #8e7cff;
-  --weather-pressure: #f09a76;
-  --weather-visibility: #b98af4;
-  --weather-sunrise: #f3a84e;
-  --weather-sunset: #f09a76;
 
   --scrollbar-track: #e6e9ef;
   --scrollbar-thumb: #bcc0cc;
@@ -140,19 +109,21 @@ body,
 }
 
 .dark {
-  --background: #171629;
+  --background: #171D29;
   --foreground: #f4ecff;
   --card: #29283dcc;
   --card-foreground: #f7efff;
+  --weather-surface: #1C2330;
+  --weather-surface-hover: #34324dcc;
   --popover: #29283df2;
   --popover-foreground: #f7efff;
-  --primary: #ffb08a;
+  --primary: #c28523;
   --primary-foreground: #19172b;
   --secondary: #34324d;
   --secondary-foreground: #f4ecff;
   --muted: #34324d;
   --muted-foreground: #c9bddf;
-  --accent: #ffb08a;
+  --accent: #c28523;
   --accent-foreground: #19172b;
   --destructive: #ff7c9d;
   --destructive-foreground: #19172b;
@@ -162,30 +133,13 @@ body,
   --warning-foreground: #19172b;
   --border: #45435f99;
   --input: #29283dcc;
-  --ring: #ffb08a;
+  --ring: #c28523;
 
-  --chart-1: #ffb08a;
+  --chart-1: #f4a83f;
   --chart-2: #648cff;
   --chart-3: #f4a83f;
-  --chart-4: #ffb08a;
+  --chart-4: #8fa8b0;
   --chart-5: #8e7cff;
-
-  --weather-clear-day: #f4a83f;
-  --weather-clear-night: #c5a6ff;
-  --weather-partly-cloudy-day: #f1b45b;
-  --weather-partly-cloudy-night: #b98af4;
-  --weather-cloud: #b8b3cf;
-  --weather-overcast: #c9bddf;
-  --weather-rain: #7da0ff;
-  --weather-storm: #c084fc;
-  --weather-snow: #9be7ff;
-  --weather-fog: #b9c2d3;
-  --weather-humidity: #7da0ff;
-  --weather-wind: #a99bff;
-  --weather-pressure: #ffb08a;
-  --weather-visibility: #b98af4;
-  --weather-sunrise: #f4a83f;
-  --weather-sunset: #ffb08a;
 
   --scrollbar-track: #171629;
   --scrollbar-thumb: #45435f;
@@ -291,6 +245,15 @@ body,
   display: none !important;
 }
 
+.weather-surface,
+.weather-top-bar [data-slot="button"] {
+  background-color: var(--weather-surface);
+}
+
+.weather-top-bar [data-slot="button"]:hover {
+  background-color: var(--weather-surface-hover);
+}
+
 @container (max-width: 25rem) {
   .today-weather-card__title {
     font-size: 1.5rem;
@@ -318,24 +281,30 @@ body,
 }
 
 @media (min-width: 50rem) {
+  .weather-shell {
+    gap: clamp(0.6rem, 1.4vh, 0.85rem) !important;
+    padding: clamp(0.6rem, 1.6vh, 0.9rem) !important;
+  }
+
   .weather-dashboard {
+    gap: clamp(0.55rem, 1.25vh, 0.75rem) !important;
     overflow: hidden !important;
     padding: 0 !important;
   }
 
   .weather-summary-grid {
-    flex: 0 0 clamp(14rem, 58%, 21.5rem) !important;
-    gap: clamp(0.5rem, 1.3vh, 0.75rem) !important;
+    flex: 0 0 clamp(13rem, 55%, 19.75rem) !important;
+    gap: clamp(0.5rem, 1.2vh, 0.7rem) !important;
     min-height: 0 !important;
   }
 
   .weather-right-column,
   .weather-data-grid {
-    gap: clamp(0.5rem, 1.3vh, 0.75rem) !important;
+    gap: clamp(0.5rem, 1.2vh, 0.7rem) !important;
   }
 
   .weather-data-card {
-    min-height: clamp(3rem, 7.5vh, 3.85rem) !important;
+    min-height: clamp(2.85rem, 6.6vh, 3.45rem) !important;
   }
 
   .today-weather-card,
@@ -361,22 +330,22 @@ body,
   }
 
   .today-weather-card__body {
-    gap: clamp(0.45rem, 1.2vh, 1rem) !important;
+    gap: clamp(0.4rem, 1.05vh, 0.8rem) !important;
     min-height: 0 !important;
-    padding: clamp(0.75rem, 2vh, 1.25rem) !important;
+    padding: clamp(0.65rem, 1.7vh, 1rem) !important;
   }
 
   .today-weather-card__current {
-    gap: clamp(0.5rem, 1.5vh, 0.85rem) !important;
+    gap: clamp(0.4rem, 1.25vh, 0.7rem) !important;
   }
 
   .today-weather-card__icon {
-    height: clamp(3.8rem, 14vh, 6.75rem) !important;
-    width: clamp(3.8rem, 14vh, 6.75rem) !important;
+    height: clamp(3.6rem, 12.5vh, 5.9rem) !important;
+    width: clamp(3.6rem, 12.5vh, 5.9rem) !important;
   }
 
   .today-weather-card__temperature {
-    font-size: clamp(2.35rem, 8vh, 3.65rem) !important;
+    font-size: clamp(2.2rem, 7vh, 3.25rem) !important;
   }
 
   .forecast-item__icon {
@@ -397,7 +366,7 @@ body,
   }
 
   .forecast-card--hourly .forecast-card__visual {
-    height: clamp(4.4rem, 14vh, 7rem) !important;
+    height: clamp(4rem, 12.5vh, 6.25rem) !important;
   }
 
   .forecast-card--daily {
@@ -406,7 +375,7 @@ body,
   }
 
   .forecast-card--daily .forecast-card__visual {
-    height: clamp(6rem, 20vh, 9rem) !important;
+    height: clamp(5.4rem, 17vh, 8rem) !important;
   }
 
   .forecast-card__visual [data-slot="chart"] {
@@ -545,8 +514,8 @@ body,
   }
 
   .weather-data-card__icon {
-    height: 1.8rem !important;
-    width: 1.8rem !important;
+    height: 2rem !important;
+    width: 2rem !important;
   }
 
   .weather-data-card__title {

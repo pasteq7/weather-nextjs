@@ -11,15 +11,6 @@ export default defineConfig({
     react(),
     svgr({
       include: '**/*.svg',
-      svgrOptions: {
-        svgProps: {
-          fill: 'currentColor',
-        },
-        replaceAttrValues: {
-          '#000': 'currentColor',
-          '#fff': 'currentColor',
-        },
-      },
     }),
   ],
   resolve: {

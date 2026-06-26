@@ -131,7 +131,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   const chartConfig = useMemo(() => ({
     temperature: {
       label: t('temperature'),
-      color: "var(--chart-1)",
+      color: "var(--muted-foreground)",
     },
     rain: {
       label: t('rain'),
@@ -379,8 +379,8 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   ), [chartConfig, displayModes]);
 
   return (
-    <Card className={cn("forecast-card shrink-0 overflow-hidden rounded-lg border-border/25 bg-card/55 py-0 shadow-none", type === 'hourly' ? "forecast-card--hourly" : "forecast-card--daily")}>
-      <CardContent className="forecast-card__content flex h-full min-h-0 flex-col gap-2 px-3.5 py-3.5 sm:gap-3 sm:px-5 sm:py-4">
+    <Card className={cn("forecast-card weather-surface shrink-0 overflow-hidden rounded-lg border-border/25 py-0 shadow-none", type === 'hourly' ? "forecast-card--hourly" : "forecast-card--daily")}>
+      <CardContent className="forecast-card__content flex h-full min-h-0 flex-col gap-2 px-3 py-3 sm:gap-2.5 sm:px-4 sm:py-3.5">
         <div className="forecast-card__header flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="forecast-card__title text-base font-bold text-card-foreground/85">{config[type].title}</h3>
           <div className="forecast-card__controls flex w-full flex-wrap items-center justify-between gap-1.5 sm:w-auto sm:justify-end sm:gap-2">
@@ -487,7 +487,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         </div>
         <div
           className={cn(
-            "forecast-card__legend flex min-h-3 flex-wrap items-center gap-3 text-xs font-medium text-muted-foreground/70 transition-opacity duration-300 sm:min-h-4",
+            "forecast-card__legend flex min-h-3 flex-wrap items-center gap-3 text-xs font-semibold text-muted-foreground/85 transition-opacity duration-300 sm:min-h-4",
             view === 'chart' ? "opacity-100" : "forecast-card__legend--inactive opacity-0"
           )}
           aria-hidden={view !== 'chart'}
@@ -503,8 +503,8 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         <div
           className={cn(
             "forecast-card__visual relative min-h-0 w-full flex-auto",
-            type === 'hourly' && "h-[11rem] sm:h-[12rem] min-[72rem]:h-[7.75rem]",
-            type === 'daily' && "h-[12.5rem] sm:h-[14rem] min-[72rem]:h-[9rem]"
+            type === 'hourly' && "h-[10rem] sm:h-[10.75rem] min-[72rem]:h-[7rem]",
+            type === 'daily' && "h-[11.25rem] sm:h-[12.5rem] min-[72rem]:h-[8.25rem]"
           )}
         >
           {!isMounted ? (
@@ -536,7 +536,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                         tickLine={false}
                         axisLine={false}
                         stroke="var(--muted-foreground)"
-                        tick={{ fill: "var(--muted-foreground)", opacity: 0.65 }}
+                        tick={{ fill: "var(--muted-foreground)", opacity: 0.8 }}
                         fontSize={12}
                       />
                       <YAxis
@@ -544,7 +544,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                         tickLine={false}
                         axisLine={false}
                         stroke="var(--muted-foreground)"
-                        tick={{ fill: "var(--muted-foreground)", opacity: 0.65 }}
+                        tick={{ fill: "var(--muted-foreground)", opacity: 0.8 }}
                         tickFormatter={(value) => `${value}\u00B0`}
                         domain={tempMetrics.domain}
                         ticks={tempMetrics.ticks}
@@ -590,7 +590,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                                     style={{ background: item.color }}
                                   />
                                   <div className="flex flex-1 justify-between gap-2">
-                                    <span className="text-muted-foreground">{itemConfig.label}</span>
+                                    <span className="font-medium text-muted-foreground">{itemConfig.label}</span>
                                     <span className="font-bold">{displayValue}</span>
                                   </div>
                                 </div>
@@ -618,7 +618,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           stroke="var(--color-temperature)"
                           dot={false}
                           isAnimationActive={false}
-                          activeDot={{ r: 5, fill: "var(--chart-1)", stroke: "var(--background)", strokeWidth: 2 }}
+                          activeDot={{ r: 5, fill: "var(--color-temperature)", stroke: "var(--background)", strokeWidth: 2 }}
                           strokeWidth={2}
                         />
                       )}
@@ -630,7 +630,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           stroke="var(--color-rain)"
                           dot={false}
                           isAnimationActive={false}
-                          activeDot={{ r: 5, fill: "var(--chart-2)", stroke: "var(--background)", strokeWidth: 2 }}
+                          activeDot={{ r: 5, fill: "var(--color-rain)", stroke: "var(--background)", strokeWidth: 2 }}
                           strokeWidth={2}
                         />
                       )}
@@ -642,7 +642,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           stroke="var(--color-wind)"
                           dot={false}
                           isAnimationActive={false}
-                          activeDot={{ r: 5, fill: "var(--chart-4)", stroke: "var(--background)", strokeWidth: 2 }}
+                          activeDot={{ r: 5, fill: "var(--color-wind)", stroke: "var(--background)", strokeWidth: 2 }}
                           strokeWidth={2}
                         />
                       )}

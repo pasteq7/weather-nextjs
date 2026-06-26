@@ -30,7 +30,7 @@ export default function App() {
         disableTransitionOnChange
       >
         <AppProvider>
-          <div className="weather-shell mx-auto grid h-dvh max-h-dvh w-full max-w-[98rem] grid-rows-[auto_minmax(0,1fr)_auto] gap-3 overflow-hidden p-3 md:p-4">
+          <div className="weather-shell mx-auto grid h-dvh max-h-dvh w-full max-w-[98rem] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden ">
             <TopBar />
             <HomePage />
             <Footer />

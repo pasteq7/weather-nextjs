@@ -56,8 +56,8 @@ export default function TodayWeatherCard({ weatherData, units, location }: Today
   const lastUpdatedLabel = t('Weather.lastUpdated', { time: '' }).replace(/\s*[:：]\s*$/, '');
 
   return (
-    <Card className="today-weather-card relative h-full shrink-0 overflow-hidden rounded-lg border-primary/25 bg-card/70 p-0 shadow-lg shadow-primary/5">
-      <div className="today-weather-card__body relative flex h-full min-h-[20rem] flex-col gap-4 p-4 min-[420px]:min-h-[17rem] sm:min-h-[17.5rem] sm:p-5 min-[72rem]:min-h-[16.75rem]">
+    <Card className="today-weather-card weather-surface relative h-full shrink-0 overflow-hidden p-0">
+      <div className="today-weather-card__body relative flex h-full min-h-[18.5rem] flex-col gap-3 p-3.5 min-[420px]:min-h-[16rem] sm:min-h-[16.25rem] sm:p-4 min-[72rem]:min-h-[15.5rem]">
         <div className="today-weather-card__header grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0">
             <h2
@@ -66,26 +66,26 @@ export default function TodayWeatherCard({ weatherData, units, location }: Today
             >
               {displayLocation}
             </h2>
-            <p className="today-weather-card__description mt-1.5 text-xs font-semibold capitalize text-muted-foreground sm:text-sm">{description}</p>
+            <p className="today-weather-card__description mt-1 text-xs font-semibold capitalize text-muted-foreground sm:text-sm">{description}</p>
           </div>
-          <div className="today-weather-card__updated min-w-[6.75rem] shrink-0 rounded-lg border border-border/25 bg-background/15 px-2.5 py-2 text-right text-[0.68rem] font-medium leading-snug text-muted-foreground/75 sm:px-3">
+          <div className="today-weather-card__updated min-w-[6.35rem] shrink-0 rounded-lg border border-border/25 bg-background/15 px-2.5 py-1.5 text-right text-[0.66rem] font-semibold leading-snug text-muted-foreground/90 sm:px-3">
             <span className="today-weather-card__updated-label block">{lastUpdatedLabel}</span>
             <span className="today-weather-card__updated-time block font-semibold text-card-foreground/85">{displayLastFetchedTime}</span>
           </div>
         </div>
 
-        <div className="today-weather-card__current flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-2 py-2">
+        <div className="today-weather-card__current flex min-h-0 flex-1 flex-col items-center justify-center gap-2.5 px-2 py-1.5">
           <div className="flex min-h-0 justify-center">
-            <div className="today-weather-card__icon h-28 w-28 shrink-0 drop-shadow-[0_18px_24px_rgba(0,0,0,0.22)] sm:h-32 sm:w-32 min-[72rem]:h-32 min-[72rem]:w-32">
+            <div className="today-weather-card__icon h-24 w-24 shrink-0 drop-shadow-[0_18px_24px_rgba(0,0,0,0.22)] sm:h-28 sm:w-28 min-[72rem]:h-28 min-[72rem]:w-28">
               <CurrentWeatherIcon iconCode={icon} />
             </div>
           </div>
           <div className="flex min-w-0 flex-col items-center text-center">
-            <p className="today-weather-card__temperature tabular-nums text-[3.55rem] font-bold leading-none text-card-foreground sm:text-[3.9rem] min-[72rem]:text-[3.65rem]">
+            <p className="today-weather-card__temperature tabular-nums text-[3.25rem] font-bold leading-none text-card-foreground sm:text-[3.55rem] min-[72rem]:text-[3.35rem]">
               {temp}
-              <span className="today-weather-card__unit align-top text-xl font-semibold text-primary sm:text-2xl">{tempUnit}</span>
+              <span className="today-weather-card__unit align-top text-xl font-semibold text-muted-foreground/75 sm:text-2xl">{tempUnit}</span>
             </p>
-            <div className="today-weather-card__details mt-2 flex flex-col items-center gap-1.5">
+            <div className="today-weather-card__details mt-1.5 flex flex-col items-center gap-1.5">
               <p className="today-weather-card__feels-like text-xs font-medium text-muted-foreground sm:text-sm">
                 {t('Weather.feelsLike')} {feelsLikeTemp}{tempUnit}
               </p>
