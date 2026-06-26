@@ -67,6 +67,8 @@
     "toggleWind": "Toggle Wind Speed",
     "chartView": "Chart View",
     "listView": "List View",
+    "forecastPagination": "Forecast pages",
+    "forecastPage": "Forecast page {page} of {total}",
     "temperature": "Temperature",
     "rain": "Rain",
     "wind": "Wind"

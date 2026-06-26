@@ -191,16 +191,16 @@ export default function TopBar() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center">
+    <div className="weather-top-bar flex w-full flex-col gap-2 sm:flex-row sm:items-center">
       {currentTime && (
-        <div className="hidden items-center gap-1.5 whitespace-nowrap rounded-md border border-border/25 bg-card/35 px-2.5 text-sm font-semibold tabular-nums text-muted-foreground backdrop-blur-sm md:flex md:h-9">
+        <div className="weather-top-bar__time hidden items-center gap-1.5 whitespace-nowrap rounded-md border border-border/25 bg-card/35 px-2.5 text-sm font-semibold tabular-nums text-muted-foreground backdrop-blur-sm md:flex md:h-9">
           <Clock className="h-3.5 w-3.5 text-chart-2" />
           {currentTime}
         </div>
       )}
 
       <TooltipProvider>
-        <form onSubmit={handleSearch} className="flex h-10 min-w-0 flex-1 items-center gap-1 rounded-md border border-border/40 bg-card/60 shadow-sm shadow-black/5 backdrop-blur-md sm:h-9">
+        <form onSubmit={handleSearch} className="weather-search-form flex h-10 min-w-0 flex-1 items-center gap-1 rounded-md border border-border/40 bg-card/60 shadow-sm shadow-black/5 backdrop-blur-md sm:h-9">
           <Button className="h-10 w-10 rounded-r-none sm:h-9 sm:w-9" variant="ghost" size="icon" type="submit" aria-label={t('TopBar.searchPlaceholder')}>
             <Search className="h-4 w-4" />
           </Button>
@@ -237,6 +237,7 @@ export default function TopBar() {
         </form>
 
         <div className={cn(
+          "weather-top-bar__actions",
           "grid h-10 items-center gap-2 sm:flex sm:h-9 sm:justify-end",
           isSearchableLocation ? "grid-cols-4" : "grid-cols-3"
         )}>

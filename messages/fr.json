@@ -67,6 +67,8 @@
     "toggleWind": "Afficher/Masquer la vitesse du vent",
     "chartView": "Vue graphique",
     "listView": "Vue liste",
+    "forecastPagination": "Pages des previsions",
+    "forecastPage": "Page de previsions {page} sur {total}",
     "temperature": "Température",
     "rain": "Pluie",
     "wind": "Vent"

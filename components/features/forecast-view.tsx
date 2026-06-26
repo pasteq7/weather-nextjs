@@ -17,6 +17,8 @@ import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { useTranslations, useLocale } from 'next-intl';
 
 type DailyRange = 7 | 14;
+const DAILY_LIST_PAGE_SIZE = 7;
+const HOURLY_LIST_PAGE_SIZE = 4;
 
 function DailyForecastItem({ day, units, chartId, itemIndex, locale }: { 
   day: DailyDataPoint; 
@@ -37,26 +39,26 @@ function DailyForecastItem({ day, units, chartId, itemIndex, locale }: {
 
   return (
     <div 
-      className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-md px-2 py-1 text-center"
+      className="forecast-item flex h-full min-w-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-md px-2 py-1 text-center"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <p className="max-w-full truncate text-xs font-semibold">{capitalizedDayLabel}</p>
-      <div className="relative flex h-10 w-10 items-center justify-center sm:h-12 sm:w-12">
-        <div className={cn("transition-opacity duration-300", { "opacity-0": isHovered })}>
+      <p className="forecast-item__label max-w-full truncate text-xs font-semibold">{capitalizedDayLabel}</p>
+      <div className="forecast-item__icon relative flex items-center justify-center">
+        <div className={cn("h-full w-full transition-opacity duration-300", { "opacity-0": isHovered })}>
           <div 
             key={`${chartId}-daily-${day.time}-${itemIndex}`} 
             className="weather-icon-container h-full w-full"
             style={{ isolation: 'isolate' }}
           >
-            <CurrentWeatherIcon iconCode={icon} className="h-10 w-10 sm:h-12 sm:w-12" />
+            <CurrentWeatherIcon iconCode={icon} className="h-full w-full" />
           </div>
         </div>
-        <div className={cn("absolute p-1 inset-0 flex items-center justify-center text-center transition-opacity duration-300", { "opacity-0": !isHovered, "pointer-events-none": !isHovered })}>
+        <div className={cn("absolute inset-0 flex items-center justify-center p-1 text-center transition-opacity duration-300", { "opacity-0": !isHovered, "pointer-events-none": !isHovered })}>
           <p className="text-xs capitalize">{description}</p>
         </div>
       </div>
-      <div className="text-xs">
+      <div className="forecast-item__value text-xs">
         <span className="font-bold">{maxTemp}{maxTempUnit}</span>
         <span className="text-muted-foreground"> / {minTemp}{maxTempUnit}</span>
       </div>
@@ -93,26 +95,26 @@ function HourlyForecastItem({
 
   return (
     <div 
-      className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-md px-2 py-1 text-center"
+      className="forecast-item flex h-full min-w-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-md px-2 py-1 text-center"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <p className="text-xs font-semibold tabular-nums">{timeLabel}</p>
-      <div className="relative flex h-10 w-10 items-center justify-center sm:h-12 sm:w-12">
-        <div className={cn("transition-opacity duration-300", { "opacity-0": isHovered })}>
+      <p className="forecast-item__label text-xs font-semibold tabular-nums">{timeLabel}</p>
+      <div className="forecast-item__icon relative flex items-center justify-center">
+        <div className={cn("h-full w-full transition-opacity duration-300", { "opacity-0": isHovered })}>
           <div 
             key={`${chartId}-hourly-${hour.time}-${itemIndex}`} 
             className="weather-icon-container h-full w-full"
             style={{ isolation: 'isolate' }}
           >
-            <CurrentWeatherIcon iconCode={icon} className="h-10 w-10 sm:h-12 sm:w-12" />
+            <CurrentWeatherIcon iconCode={icon} className="h-full w-full" />
           </div>
         </div>
-        <div className={cn("absolute p-1 inset-0 flex items-center justify-center text-center transition-opacity duration-300", { "opacity-0": !isHovered, "pointer-events-none": !isHovered })}>
+        <div className={cn("absolute inset-0 flex items-center justify-center p-1 text-center transition-opacity duration-300", { "opacity-0": !isHovered, "pointer-events-none": !isHovered })}>
           <p className="text-xs capitalize">{description}</p>
         </div>
       </div>
-      <p className="text-sm font-bold">{temp}{tempUnit}</p>
+      <p className="forecast-item__value text-sm font-bold">{temp}{tempUnit}</p>
     </div>
   );
 }
@@ -151,9 +153,22 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   const { view, displayModes } = preferences;
   const [isMounted, setIsMounted] = useState(false);
   const [dailyRange, setDailyRange] = useState<DailyRange>(7);
+  const [listPageIndex, setListPageIndex] = useState(0);
+  const [currentTimestamp, setCurrentTimestamp] = useState(() => Math.floor(Date.now() / 1000));
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const updateCurrentTimestamp = () => {
+      setCurrentTimestamp(Math.floor(Date.now() / 1000));
+    };
+
+    updateCurrentTimestamp();
+    const intervalId = window.setInterval(updateCurrentTimestamp, 60_000);
+
+    return () => window.clearInterval(intervalId);
   }, []);
 
   const chartId = useMemo(() => 
@@ -202,11 +217,11 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
 
     let startIndex;
     if (type === 'hourly') {
-      const nowInSeconds = Math.floor(Date.now() / 1000);
-      startIndex = time.findIndex(t => t >= nowInSeconds);
+      startIndex = time.findIndex(t => t >= currentTimestamp);
     } else {
       const firstDayTimestamp = weatherData.daily.time[0];
-      startIndex = time.findIndex(t => t >= firstDayTimestamp);
+      const startTimestamp = Math.max(currentTimestamp, firstDayTimestamp);
+      startIndex = time.findIndex(t => t >= startTimestamp);
     }
 
     if (startIndex === -1) return [];
@@ -219,7 +234,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
       rain: precipitation_probability[startIndex + i],
       wind: wind_speed_10m[startIndex + i],
     }));
-  }, [weatherData, type, dailyRange]);
+  }, [weatherData, type, dailyRange, currentTimestamp]);
 
   const hourlyTicks = useMemo(() => {
     if (type !== 'hourly' || !chartData.length) return undefined;
@@ -254,10 +269,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
       
       const { wind_speed_10m } = hourly;
       
-      const now = new Date();
-      now.setHours(now.getHours() + 1, 0, 0, 0);
-      const nowInSeconds = Math.floor(now.getTime() / 1000);
-      const startIndex = hourly.time.findIndex(t => t >= nowInSeconds);
+      const startIndex = hourly.time.findIndex(t => t >= currentTimestamp);
 
       if (startIndex === -1) {
         return [];
@@ -286,7 +298,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         const current_wind_speed = wind_speed_10m[hourlyIndex];
         const visibility = hourly.visibility[hourlyIndex];
 
-        if (sunrise === undefined || sunset === undefined || temperature === undefined || weather_code === undefined || precipitation_probability === undefined || visibility === undefined) {
+        if (sunrise === undefined || sunset === undefined || temperature === undefined || weather_code === undefined || precipitation_probability === undefined || current_wind_speed === undefined || visibility === undefined) {
           continue;
         }
 
@@ -304,7 +316,27 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
       }
       return result;
     }
-  }, [weatherData, type, dailyRange]);
+  }, [weatherData, type, dailyRange, currentTimestamp]);
+
+  const isDailyList = type === 'daily';
+  const listPageSize = isDailyList ? DAILY_LIST_PAGE_SIZE : HOURLY_LIST_PAGE_SIZE;
+  const listPageCount = Math.max(1, Math.ceil(listData.length / listPageSize));
+  const visibleListData = useMemo(
+    () => listData.slice(
+      listPageIndex * listPageSize,
+      (listPageIndex + 1) * listPageSize
+    ),
+    [listData, listPageIndex, listPageSize]
+  );
+  const visibleListColumns = Math.max(1, Math.min(visibleListData.length, listPageSize));
+
+  useEffect(() => {
+    setListPageIndex(0);
+  }, [type, dailyRange, view]);
+
+  useEffect(() => {
+    setListPageIndex((currentPage) => Math.min(currentPage, listPageCount - 1));
+  }, [listPageCount]);
 
   const tempMetrics = useMemo(() => {
     if (!chartData.length) return { domain: [0, 0], min: 0, max: 0, ticks: [0] };
@@ -347,16 +379,17 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   ), [chartConfig, displayModes]);
 
   return (
-    <Card className="rounded-lg border-border/25 bg-card/55 py-0 shadow-none">
-      <CardContent className={cn("space-y-2 px-3 py-3 sm:space-y-3 sm:px-5 sm:py-4", type === 'hourly' && view === 'list' && "py-3")}>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="text-base font-bold text-card-foreground/85">{config[type].title}</h3>
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+    <Card className={cn("forecast-card shrink-0 overflow-hidden rounded-lg border-border/25 bg-card/55 py-0 shadow-none", type === 'hourly' ? "forecast-card--hourly" : "forecast-card--daily")}>
+      <CardContent className="forecast-card__content flex h-full min-h-0 flex-col gap-2 px-3.5 py-3.5 sm:gap-3 sm:px-5 sm:py-4">
+        <div className="forecast-card__header flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="forecast-card__title text-base font-bold text-card-foreground/85">{config[type].title}</h3>
+          <div className="forecast-card__controls flex w-full flex-wrap items-center justify-between gap-1.5 sm:w-auto sm:justify-end sm:gap-2">
             {type === 'daily' && (
               <ToggleGroup
                 type="single"
                 variant="outline"
                 size="sm"
+                className="shrink-0"
                 value={String(dailyRange)}
                 onValueChange={handleDailyRangeChange}
                 aria-label={t('dailyRangeLabel')}
@@ -375,6 +408,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                   type="multiple" 
                   variant="outline" 
                   size="sm" 
+                  className="shrink-0"
                   value={displayModes} 
                   onValueChange={handleDisplayModesChange}
                 >
@@ -423,6 +457,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                 type="single" 
                 variant="outline" 
                 size="sm" 
+                className="shrink-0"
                 value={view} 
                 onValueChange={handleViewChange}
               >
@@ -452,9 +487,10 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         </div>
         <div
           className={cn(
-            "flex min-h-3 flex-wrap items-center gap-3 text-xs font-medium text-muted-foreground/70 transition-opacity duration-300 sm:min-h-4",
-            view === 'chart' ? "opacity-100" : "opacity-0 pointer-events-none"
+            "forecast-card__legend flex min-h-3 flex-wrap items-center gap-3 text-xs font-medium text-muted-foreground/70 transition-opacity duration-300 sm:min-h-4",
+            view === 'chart' ? "opacity-100" : "forecast-card__legend--inactive opacity-0"
           )}
+          aria-hidden={view !== 'chart'}
         >
           {visibleLegendItems.map((item) => (
             <div key={item.label} className="flex items-center gap-1.5">
@@ -466,9 +502,9 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
 
         <div
           className={cn(
-            "relative w-full",
-            type === 'hourly' && "h-[8.75rem] sm:h-[10rem] lg:h-[7.25rem]",
-            type === 'daily' && "h-[10.5rem] sm:h-[13rem] lg:h-[8rem]"
+            "forecast-card__visual relative min-h-0 w-full flex-auto",
+            type === 'hourly' && "h-[11rem] sm:h-[12rem] min-[72rem]:h-[7.75rem]",
+            type === 'daily' && "h-[12.5rem] sm:h-[14rem] min-[72rem]:h-[9rem]"
           )}
         >
           {!isMounted ? (
@@ -488,7 +524,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                   <ChartContainer config={chartConfig} className="w-full h-full">
                     <LineChart
                       data={chartData}
-                      margin={{ top: 6, right: 20, left: 0, bottom: 0 }}
+                      margin={{ top: 8, right: 12, left: -4, bottom: 0 }}
                       id={`${chartId}-chart`}
                     >
                       <XAxis
@@ -581,6 +617,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           dataKey="temperature"
                           stroke="var(--color-temperature)"
                           dot={false}
+                          isAnimationActive={false}
                           activeDot={{ r: 5, fill: "var(--chart-1)", stroke: "var(--background)", strokeWidth: 2 }}
                           strokeWidth={2}
                         />
@@ -592,6 +629,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           dataKey="rain"
                           stroke="var(--color-rain)"
                           dot={false}
+                          isAnimationActive={false}
                           activeDot={{ r: 5, fill: "var(--chart-2)", stroke: "var(--background)", strokeWidth: 2 }}
                           strokeWidth={2}
                         />
@@ -603,6 +641,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
                           dataKey="wind"
                           stroke="var(--color-wind)"
                           dot={false}
+                          isAnimationActive={false}
                           activeDot={{ r: 5, fill: "var(--chart-4)", stroke: "var(--background)", strokeWidth: 2 }}
                           strokeWidth={2}
                         />
@@ -615,35 +654,63 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
               {/* List View */}
               <div
                 className={cn(
-                  `absolute inset-0 grid ${type === 'daily' ? 'grid-flow-col auto-cols-[minmax(4.8rem,1fr)] grid-rows-1 overflow-x-auto overflow-y-hidden pb-1 sm:auto-cols-[minmax(5.25rem,1fr)]' : 'grid-flow-col auto-cols-[minmax(4.35rem,1fr)] grid-rows-1 overflow-x-auto overflow-y-hidden pb-1 sm:auto-cols-[minmax(4.8rem,1fr)]'} h-full gap-1 transition-opacity duration-300`,
+                  "absolute inset-0 flex h-full flex-col gap-1 overflow-hidden transition-opacity duration-300",
                   view === 'list'
                     ? "opacity-100"
                     : "opacity-0 pointer-events-none"
                 )}
               >
-                {type === 'daily'
-                  ? (listData as DailyDataPoint[]).map((day, index) => (
-                      <DailyForecastItem
-                        key={`${day.time}-${index}`}
-                        day={day}
-                        units={units}
-                        chartId={chartId}
-                        itemIndex={index}
-                        locale={locale}
-                      />
-                    ))
-                  : (listData as HourlyDataPoint[]).map((hour, index) => (
-                      <HourlyForecastItem
-                        key={`${hour.time}-${index}`}
-                        hour={hour}
-                        units={units}
-                        timezone={weatherData.timezone}
-                        chartId={chartId}
-                        itemIndex={index}
-                        locale={locale}
-                      />
-                    ))
-                }
+                <div
+                  className="grid min-h-0 flex-1 gap-1 overflow-hidden"
+                  style={{ gridTemplateColumns: `repeat(${visibleListColumns}, minmax(0, 1fr))` }}
+                >
+                  {type === 'daily'
+                    ? (visibleListData as DailyDataPoint[]).map((day, index) => (
+                        <DailyForecastItem
+                          key={`${day.time}-${index}`}
+                          day={day}
+                          units={units}
+                          chartId={chartId}
+                          itemIndex={(listPageIndex * listPageSize) + index}
+                          locale={locale}
+                        />
+                      ))
+                    : (visibleListData as HourlyDataPoint[]).map((hour, index) => (
+                        <HourlyForecastItem
+                          key={`${hour.time}-${index}`}
+                          hour={hour}
+                          units={units}
+                          timezone={weatherData.timezone}
+                          chartId={chartId}
+                          itemIndex={(listPageIndex * listPageSize) + index}
+                          locale={locale}
+                        />
+                      ))
+                  }
+                </div>
+                {listPageCount > 1 && (
+                  <div className="flex h-4 shrink-0 items-center justify-center gap-1.5" aria-label={t('forecastPagination')}>
+                    {Array.from({ length: listPageCount }, (_, pageIndex) => (
+                      <button
+                        key={pageIndex}
+                        type="button"
+                        className="group flex h-4 w-4 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                        aria-current={pageIndex === listPageIndex ? 'page' : undefined}
+                        aria-label={t('forecastPage', { page: pageIndex + 1, total: listPageCount })}
+                        onClick={() => setListPageIndex(pageIndex)}
+                      >
+                        <span
+                          className={cn(
+                            "block h-1.5 rounded-full transition-all",
+                            pageIndex === listPageIndex
+                              ? "w-4 bg-primary"
+                              : "w-1.5 bg-muted-foreground/35 group-hover:bg-muted-foreground/55"
+                          )}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </>
           )}
