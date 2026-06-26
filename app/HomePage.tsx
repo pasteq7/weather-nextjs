@@ -5,6 +5,7 @@ import ForecastView from '@/components/features/forecast-view';
 import ErrorDisplay from '@/components/features/error-display';
 import LoadingSkeleton from '@/app/Loading';
 import { Card, CardContent } from '@/components/ui/card';
+import Footer from '@/components/layout/footer';
 
 export default function HomePage() {
   const { weatherData, units, isLoading, error, isInitializing } = useAppContext();
@@ -38,6 +39,7 @@ export default function HomePage() {
               </div>
             </div>
             <ForecastView type="daily" weatherData={weatherData!} units={units} />
+            <Footer />
           </div>
         </main>
       )}

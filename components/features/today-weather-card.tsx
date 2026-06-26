@@ -61,7 +61,7 @@ export default function TodayWeatherCard({ weatherData, units, location }: Today
         <div className="today-weather-card__header grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0">
             <h2
-              className="today-weather-card__title max-w-full text-[1.55rem] font-bold leading-[1.08] text-card-foreground sm:text-[1.7rem] min-[72rem]:text-[1.6rem]"
+              className="today-weather-card__title max-w-full text-[1.55rem] font-medium leading-[1.08] text-card-foreground sm:text-[1.7rem] min-[72rem]:text-[1.6rem]"
               title={displayLocation}
             >
               {displayLocation}
@@ -81,7 +81,7 @@ export default function TodayWeatherCard({ weatherData, units, location }: Today
             </div>
           </div>
           <div className="flex min-w-0 flex-col items-center text-center">
-            <p className="today-weather-card__temperature tabular-nums text-[3.25rem] font-bold leading-none text-card-foreground sm:text-[3.55rem] min-[72rem]:text-[3.35rem]">
+            <p className="today-weather-card__temperature tabular-nums text-[3.25rem] font-normal leading-none text-card-foreground sm:text-[3.55rem] min-[72rem]:text-[3.35rem]">
               {temp}
               <span className="today-weather-card__unit align-top text-xl font-semibold text-muted-foreground/75 sm:text-2xl">{tempUnit}</span>
             </p>
@@ -89,8 +89,10 @@ export default function TodayWeatherCard({ weatherData, units, location }: Today
               <p className="today-weather-card__feels-like text-xs font-medium text-muted-foreground sm:text-sm">
                 {t('Weather.feelsLike')} {feelsLikeTemp}{tempUnit}
               </p>
-              <p className="today-weather-card__range rounded-full border border-border/20 bg-background/20 px-3 py-1.5 text-xs font-semibold text-card-foreground/85">
-                {lowTemp}{tempUnit} / {highTemp}{tempUnit}
+              <p className="today-weather-card__range rounded-full border border-border/20 bg-background/20 px-3 py-1.5 text-xs font-semibold">
+                <span className="today-weather-card__temp-low">{lowTemp}{tempUnit}</span>
+                <span className="text-muted-foreground/70"> / </span>
+                <span className="today-weather-card__temp-high">{highTemp}{tempUnit}</span>
               </p>
             </div>
           </div>

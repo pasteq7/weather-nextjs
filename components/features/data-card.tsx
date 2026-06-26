@@ -41,7 +41,7 @@ export default function DataCard({ iconType, title, data, unit }: DataCardProps)
           <Skeleton className="w-3/4 h-6 mt-1" />
         ) : (
           <div className="flex min-w-0 items-baseline gap-0.5 sm:gap-1">
-            <p className="weather-data-card__value whitespace-nowrap text-lg font-bold leading-none text-card-foreground sm:text-xl min-[72rem]:text-lg">{data}</p>
+            <p className="weather-data-card__value whitespace-nowrap text-lg font-medium leading-none text-card-foreground sm:text-xl min-[72rem]:text-lg">{data}</p>
             {unit && <p className="weather-data-card__unit whitespace-nowrap text-[0.72rem] font-semibold leading-none text-muted-foreground/85 sm:text-xs">{unit}</p>}
           </div>
         )}

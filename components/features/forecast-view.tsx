@@ -19,6 +19,7 @@ import { useTranslations, useLocale } from 'next-intl';
 type DailyRange = 7 | 14;
 const DAILY_LIST_PAGE_SIZE = 7;
 const HOURLY_LIST_PAGE_SIZE = 4;
+const LARGE_SCREEN_QUERY = '(min-width: 72rem)';
 
 function DailyForecastItem({ day, units, chartId, itemIndex, locale }: { 
   day: DailyDataPoint; 
@@ -154,10 +155,21 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   const [isMounted, setIsMounted] = useState(false);
   const [dailyRange, setDailyRange] = useState<DailyRange>(7);
   const [listPageIndex, setListPageIndex] = useState(0);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
   const [currentTimestamp, setCurrentTimestamp] = useState(() => Math.floor(Date.now() / 1000));
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(LARGE_SCREEN_QUERY);
+    const handleChange = () => setIsLargeScreen(mediaQuery.matches);
+
+    handleChange();
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   useEffect(() => {
@@ -319,7 +331,11 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   }, [weatherData, type, dailyRange, currentTimestamp]);
 
   const isDailyList = type === 'daily';
-  const listPageSize = isDailyList ? DAILY_LIST_PAGE_SIZE : HOURLY_LIST_PAGE_SIZE;
+  const listPageSize = isDailyList
+    ? DAILY_LIST_PAGE_SIZE
+    : isLargeScreen
+      ? Math.max(1, listData.length)
+      : HOURLY_LIST_PAGE_SIZE;
   const listPageCount = Math.max(1, Math.ceil(listData.length / listPageSize));
   const visibleListData = useMemo(
     () => listData.slice(

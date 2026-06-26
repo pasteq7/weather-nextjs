@@ -3,7 +3,6 @@ import { Toaster } from '@/components/ui/sonner';
 import { AppProvider } from '@/app/context/AppContext';
 import { LanguageProvider } from '@/app/context/LanguageProvider';
 import TopBar from '@/components/layout/top-bar';
-import Footer from '@/components/layout/footer';
 import HomePage from '@/app/HomePage';
 import { Locale, routing } from '@/i18n-config';
 import enMessages from '@/messages/en.json';
@@ -30,10 +29,9 @@ export default function App() {
         disableTransitionOnChange
       >
         <AppProvider>
-          <div className="weather-shell mx-auto grid h-dvh max-h-dvh w-full max-w-[98rem] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden ">
+          <div className="weather-shell mx-auto grid h-dvh max-h-dvh w-full max-w-[98rem] grid-rows-[auto_minmax(0,1fr)] overflow-hidden ">
             <TopBar />
             <HomePage />
-            <Footer />
           </div>
         </AppProvider>
         <Toaster richColors />

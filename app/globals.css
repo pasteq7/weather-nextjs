@@ -221,6 +221,14 @@ body,
   text-wrap: balance;
 }
 
+.today-weather-card__temp-low {
+  color: var(--chart-2);
+}
+
+.today-weather-card__temp-high {
+  color: var(--primary);
+}
+
 .forecast-item {
   min-height: 0;
 }
@@ -243,6 +251,13 @@ body,
 
 .forecast-card__legend--inactive {
   display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.forecast-card--daily {
+  max-height: 400px;
 }
 
 .weather-surface,
@@ -419,14 +434,27 @@ body,
     flex: 0 0 auto !important;
   }
 
-  .forecast-card__legend--inactive {
-    display: flex !important;
-  }
-
   .forecast-card--daily {
     flex: 0 0 auto !important;
     height: clamp(18.5rem, 40vh, 18.5rem) !important;
-    max-height: 18.5rem !important;
+    max-height: 400px !important;
+  }
+
+  .forecast-card--hourly .forecast-item {
+    gap: 0.12rem !important;
+    padding: 0.1rem 0.25rem !important;
+  }
+
+  .forecast-card--hourly .forecast-item__label {
+    font-size: 0.58rem !important;
+  }
+
+  .forecast-card--hourly .forecast-item__icon {
+    height: clamp(1.85rem, 50%, 3rem) !important;
+  }
+
+  .forecast-card--hourly .forecast-item__value {
+    font-size: 0.68rem !important;
   }
 }
 
