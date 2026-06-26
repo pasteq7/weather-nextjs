@@ -111,14 +111,14 @@ body,
 .dark {
   --background: #171D29;
   --foreground: #f4ecff;
-  --card: #29283dcc;
+  --card: #1C2330;
   --card-foreground: #f7efff;
   --weather-surface: #1C2330;
   --weather-surface-hover: #34324dcc;
   --popover: #29283df2;
   --popover-foreground: #f7efff;
   --primary: #c28523;
-  --primary-foreground: #19172b;
+  --primary-foreground: #1C2330;
   --secondary: #34324d;
   --secondary-foreground: #f4ecff;
   --muted: #34324d;
