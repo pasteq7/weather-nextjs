@@ -16,7 +16,7 @@ import { Skeleton } from '../ui/skeleton';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { useTranslations, useLocale } from 'next-intl';
 
-type DailyRange = 7 | 14;
+const DAILY_FORECAST_DAYS = 14;
 const DAILY_LIST_PAGE_SIZE = 7;
 const HOURLY_LIST_PAGE_SIZE = 4;
 const LARGE_SCREEN_QUERY = '(min-width: 72rem)';
@@ -153,7 +153,6 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   );
   const { view, displayModes } = preferences;
   const [isMounted, setIsMounted] = useState(false);
-  const [dailyRange, setDailyRange] = useState<DailyRange>(7);
   const [listPageIndex, setListPageIndex] = useState(0);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
   const [currentTimestamp, setCurrentTimestamp] = useState(() => Math.floor(Date.now() / 1000));
@@ -199,12 +198,6 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
     setPreferences({ displayModes: newModes });
   }, [setPreferences]);
 
-  const handleDailyRangeChange = useCallback((value: string) => {
-    if (value === '7' || value === '14') {
-      setDailyRange(Number(value) as DailyRange);
-    }
-  }, []);
-
   const config = useMemo(() => ({
     hourly: {
       title: t('hourlyTitle'),
@@ -238,7 +231,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
 
     if (startIndex === -1) return [];
 
-    const dataSlice = type === 'hourly' ? 24 : dailyRange * 24;
+    const dataSlice = type === 'hourly' ? 24 : DAILY_FORECAST_DAYS * 24;
 
     return time.slice(startIndex, startIndex + dataSlice).map((t, i) => ({
       time: t,
@@ -246,7 +239,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
       rain: precipitation_probability[startIndex + i],
       wind: wind_speed_10m[startIndex + i],
     }));
-  }, [weatherData, type, dailyRange, currentTimestamp]);
+  }, [weatherData, type, currentTimestamp]);
 
   const hourlyTicks = useMemo(() => {
     if (type !== 'hourly' || !chartData.length) return undefined;
@@ -259,7 +252,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
 
   const listData = useMemo(() => {
     if (type === 'daily') {
-      return weatherData.daily.time.slice(0, dailyRange).map((t, i) => ({
+      return weatherData.daily.time.slice(0, DAILY_FORECAST_DAYS).map((t, i) => ({
         time: t,
         temperature_2m_max: weatherData.daily.temperature_2m_max[i],
         temperature_2m_min: weatherData.daily.temperature_2m_min[i],
@@ -328,7 +321,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
       }
       return result;
     }
-  }, [weatherData, type, dailyRange, currentTimestamp]);
+  }, [weatherData, type, currentTimestamp]);
 
   const isDailyList = type === 'daily';
   const listPageSize = isDailyList
@@ -348,7 +341,7 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
 
   useEffect(() => {
     setListPageIndex(0);
-  }, [type, dailyRange, view]);
+  }, [type, view]);
 
   useEffect(() => {
     setListPageIndex((currentPage) => Math.min(currentPage, listPageCount - 1));
@@ -384,9 +377,9 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
   const dailyTicks = useMemo(() => {
     if (type !== 'daily') return undefined;
     return midnightTimestamps
-      .slice(1, dailyRange)
-      .filter((_, index) => dailyRange === 7 || index % 2 === 0);
-  }, [dailyRange, midnightTimestamps, type]);
+      .slice(1, DAILY_FORECAST_DAYS)
+      .filter((_, index) => index % 2 === 0);
+  }, [midnightTimestamps, type]);
 
   const visibleLegendItems = useMemo(() => (
     displayModes
@@ -400,24 +393,6 @@ export default function ForecastView({ type, weatherData, units }: ForecastViewP
         <div className="forecast-card__header flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="forecast-card__title text-base font-bold text-card-foreground/85">{config[type].title}</h3>
           <div className="forecast-card__controls flex w-full flex-wrap items-center justify-between gap-1.5 sm:w-auto sm:justify-end sm:gap-2">
-            {type === 'daily' && (
-              <ToggleGroup
-                type="single"
-                variant="outline"
-                size="sm"
-                className="shrink-0"
-                value={String(dailyRange)}
-                onValueChange={handleDailyRangeChange}
-                aria-label={t('dailyRangeLabel')}
-              >
-                <ToggleGroupItem value="7" aria-label={t('next7Days')}>
-                  {t('sevenDays')}
-                </ToggleGroupItem>
-                <ToggleGroupItem value="14" aria-label={t('next14Days')}>
-                  {t('fourteenDays')}
-                </ToggleGroupItem>
-              </ToggleGroup>
-            )}
             {view === 'chart' && (
               <TooltipProvider>
                 <ToggleGroup 
